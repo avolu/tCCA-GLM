@@ -11,7 +11,7 @@ function [nirs_hrf] = addSimHRF(nirs, hrf, utest)
 %           .lstHrfAdd  -   list of channels with added HRFs
 %           .s          -   timepoints of HRF onset
 %           .d          -   has simulated HRFs added at lstHRFAdd channels
-%           .d0         -   same data but without simulated HRFs
+%           .d0         -   same downsampled data but without simulated HRFs
 
 
 % write new nirs struct
