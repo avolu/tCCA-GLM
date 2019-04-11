@@ -11,6 +11,7 @@ function [nirs_hrf] = addSimHRF(nirs, hrf, utest)
 %           .lstHrfAdd  -   list of channels with added HRFs
 %           .s          -   timepoints of HRF onset
 %           .d          -   has simulated HRFs added at lstHRFAdd channels
+%           .d0         -   same data but without simulated HRFs
 
 
 % write new nirs struct
@@ -42,7 +43,8 @@ if n_fs == 50
 else
     warning(['sample rate is ' num2str(n_fs) 'Hz - no downsampling performed'])
 end
-
+% save downsampled and filtered data before adding synthetic HRFs
+nirs_hrf.d0 = nirs_hrf.d;
 
 %% Prune noisy channels
 nirs.SD = enPruneChannels(nirs.d,nirs.SD,ones(size(nirs.d,1),1),[10000  10000000],5,[0  45],0);
