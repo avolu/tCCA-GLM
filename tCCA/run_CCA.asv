@@ -18,16 +18,16 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 flag_resting = 0; % will run on resting
 flag_resting_half = 0; % use only the first half of resting to get mixing matrix.
-rhoSD_ssThresh = 0;  % ss regression
+rhoSD_ssThresh = 15;  % mm 
 stim_off = 1;  % for now no stim marks...
-flag_plot_modulation = 0;
+flag_plot = 1;
 flag_ss_motion = 0;
 flag_save = 0;
 HRFmin = -2;
-HRFmax = 18; % used only for block design runs
+HRFmax = 16; % used only for block design runs
 Hb = 1; % 1 HbO / 2 HbR (for block only)
-pre = 11;  % HRF range in sec to calculate ttest
-post = 15;
+pre = 5;  % HRF range in sec to calculate ttest
+post = 10;
 segment = 20; % sec % segment for pwelch
 % CCA parameters
 param.tau = 2;% 2 (time points); %stepwidth for embedding in samples (tune to sample frequency!)
@@ -42,17 +42,17 @@ tic;
 
 
     
-    for tl = 0% :1:10% time lag in sec
+    for tl = 2% :1:10% time lag in sec
         
         timelag = tl
         
-        for ss = 1%:numel(sbjpath) % loop across subjects
+        for ss = 3%1:numel(sbjfolder) % loop across subjects
             ss
             cd([path.dir filesep sbjfolder{ss} filesep]);
             
           
             % load resting data for training
-            [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct] = load_nirs(filename);
+            [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename);
             % AUX order : ACC1, ACC2, ACC3, PPG, BP, RESP
               param.NumOfEmb = timelag/param.tau * fq ;
             
@@ -64,16 +64,18 @@ tic;
             d0_short = d0_short(1:c_half,:);
             % second half for testing from d (hrf added)
             d = d(c_half:end,:);
+            t = t(c_half:end,:);
+            s = s(c_half:end,:);
                      
             
             % merge data to right format
-            AUX = [AUX, d_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+            AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
             
             mean_AUX = mean(AUX,1);
             AUX = AUX - repmat(mean_AUX, size(mean_AUX,1),1);
             
-            mean_d_long = mean(d_long,1);
-            X = d_long - repmat(mean_d_long, size(d_long,1),1);
+            mean_d0_long = mean(d0_long,1);
+            X = d0_long - repmat(mean_d0_long, size(d0_long,1),1);
             
             
             
@@ -83,7 +85,7 @@ tic;
           
          
             % Get Regressors using HRF added data
-            X = d_long(c_half:end,:);
+            X = AUX(c_half:end,:);
             REG = (X - mean(X,1)) * ADD.Au;
 
             
@@ -112,10 +114,10 @@ tic;
                     % add ss regression only to GLM without CCA case!
                     [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dcM, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 15, 1, 3, 0);
                 else
-                    [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 0, 3, 0);
+                    [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                 end
                 
-                [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, Aaux, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 0, 3, 0);
+                [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, Aaux, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                 
                 lst_stim = find(s==1);
                 for i = 1:size(lst_stim,1) % across trials
@@ -172,22 +174,9 @@ tic;
                 p_null(:,lstSS)= 0;  % remove ss channels from list
                 p_new(:,lstSS)= 0;
                 
-                %  sum(p_null,2);
-                %  sum(p_new,2);
-                %                 foo1 = [];
-                %                 foo2 = [];
-                %                 for i = 1:size(pOxy_new,1)
-                %                     foo = pOxy_null(i,find(plst(i,:)==1));
-                %                     foo1 = [foo1 foo];
-                %                     foo = pOxy_new(i,find(plst(i,:)==1));
-                %                     foo2 = [foo2 foo];
-                %                 end
-                %
-                %                 mean_pnull = 10^mean(log10(foo1));
-                %                 mean_pnew = 10^mean(log10(foo2));
                 
                 if flag_plot
-                    plot_block(MEAN_null, MEAN_new, HRFmin, HRFmax, fq, pOxy_null, pOxy_new, ss, STD_null,STD_new, tHRF,timelag,fpath);
+                    plot_block(MEAN_null, MEAN_new, HRFmin, HRFmax, fq, pOxy_null, pOxy_new, ss, STD_null,STD_new, tHRF,timelag,path.dir,lstHrfAdd);
                 end
                 
                 clear MEAN_HRF_null MEAN_HRF_new   MEAN_baseline_null  MEAN_baseline_new STD_HRF_null STD_HRF_new STD_baseline_null STD_baseline_new...

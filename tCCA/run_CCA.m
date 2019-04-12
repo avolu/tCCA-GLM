@@ -58,7 +58,7 @@ tic;
             
             % get first half for training from d0
             c_half = round(size(AUX,1)/2);
-            AUX = AUX(1:c_half,:);
+            AUX1 = AUX(1:c_half,:);
             d0 = d0(1:c_half,:);
             d0_long = d0_long(1:c_half,:);
             d0_short = d0_short(1:c_half,:);
@@ -69,10 +69,10 @@ tic;
                      
             
             % merge data to right format
-            AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+            AUX1 = [AUX1, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
             
-            mean_AUX = mean(AUX,1);
-            AUX = AUX - repmat(mean_AUX, size(mean_AUX,1),1);
+            mean_AUX = mean(AUX1,1);
+            AUX1 = AUX1 - repmat(mean_AUX, size(mean_AUX,1),1);
             
             mean_d0_long = mean(d0_long,1);
             X = d0_long - repmat(mean_d0_long, size(d0_long,1),1);
@@ -80,13 +80,13 @@ tic;
             
             
             %% Perform the shiny script  % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
-            [REG,  ADD] = perf_temp_emb_cca(X,AUX,param,flags); % ALL
+            [REG,  ADD] = perf_temp_emb_cca(X,AUX1,param,flags); % ALL
             
           
          
             % Get Regressors using HRF added data
-            X = d_long(c_half:end,:);
-            REG = (X - mean(X,1)) * ADD.Au;
+            X = AUX(c_half+1:end,:);
+            REG = (X - mean(X,1)) * ADD.Av;
 
             
             % % take only the first ten regressors
