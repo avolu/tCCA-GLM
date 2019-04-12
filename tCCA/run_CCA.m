@@ -52,7 +52,7 @@ tic;
             
           
             % load resting data for training
-            [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct] = load_nirs(filename);
+            [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename);
             % AUX order : ACC1, ACC2, ACC3, PPG, BP, RESP
               param.NumOfEmb = timelag/param.tau * fq ;
             
@@ -114,10 +114,10 @@ tic;
                     % add ss regression only to GLM without CCA case!
                     [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dcM, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 15, 1, 3, 0);
                 else
-                    [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 0, 3, 0);
+                    [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                 end
                 
-                [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, Aaux, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 0, 3, 0);
+                [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, Aaux, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                 
                 lst_stim = find(s==1);
                 for i = 1:size(lst_stim,1) % across trials
@@ -176,7 +176,7 @@ tic;
                 
                 
                 if flag_plot
-                    plot_block(MEAN_null, MEAN_new, HRFmin, HRFmax, fq, pOxy_null, pOxy_new, ss, STD_null,STD_new, tHRF,timelag,path.dir);
+                    plot_block(MEAN_null, MEAN_new, HRFmin, HRFmax, fq, pOxy_null, pOxy_new, ss, STD_null,STD_new, tHRF,timelag,path.dir,lstHrfAdd);
                 end
                 
                 clear MEAN_HRF_null MEAN_HRF_new   MEAN_baseline_null  MEAN_baseline_new STD_HRF_null STD_HRF_new STD_baseline_null STD_baseline_new...

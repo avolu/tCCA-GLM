@@ -1,4 +1,4 @@
-function [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct] = load_nirs(filename)
+function [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename)
 
 
 if contains(filename,'nirs')
