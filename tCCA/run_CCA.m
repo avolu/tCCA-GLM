@@ -21,7 +21,6 @@ flag_resting_half = 0; % use only the first half of resting to get mixing matrix
 rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
 flag_plot = 1;
-flag_ss_motion = 0;
 flag_save = 0;
 HRFmin = -2;
 HRFmax = 16; % used only for block design runs
@@ -42,11 +41,11 @@ tic;
 
 
 
-for tl = 2% :1:10% time lag in sec
+for tl = 7% :1:10% time lag in sec
     
     timelag = tl
     
-    for ss = 3%1:numel(sbjfolder) % loop across subjects
+    for ss = 6%1:numel(sbjfolder) % loop across subjects
         ss
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
@@ -73,54 +72,88 @@ for tl = 2% :1:10% time lag in sec
         end
         
         
+                % get first and second half
+                c_half = round(size(AUX,1)/2);
+        
+            AUX1 = AUX(1:c_half,:);
+            AUX2 = AUX(c_half+1:end,:);
+            d_1 = d(1:c_half,:);
+            d_2 = d(c_half+1:end,:);
+            d_long_1 = d_long(1:c_half,:);
+            d_long_2 = d_long(c_half+1:end,:);
+            d_short_1 = d_short(1:c_half,:);
+            d_short_2 = d_short(c_half+1:end,:);
+            d0_1 = d0(1:c_half,:);
+            d0_2 = d0(c_half+1:end,:);
+            d0_long_1 = d0_long(1:c_half,:);
+            d0_long_2 = d0_long(c_half+1:end,:);
+            d0_short_1 = d0_short(1:c_half,:);
+            d0_short_2 = d0_short(c_half+1:end,:);
+            t_1 = t(1:c_half,:);
+            t_2 = t(c_half+1:end,:);
+            s_1 = s(1:c_half,:);
+            s_2 = s(c_half+1:end,:);
         
         
-        % get first and second half
-        c_half = round(size(AUX,1)/2);
-        AUX1 = AUX(1:c_half,:);
-        AUX2 = AUX(c_half+1:end,:);
-        d0 = d0(1:c_half,:);
-        d0_long = d0_long(1:c_half,:);
-        d0_short = d0_short(1:c_half,:);
-        % second half for testing from d (hrf added)
-        d = d(c_half+1:end,:);
-        t = t(c_half+1:end,:);
-        s = s(c_half+1:end,:);
 
-        
+    
         
         
         mean_AUX = mean(AUX1,1);
         AUX1 = AUX1 - repmat(mean_AUX, size(mean_AUX,1),1);
+        mean_AUX = mean(AUX2,1);
+        AUX2 = AUX2 - repmat(mean_AUX, size(mean_AUX,1),1);
         
-        mean_d0_long = mean(d0_long,1);
-        X = d0_long - repmat(mean_d0_long, size(d0_long,1),1);
+        mean_d0_long_1 = mean(d0_long_1,1);
+        X1 = d0_long_1 - repmat(mean_d0_long_1, size(d0_long_1,1),1);
         
+        mean_d0_long_2 = mean(d0_long_2,1);
+        X2 = d0_long_2 - repmat(mean_d0_long_2, size(d0_long_2,1),1);
         
         
         %% Perform the shiny script  % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
         % Get ADD.Av from the training half
-        [REG,  ADD] = perf_temp_emb_cca(X,AUX1,param,flags); % ALL
+        [REG1,  ADD1] = perf_temp_emb_cca(X1,AUX1,param,flags);   % if first half training
+        [REG2,  ADD2] = perf_temp_emb_cca(X2,AUX2,param,flags);  % if second half training
         
         % Get AUX (embedded) from the test half
         %% Temporally embed auxiliary data
-        aux_sigs = AUX2;
-        aux_emb = aux_sigs;
+        aux_sigs = AUX1;
+        aux_emb1 = aux_sigs;
         for i=1:param.NumOfEmb
             aux=circshift( aux_sigs, i*param.tau, 1);
             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
-            aux_emb=[aux_emb aux];
+            aux_emb1=[aux_emb1 aux];
         end
+        
+        aux_sigs = AUX2;
+        aux_emb2 = aux_sigs;
+        for i=1:param.NumOfEmb
+            aux=circshift( aux_sigs, i*param.tau, 1);
+            aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+            aux_emb2=[aux_emb2 aux];
+        end
+        
+        
         % Get Regressors
-        V = aux_emb;
-        REG = (V - mean(V,1)) * ADD.Av;
+        V = aux_emb2;
+        REG1 = (V - mean(V,1)) * ADD1.Av;   % first half training, second half test
+        
+        V = aux_emb1;
+        REG2 = (V - mean(V,1)) * ADD2.Av;   % first half test, second half training
         
         
         % % take only the first ten regressors
-        if size(REG,2)>10
-            Aaux = REG(:,1:10);
+        if size(REG1,2)>10
+            Aaux1 = REG1(:,1:10);
         else
-            Aaux = REG;
+            Aaux1 = REG1;
+        end
+        
+        if size(REG2,2)>10
+            Aaux2 = REG2(:,1:10);
+        else
+            Aaux2 = REG2;
         end
         
         
@@ -130,23 +163,36 @@ for tl = 2% :1:10% time lag in sec
         xlim1 = 0;
         xlim2 = 25;
         
-        dod = hmrIntensity2OD(d);
+        dod = hmrIntensity2OD(d_2);
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
-        %      Aaux = hmrBandpassFilt(Aaux, fq, 0, 0.5);
-        dc = hmrOD2Conc( dod, SD, [6 6]);
+        dc_2 = hmrOD2Conc( dod, SD, [6 6]);
         
-        if flag_ss_motion
-            dodM = hmrMotionCorrectSplineSG(dod,d,t,SD,0.99,10,1);
-            dcM = hmrOD2Conc( dodM, SD, [6 6]);
-            % add ss regression only to GLM without CCA case!
-            [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dcM, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 15, 1, 3, 0);
-        else
-            [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
-        end
         
-        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc, s, t, SD, Aaux, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+        dod = hmrIntensity2OD(d_1);
+        dod = hmrBandpassFilt(dod, fq, 0, 0.5);
+        dc_1 = hmrOD2Conc( dod, SD, [6 6]);
         
-        lst_stim = find(s==1);
+        %FIRST HALF TRAINING, SECOND HALF TESTING
+        % GLM with SS
+        [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+
+        % GLM with CCA outpout
+        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+%         
+        
+%         %SECOND HALF TRAINING, FIRST HALF TESTING
+%         % GLM with SS
+%         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+% 
+%         % GLM with CCA outpout
+%         [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+% 
+        
+        
+        
+        
+        lst_stim = find(s_1==1);
+        lst_stim = lst_stim(1:nTrials);
         for i = 1:size(lst_stim,1) % across trials
             HbO_null(:,i,:) = squeeze(d_null([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)
             HbO_new(:,i,:) = squeeze(d_new([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)
