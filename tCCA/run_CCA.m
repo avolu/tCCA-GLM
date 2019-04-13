@@ -17,6 +17,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 % options
 
 flag_resting = 0; % will run on resting
+flag_half = 2; 
 flag_resting_half = 0; % use only the first half of resting to get mixing matrix.
 rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
@@ -45,7 +46,7 @@ for tl = 5% :1:10% time lag in sec
     
     timelag = tl
     
-    for ss = 1:numel(sbjfolder) % loop across subjects
+    for ss = 1%:numel(sbjfolder) % loop across subjects
         ss
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
@@ -184,26 +185,32 @@ for tl = 5% :1:10% time lag in sec
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc_1 = hmrOD2Conc( dod, SD, [6 6]);
         
-        %FIRST HALF TRAINING, SECOND HALF TESTING
+       
+        if flag_half == 1
+             %FIRST HALF TRAINING, SECOND HALF TESTING
         % GLM with SS
         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
 
         % GLM with CCA outpout
         [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
-%         
+         
+        lst_stim = find(s_2==1);
+        end
         
-%         %SECOND HALF TRAINING, FIRST HALF TESTING
-%         % GLM with SS
-%         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
-% 
-%         % GLM with CCA outpout
-%         [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
-% 
-        
-        
-        
-        
+        if flag_half == 2
+        %SECOND HALF TRAINING, FIRST HALF TESTING
+        % GLM with SS
+        [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+
+        % GLM with CCA outpout
+        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+
         lst_stim = find(s_1==1);
+        end
+        
+        
+        
+        
         lst_stim = lst_stim(1:nTrials);
         if lst_stim(1) < abs(HRFmin) * fq
             lst_stim = lst_stim(2:end);
