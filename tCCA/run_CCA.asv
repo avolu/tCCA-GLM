@@ -23,7 +23,7 @@ stim_off = 1;  % for now no stim marks...
 flag_plot = 1;
 flag_save = 0;
 HRFmin = -2;
-HRFmax = 16; % used only for block design runs
+HRFmax = 15; % used only for block design runs
 Hb = 1; % 1 HbO / 2 HbR (for block only)
 pre = 5;  % HRF range in sec to calculate ttest
 post = 10;
@@ -41,11 +41,11 @@ tic;
 
 
 
-for tl = 2% :1:10% time lag in sec
+for tl = 5% :1:10% time lag in sec
     
     timelag = tl
     
-    for ss = 3%1:numel(sbjfolder) % loop across subjects
+    for ss = 14%1:numel(sbjfolder) % loop across subjects
         ss
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
@@ -125,6 +125,13 @@ for tl = 2% :1:10% time lag in sec
             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
             aux_emb1=[aux_emb1 aux];
         end
+%         for i=1:param.NumOfEmb
+%             aux=circshift( aux_sigs, -i*param.tau, 1);
+%             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+%             aux_emb1=[aux_emb1 aux];
+%         end
+        
+        
         
         aux_sigs = AUX2;
         aux_emb2 = aux_sigs;
@@ -133,6 +140,11 @@ for tl = 2% :1:10% time lag in sec
             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
             aux_emb2=[aux_emb2 aux];
         end
+%         for i=1:param.NumOfEmb
+%             aux=circshift( aux_sigs, -i*param.tau, 1);
+%             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+%             aux_emb2=[aux_emb2 aux];
+%         end
         
         
         % Get Regressors
@@ -167,27 +179,36 @@ for tl = 2% :1:10% time lag in sec
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc_2 = hmrOD2Conc( dod, SD, [6 6]);
         
-%         %FIRST HALF TRAINING, SECOND HALF TESTING
-%         % GLM with SS
-%         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
-% 
-%         % GLM with CCA outpout
-%         [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
-%         
         
-        %SECOND HALF TRAINING, FIRST HALF TESTING
+        dod = hmrIntensity2OD(d_1);
+        dod = hmrBandpassFilt(dod, fq, 0, 0.5);
+        dc_1 = hmrOD2Conc( dod, SD, [6 6]);
+        
+        %FIRST HALF TRAINING, SECOND HALF TESTING
         % GLM with SS
-        [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+        [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
 
         % GLM with CCA outpout
-        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
-
+        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+%         
+        
+%         %SECOND HALF TRAINING, FIRST HALF TESTING
+%         % GLM with SS
+%         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+% 
+%         % GLM with CCA outpout
+%         [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+% 
         
         
         
         
         lst_stim = find(s_1==1);
         lst_stim = lst_stim(1:nTrials);
+        if lst_stim(1) < abs(HRFmin) * fq
+            lst_stim = lst_stim(2:end);
+        end
+            
         for i = 1:size(lst_stim,1) % across trials
             HbO_null(:,i,:) = squeeze(d_null([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)
             HbO_new(:,i,:) = squeeze(d_new([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)

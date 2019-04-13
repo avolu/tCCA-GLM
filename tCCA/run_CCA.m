@@ -23,7 +23,7 @@ stim_off = 1;  % for now no stim marks...
 flag_plot = 1;
 flag_save = 0;
 HRFmin = -2;
-HRFmax = 16; % used only for block design runs
+HRFmax = 15; % used only for block design runs
 Hb = 1; % 1 HbO / 2 HbR (for block only)
 pre = 5;  % HRF range in sec to calculate ttest
 post = 10;
@@ -41,11 +41,11 @@ tic;
 
 
 
-for tl = 7% :1:10% time lag in sec
+for tl = 5% :1:10% time lag in sec
     
     timelag = tl
     
-    for ss = 6%1:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         ss
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
@@ -125,6 +125,13 @@ for tl = 7% :1:10% time lag in sec
             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
             aux_emb1=[aux_emb1 aux];
         end
+%         for i=1:param.NumOfEmb
+%             aux=circshift( aux_sigs, -i*param.tau, 1);
+%             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+%             aux_emb1=[aux_emb1 aux];
+%         end
+        
+        
         
         aux_sigs = AUX2;
         aux_emb2 = aux_sigs;
@@ -133,6 +140,11 @@ for tl = 7% :1:10% time lag in sec
             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
             aux_emb2=[aux_emb2 aux];
         end
+%         for i=1:param.NumOfEmb
+%             aux=circshift( aux_sigs, -i*param.tau, 1);
+%             aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+%             aux_emb2=[aux_emb2 aux];
+%         end
         
         
         % Get Regressors
@@ -193,6 +205,10 @@ for tl = 7% :1:10% time lag in sec
         
         lst_stim = find(s_1==1);
         lst_stim = lst_stim(1:nTrials);
+        if lst_stim(1) < abs(HRFmin) * fq
+            lst_stim = lst_stim(2:end);
+        end
+            
         for i = 1:size(lst_stim,1) % across trials
             HbO_null(:,i,:) = squeeze(d_null([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)
             HbO_new(:,i,:) = squeeze(d_new([lst_stim(i) - abs(HRFmin) * fq]:[lst_stim(i) + HRFmax * fq],Hb,:)); % get each trial (HbO)

@@ -40,6 +40,7 @@ end
 
 
 %% Temporally embed auxiliary data
+% Aux with shift left]
 aux_emb = aux_sigs;
 for i=1:param.NumOfEmb
     aux=circshift( aux_sigs, i*param.tau, 1);
@@ -47,6 +48,12 @@ for i=1:param.NumOfEmb
     aux_emb=[aux_emb aux];
     ADD.aux_emb=aux_emb;
 end
+% for i=1:param.NumOfEmb
+%     aux=circshift( aux_sigs, -i*param.tau, 1);
+%     aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+%     aux_emb=[aux_emb aux];
+%     ADD.aux_emb=aux_emb;
+% end
 
 %cut to same length of samples
 s1=size(aux_emb,1);
