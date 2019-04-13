@@ -56,9 +56,25 @@ tic;
             % AUX order : ACC1, ACC2, ACC3, PPG, BP, RESP
               param.NumOfEmb = timelag/param.tau * fq ;
             
+            % merge data to right format
+            AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+            
+            % check if the number of time points is odd/even, if odd make it even... (number of embedded should be the same)
+            if mod(size(AUX,1),2) == 1
+                AUX = AUX(1:end-1,:);
+                d = d(1:end-1,:);
+                t = t(1:end-1,:);
+                s = s(1:end-1,:);
+                d0 = d0(1:end-1,:);
+                d0_long = d0_long(1:end-1,:);
+                d0_short = d0_short(1:end-1,:);
+            
+            
+                     
             % get first half for training from d0
             c_half = round(size(AUX,1)/2);
-            AUX = AUX(1:c_half,:);
+            AUX1 = AUX(1:c_half,:);
+            AUX2 = AUX(c_half+1:end,:);
             d0 = d0(1:c_half,:);
             d0_long = d0_long(1:c_half,:);
             d0_short = d0_short(1:c_half,:);
@@ -68,11 +84,10 @@ tic;
             s = s(c_half:end,:);
                      
             
-            % merge data to right format
-            AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+
             
-            mean_AUX = mean(AUX,1);
-            AUX = AUX - repmat(mean_AUX, size(mean_AUX,1),1);
+            mean_AUX = mean(AUX1,1);
+            AUX1 = AUX1 - repmat(mean_AUX, size(mean_AUX,1),1);
             
             mean_d0_long = mean(d0_long,1);
             X = d0_long - repmat(mean_d0_long, size(d0_long,1),1);
@@ -80,13 +95,21 @@ tic;
             
             
             %% Perform the shiny script  % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
-            [REG,  ADD] = perf_temp_emb_cca(X,AUX,param,flags); % ALL
+            % Get ADD.Av from the training half
+            [REG,  ADD] = perf_temp_emb_cca(X,AUX1,param,flags); % ALL
             
-          
-         
-            % Get Regressors using HRF added data
-            X = AUX(c_half:end,:);
-            REG = (X - mean(X,1)) * ADD.Au;
+            % Get AUX (embedded) from the test half
+            %% Temporally embed auxiliary data
+            aux_sigs = AUX2;
+            aux_emb = aux_sigs;
+            for i=1:param.NumOfEmb
+                aux=circshift( aux_sigs, i*param.tau, 1);
+                aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+                aux_emb=[aux_emb aux];
+            end
+            % Get Regressors 
+            V = aux_emb;
+            REG = (V - mean(V,1)) * ADD.Av;
 
             
             % % take only the first ten regressors
