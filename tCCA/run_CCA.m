@@ -42,11 +42,11 @@ tic;
 
 
 
-for tl = 5% :1:10% time lag in sec
+for tl = 0% :1:10% time lag in sec
     
     timelag = tl
     
-    for ss = 1%:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         ss
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
@@ -105,11 +105,11 @@ for tl = 5% :1:10% time lag in sec
         mean_AUX = mean(AUX2,1);
         AUX2 = AUX2 - repmat(mean_AUX, size(mean_AUX,1),1);
         
-        mean_d0_long_1 = mean(d0_long_1,1);
-        X1 = d0_long_1 - repmat(mean_d0_long_1, size(d0_long_1,1),1);
+        mean_d_long_1 = mean(d_long_1,1);
+        X1 = d_long_1 - repmat(mean_d_long_1, size(d_long_1,1),1);
         
-        mean_d0_long_2 = mean(d0_long_2,1);
-        X2 = d0_long_2 - repmat(mean_d0_long_2, size(d0_long_2,1),1);
+        mean_d_long_2 = mean(d_long_2,1);
+        X2 = d_long_2 - repmat(mean_d_long_2, size(d_long_2,1),1);
         
         
         %% Perform the shiny script  % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
@@ -147,27 +147,27 @@ for tl = 5% :1:10% time lag in sec
 %             aux_emb2=[aux_emb2 aux];
 %         end
         
-        
-        % Get Regressors
-        V = aux_emb2;
-        REG1 = (V - mean(V,1)) * ADD1.Av;   % first half training, second half test
-        
-        V = aux_emb1;
-        REG2 = (V - mean(V,1)) * ADD2.Av;   % first half test, second half training
-        
+%         
+%         % Get Regressors
+%         REG1 = (aux_emb2 - mean(aux_emb2,1)) * ADD1.Av_red;   % first half training, second half test
+%         
+%         REG2 = (aux_emb1 - mean(aux_emb1,1)) * ADD2.Av_red;   % first half test, second half training
+%         
+%         numRegr1 = size(REG1,2);
+%         numRegr2 = size(REG2,2);
         
         % % take only the first ten regressors
-        if size(REG1,2)>10
-            Aaux1 = REG1(:,1:10);
-        else
-            Aaux1 = REG1;
-        end
-        
-        if size(REG2,2)>10
-            Aaux2 = REG2(:,1:10);
-        else
-            Aaux2 = REG2;
-        end
+%         if size(REG1,2)>10
+%             Aaux1 = REG1(:,1:10);
+%         else
+%             Aaux1 = REG1;
+%         end
+%         
+%         if size(REG2,2)>10
+%             Aaux2 = REG2(:,1:10);
+%         else
+%             Aaux2 = REG2;
+%         end
         
         
         %% Add Regressors with high correlation to GLM
@@ -192,7 +192,7 @@ for tl = 5% :1:10% time lag in sec
         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
 
         % GLM with CCA outpout
-        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, Aaux2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_2, s_2, t_2, SD, REG2, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
          
         lst_stim = find(s_2==1);
         end
@@ -203,7 +203,7 @@ for tl = 5% :1:10% time lag in sec
         [yavg_null, yavgstd, tHRF, nTrials, d_null, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, [], [], [HRFmin HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
 
         % GLM with CCA outpout
-        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, Aaux1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+        [yavg_new, yavgstd, tHRF, nTrials, d_new, yresid, ysum2, beta, yR] = hmrDeconvHRF_DriftSS(dc_1, s_1, t_1, SD, REG1, [], [HRFmin HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
 
         lst_stim = find(s_1==1);
         end
@@ -251,6 +251,8 @@ for tl = 5% :1:10% time lag in sec
         p_null = zeros(size(pOxy_null));
         p_new = zeros(size(pOxy_new));
         
+        
+
         % get number of active channels
         for i = 1:size(pOxy_new,1)  % indice includes both long and short
             p_null(i,find(pOxy_null(i,:)<=0.05)) = 1;
@@ -278,6 +280,14 @@ for tl = 5% :1:10% time lag in sec
         clear MEAN_HRF_null MEAN_HRF_new   MEAN_baseline_null  MEAN_baseline_new STD_HRF_null STD_HRF_new STD_baseline_null STD_baseline_new...
             HbO_null HbO_new  MEAN_null  MEAN_new  STD_null  STD_new REG ADD X Aaux d dod dc s t AUX lst_stim h p c stats
         
+        
+         % average pvals of activated channels
+        buf = pOxy_null(:);
+        pvals_null = buf(find(p_null));
+        disp(['avg p null ' num2str(nanmean(pvals_null))])
+        buf = pOxy_new(:);
+        pvals_new = buf(find(p_new));
+        disp(['avg p new ' num2str(nanmean(pvals_new))])
         
         
     end

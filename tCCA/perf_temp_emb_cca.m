@@ -22,6 +22,7 @@ function [ REG, ADD] = perf_temp_emb_cca( X, AUX, param, flags )
 %       and projected aux data
 % ADD.aux_emb:   Temp. embedded accelerometer signals
 % ADD.U,V:  sources in CCA space found by CCA
+% ADD.Av_red:   return (cca threshold) reduced mapping matrix Av
 
 
 %% Perform PCA
@@ -75,7 +76,8 @@ ADD.Av = Av;
 % return auxiliary cca components that have correlation > ct
 compindex=find(ccac>param.ct);
 REG = V(:,compindex);
+% return reduced mapping matrix Av
+ADD.Av_red = Av(:,compindex);
 
-    
 end
 
