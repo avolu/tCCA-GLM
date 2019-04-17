@@ -62,10 +62,10 @@ end
 % average pvals of activated channels
 buf = pOxy_SS(:);
 pvals_SS = buf(find(p_SS));
-disp(['avg p null ' num2str(nanmean(pvals_SS))])
+disp(['avg p SS ' num2str(nanmean(pvals_SS))])
 buf = pOxy_CCA(:);
 pvals_CCA = buf(find(p_CCA));
-disp(['avg p new ' num2str(nanmean(pvals_CCA))])
+disp(['avg p CCA ' num2str(nanmean(pvals_CCA))])
 
 %% lets do the calculation of the other performance metrics here later on
 %

@@ -21,7 +21,7 @@ flag_half = 2;
 flag_resting_half = 0; % use only the first half of resting to get mixing matrix.
 rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
-flag_plot = 1;
+flag_plot = 0;
 flag_save = 0;
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -39,10 +39,10 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 
 tic;
 
-for tl = 0% :1:10% time lag in sec
+for tl = 5% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 1%:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
@@ -87,20 +87,21 @@ for tl = 0% :1:10% time lag in sec
             [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
             
             %% Temporally embed auxiliary data from testing split
-            aux_emb1 = AUX(tstIDX,:);
+            aux_sigs = AUX(tstIDX,:);
+            aux_emb = aux_sigs;
             for i=1:param.NumOfEmb
                 aux=circshift( aux_sigs, i*param.tau, 1);
                 aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
-                aux_emb1=[aux_emb1 aux];
+                aux_emb=[aux_emb aux];
             end
             
             %% convert testing fNIRS data to concentration
-            dod = hmrIntensity2OD(d(trnIDX,:));
+            dod = hmrIntensity2OD(d(tstIDX,:));
             dod = hmrBandpassFilt(dod, fq, 0, 0.5);
             dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
             
             %% Calculate testig regressors with CCA mapping matrix A from testing
-            REG_tst = AUX(tstIDX,:)*ADD_trn{tt}.Av;
+            REG_tst = aux_emb*ADD_trn{tt}.Av;
             
             %% Perform GLM
             % GLM with SS
@@ -118,8 +119,7 @@ for tl = 0% :1:10% time lag in sec
             end
             
             %% EVAL / PLOT
-            [p_SS{ss,tt},p_CCA{ss,tt}, pOxy_SS{ss,tt}, pOxy_CCA{ss,tt}] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path)
-            
+            [p_SS{ss,tt},p_CCA{ss,tt}, pOxy_SS{ss,tt}, pOxy_CCA{ss,tt}] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path);
         end
         
         clear vars AUX d d0 d_long d0_long d_short d0_short t s
@@ -127,4 +127,49 @@ for tl = 0% :1:10% time lag in sec
 end
 
 toc;
+
+
+
+
+%% Briefly eval p val and # det ch improvement
+for sbj = 1:numel(sbjfolder)
+    for tt = 1:2
+        ss_actidx = find(p_SS{sbj,tt});
+        cca_actidx = find(p_CCA{sbj,tt});
+        
+        % number of activated channels
+        nump_ss(sbj,tt) = numel(ss_actidx);
+        nump_cca(sbj,tt) = numel(cca_actidx);
+        % average pval of discovered channels
+        avgp_ss(sbj,tt) = mean(pOxy_SS{sbj,tt}(ss_actidx));
+        avgp_cca(sbj,tt) = mean(pOxy_CCA{sbj,tt}(cca_actidx));
+    end
+end
+%% visualize # chan
+figure
+scatter(nump_ss(:), nump_cca(:));
+mx=max([nump_ss(:); nump_cca(:)]);
+mn=min([nump_ss(:); nump_cca(:)]);
+xlim([mn mx])
+ylim([mn mx])
+hold on
+plot([mn mx], [mn mx], 'k')
+scatter(mean(nump_ss(:)), mean(nump_cca(:)), 'xr')
+title(['# of significant channels for timelag = ' num2str(timelag) 's'])
+xlabel('SS GLM')
+ylabel('CCA GLM')
+
+%% visualize pval
+figure
+scatter(avgp_ss(:), avgp_cca(:));
+mx=max([avgp_ss(:); avgp_cca(:)]);
+mn=min([avgp_ss(:); avgp_cca(:)]);
+xlim([mn mx])
+ylim([mn mx])
+hold on
+plot([mn mx], [mn mx], 'k')
+scatter(mean(avgp_ss(:)), mean(avgp_cca(:)), 'xr')
+title(['Average p-val for timelaglag = ' num2str(timelag) 's'])
+xlabel('SS GLM')
+ylabel('CCA GLM')
 
