@@ -5,8 +5,8 @@
 % regression, but keep it in mind!
 clear all;
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
 % #####
 filename = 'resting_sim';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
@@ -32,17 +32,17 @@ eval_param.post = 10;
 % CCA parameters
 param.tau = 2;% 2 (time points); %stepwidth for embedding in samples (tune to sample frequency!)
 % param.NumOfEmb = 50 ; %75 200 12/ number of total embeddings (total time window will be tau * NumOfEmb)
-param.ct = 0.9;   % correlation threshold
+param.ct = 0.5;   % correlation threshold
 flags.pcaf =  [0 0]; % no pca of X or AUX
 % timelag = 10%Y not full rank after ~ 30 (i.e. time shifted regressor number is higher than the number of time points) % in sec
 
 
 tic;
 
-for tl = 5% :1:10% time lag in sec
+for tl = 1% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 14%1:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
