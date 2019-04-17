@@ -32,7 +32,7 @@ eval_param.post = 10;
 % CCA parameters
 param.tau = 2;% 2 (time points); %stepwidth for embedding in samples (tune to sample frequency!)
 % param.NumOfEmb = 50 ; %75 200 12/ number of total embeddings (total time window will be tau * NumOfEmb)
-param.ct = 0.9;   % correlation threshold
+param.ct = 0.5;   % correlation threshold
 flags.pcaf =  [0 0]; % no pca of X or AUX
 % timelag = 10%Y not full rank after ~ 30 (i.e. time shifted regressor number is higher than the number of time points) % in sec
 
