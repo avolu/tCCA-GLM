@@ -32,7 +32,7 @@ eval_param.post = 10;
 % CCA parameters
 param.tau = 2;% 2 (time points); %stepwidth for embedding in samples (tune to sample frequency!)
 % param.NumOfEmb = 50 ; %75 200 12/ number of total embeddings (total time window will be tau * NumOfEmb)
-param.ct = 0.5;   % correlation threshold
+param.ct = 0.9;   % correlation threshold
 flags.pcaf =  [0 0]; % no pca of X or AUX
 % timelag = 10%Y not full rank after ~ 30 (i.e. time shifted regressor number is higher than the number of time points) % in sec
 
@@ -42,7 +42,7 @@ tic;
 for tl = 5% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 1:numel(sbjfolder) % loop across subjects
+    for ss = 14%1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
@@ -101,7 +101,7 @@ for tl = 5% :1:10% time lag in sec
             dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
             
             %% Calculate testig regressors with CCA mapping matrix A from testing
-            REG_tst = aux_emb*ADD_trn{tt}.Av;
+            REG_tst = aux_emb*ADD_trn{tt}.Av_red;
             
             %% Perform GLM
             % GLM with SS
@@ -111,7 +111,7 @@ for tl = 5% :1:10% time lag in sec
             [yavg_cca, yavgstd_cca, tHRF, nTrials, d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
                 hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
             
-            %% list of channels with stimulus
+            %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
             lst_stim = find(s(tstIDX,:)==1);
             lst_stim = lst_stim(1:nTrials);
             if lst_stim(1) < abs(eval_param.HRFmin) * fq
@@ -122,7 +122,7 @@ for tl = 5% :1:10% time lag in sec
             [p_SS{ss,tt},p_CCA{ss,tt}, pOxy_SS{ss,tt}, pOxy_CCA{ss,tt}] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path);
         end
         
-        clear vars AUX d d0 d_long d0_long d_short d0_short t s
+        clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn 
     end
 end
 
@@ -141,8 +141,9 @@ for sbj = 1:numel(sbjfolder)
         nump_ss(sbj,tt) = numel(ss_actidx);
         nump_cca(sbj,tt) = numel(cca_actidx);
         % average pval of discovered channels
-        avgp_ss(sbj,tt) = mean(pOxy_SS{sbj,tt}(ss_actidx));
-        avgp_cca(sbj,tt) = mean(pOxy_CCA{sbj,tt}(cca_actidx));
+        format long
+        avgp_ss(sbj,tt) = nanmean(pOxy_SS{sbj,tt}(ss_actidx));
+        avgp_cca(sbj,tt) = nanmean(pOxy_CCA{sbj,tt}(cca_actidx));
     end
 end
 %% visualize # chan
@@ -154,8 +155,8 @@ xlim([mn mx])
 ylim([mn mx])
 hold on
 plot([mn mx], [mn mx], 'k')
-scatter(mean(nump_ss(:)), mean(nump_cca(:)), 'xr')
-title(['# of significant channels for timelag = ' num2str(timelag) 's'])
+scatter(nanmean(nump_ss(:)), nanmean(nump_cca(:)), 'xr')
+title(['# of significant channels. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
 xlabel('SS GLM')
 ylabel('CCA GLM')
 
@@ -168,8 +169,8 @@ xlim([mn mx])
 ylim([mn mx])
 hold on
 plot([mn mx], [mn mx], 'k')
-scatter(mean(avgp_ss(:)), mean(avgp_cca(:)), 'xr')
-title(['Average p-val for timelaglag = ' num2str(timelag) 's'])
+scatter(nanmean(avgp_ss(:)), nanmean(avgp_cca(:)), 'xr')
+title(['Average p-val. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
 xlabel('SS GLM')
 ylabel('CCA GLM')
 

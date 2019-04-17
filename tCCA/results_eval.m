@@ -28,14 +28,15 @@ for i=1:size(HbO_SS,3)
 end
 
 for i=1:size(HbO_SS,3)
+    format long
     [h,p,c,stats]=ttest(MEAN_HRF_SS(i,:),(MEAN_baseline_SS(i,:)));
     pOxy_SS(sbj,i)=p;
     [h,p,c,stats]=ttest(MEAN_HRF_CCA(i,:),(MEAN_baseline_CCA(i,:)));
     pOxy_CCA(sbj,i)=p;
 end
 
-p_SS = zeros(size(pOxy_SS));
-p_CCA = zeros(size(pOxy_CCA));
+p_SS = zeros(size(pOxy_SS,2),1);
+p_CCA = zeros(size(pOxy_CCA,2),1);
 
 % get number of active channels
 p_SS(find(pOxy_SS(sbj,:)<=0.05)) = 1;
@@ -51,8 +52,8 @@ for iML = 1:length(lst)
     posM(iML,:) = (SD.SrcPos(ml(lst(iML),1),:) + SD.DetPos(ml(lst(iML),2),:)) / 2;
 end
 lstSS = lst(find(rhoSD<15));
-p_SS(:,lstSS)= 0;  % remove ss channels from list
-p_CCA(:,lstSS)= 0;
+p_SS(lstSS)= 0;  % remove ss channels from list
+p_CCA(lstSS)= 0;
 
 
 if flag_plot
