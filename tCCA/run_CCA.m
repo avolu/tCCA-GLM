@@ -23,7 +23,7 @@ rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
 flag_plot = 0;
 flag_save = 0;
-flag_conc = 0; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
+flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
 eval_param.HRFmax = 15; % used only for block design runs
@@ -120,7 +120,7 @@ for tl = 1% :1:10% time lag in sec
             end
             
             %% EVAL / PLOT
-            [p_SS{ss,tt},p_CCA{ss,tt}, pOxy_SS{ss,tt}, pOxy_CCA{ss,tt}] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path);
+            [p_SS{ss,tt},p_CCA{ss,tt}, pOxy_SS{ss,tt}, pOxy_CCA{ss,tt}, FP_SS(ss,tt), FP_CCA(ss,tt)] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path);
         end
         
         clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn 
@@ -178,6 +178,24 @@ hold on
 plot([mn mx], [mn mx], 'k')
 scatter(nanmean(avgp_ss(:)), nanmean(avgp_cca(:)), 'xr')
 title(['Average p-val. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
+xlabel('SS GLM')
+ylabel('CCA GLM')
+
+
+%% plot FP
+%% visualize pval
+figure
+FP_SS = reshape(FP_SS,size(FP_SS,1)*size(FP_SS,2),1);
+FP_CCA = reshape(FP_CCA,size(FP_SS,1)*size(FP_SS,2),1);
+scatter(FP_SS,FP_CCA);
+mx=max([FP_SS(:); FP_CCA(:)]);
+mn=min([FP_SS(:); FP_CCA(:)]);
+xlim([mn mx])
+ylim([mn mx])
+hold on
+plot([mn mx], [mn mx], 'k')
+scatter(nanmean(FP_SS(:)), nanmean(FP_CCA(:)), 'xr')
+title(['# of channels with FP, lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
 xlabel('SS GLM')
 ylabel('CCA GLM')
 

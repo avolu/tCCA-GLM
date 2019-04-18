@@ -1,4 +1,4 @@
-function [p_SS, p_CCA, pOxy_SS, pOxy_CCA] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path)
+function [p_SS, p_CCA, pOxy_SS, pOxy_CCA, FP_SS, FP_CCA] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path)
 %PLOT_EVAL Summary of this function goes here
 
 
@@ -42,11 +42,13 @@ p_CCA = zeros(size(pOxy_CCA,2),1);
 lst = find(pOxy_SS(sbj,:)<=0.05);
 foo = ismember(lst,lstHrfAdd(:,1));
 lst = lst(find(foo==1));
+FP_SS = size(find(foo == 0),2); % # of false positive channels
 p_SS(lst) = 1;
 
 lst = find(pOxy_CCA(sbj,:)<=0.05);
 foo = ismember(lst,lstHrfAdd(:,1));
 lst = lst(find(foo==1));
+FP_CCA = size(find(foo == 0),2);
 p_CCA(lst) = 1;
 
 ml = SD.MeasList;
