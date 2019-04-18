@@ -43,6 +43,10 @@ lst = find(pOxy_SS(sbj,:)<=0.05);
 foo = ismember(lst,lstHrfAdd(:,1));
 lst = lst(find(foo==1));
 p_SS(lst) = 1;
+
+lst = find(pOxy_CCA(sbj,:)<=0.05);
+foo = ismember(lst,lstHrfAdd(:,1));
+lst = lst(find(foo==1));
 p_CCA(lst) = 1;
 
 ml = SD.MeasList;
