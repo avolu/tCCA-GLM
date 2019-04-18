@@ -5,8 +5,8 @@
 % regression, but keep it in mind!
 clear all;
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
 % #####
 filename = 'resting_sim';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
@@ -39,10 +39,10 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 
 tic;
 
-for tl = 5% :1:10% time lag in sec
+for tl = 1% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 14%1:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);

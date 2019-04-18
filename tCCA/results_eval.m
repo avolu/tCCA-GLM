@@ -61,10 +61,10 @@ if flag_plot
 end
 
 % average pvals of activated channels
-buf = pOxy_SS(:);
+buf = pOxy_SS(sbj,:);
 pvals_SS = buf(find(p_SS));
 disp(['avg p SS ' num2str(nanmean(pvals_SS))])
-buf = pOxy_CCA(:);
+buf = pOxy_CCA(sbj,:);
 pvals_CCA = buf(find(p_CCA));
 disp(['avg p CCA ' num2str(nanmean(pvals_CCA))])
 
