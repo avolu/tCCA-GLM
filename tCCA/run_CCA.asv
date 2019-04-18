@@ -42,7 +42,7 @@ tic;
 for tl = 1% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 14% 1:numel(sbjfolder) % loop across subjects
+    for ss = 1% 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
@@ -143,11 +143,11 @@ for sbj = 1:numel(sbjfolder)
         % average pval of discovered channels
         format long
         foo = pOxy_SS{sbj,tt};
-        if exist('foo','var')
+        if ~isempty(foo)
         avgp_ss(sbj,tt) = nanmean(foo(sbj,ss_actidx));
         end
         foo = pOxy_CCA{sbj,tt};
-        if exist(foo)
+        if ~isempty(foo)
         avgp_cca(sbj,tt) = nanmean(foo(sbj,cca_actidx));
         end
     end

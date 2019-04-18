@@ -38,12 +38,11 @@ end
 p_SS = zeros(size(pOxy_SS,2),1);
 p_CCA = zeros(size(pOxy_CCA,2),1);
 
-% get number of active channels that we added HRF (True Positives only!)
+% get number of active channels
 lst = find(pOxy_SS(sbj,:)<=0.05);
-foo = ismember(lst,lstHrfAdd(:,1));
-lst = lst(find(foo==1));
-p_SS(lst) = 1;
-p_CCA(lst) = 1;
+foo = any(lst,lstHrfAdd(:,1))
+p_SS(find(pOxy_SS(sbj,:)<=0.05)) = 1;
+p_CCA(find(pOxy_CCA(sbj,:)<=0.05)) = 1;
 
 ml = SD.MeasList;
 mlAct = SD.MeasListAct;

@@ -42,7 +42,7 @@ tic;
 for tl = 1% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 14% 1:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
