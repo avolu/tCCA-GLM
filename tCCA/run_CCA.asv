@@ -143,11 +143,11 @@ for sbj = 1:numel(sbjfolder)
         % average pval of discovered channels
         format long
         foo = pOxy_SS{sbj,tt};
-        if ~isempty(foo)
+        if exist('foo','var')
         avgp_ss(sbj,tt) = nanmean(foo(sbj,ss_actidx));
         end
         foo = pOxy_CCA{sbj,tt};
-        if ~isempty(foo)
+        if exist(foo)
         avgp_cca(sbj,tt) = nanmean(foo(sbj,cca_actidx));
         end
     end
