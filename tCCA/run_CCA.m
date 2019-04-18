@@ -15,10 +15,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 
 %% Options/Parameter Settings
-
-flag_resting = 0; % will run on resting
 flag_half = 2;
-flag_resting_half = 0; % use only the first half of resting to get mixing matrix.
 rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
 flag_plot = 0;
@@ -40,7 +37,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 
 tic;
 
-for tl = 1% :1:10% time lag in sec
+for tl = 5% :1:10% time lag in sec
     timelag = tl;
     
     for ss = 1:numel(sbjfolder) % loop across subjects
