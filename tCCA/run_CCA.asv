@@ -42,13 +42,13 @@ tic;
 for tl = 1% :1:10% time lag in sec
     timelag = tl;
     
-    for ss = 1% 1:numel(sbjfolder) % loop across subjects
+    for ss = 1:numel(sbjfolder) % loop across subjects
         sbj = ss;
         % change to subject directory
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
         %% load data
-        [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename);
+        [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
         % number of embeddings
         param.NumOfEmb = timelag/param.tau * fq;
         

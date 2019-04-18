@@ -23,6 +23,7 @@ rhoSD_ssThresh = 15;  % mm
 stim_off = 1;  % for now no stim marks...
 flag_plot = 0;
 flag_save = 0;
+flag_conc = 0; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
 eval_param.HRFmax = 15; % used only for block design runs
@@ -48,7 +49,7 @@ for tl = 1% :1:10% time lag in sec
         cd([path.dir filesep sbjfolder{ss} filesep]);
         
         %% load data
-        [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename);
+        [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
         % number of embeddings
         param.NumOfEmb = timelag/param.tau * fq;
         
