@@ -15,15 +15,11 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 
 %% Options/Parameter Settings
-
-flag_resting = 0; % will run on resting
 flag_half = 2;
-flag_resting_half = 0; % use only the first half of resting to get mixing matrix.
 rhoSD_ssThresh = 15;  % mm
-stim_off = 1;  % for now no stim marks...
 flag_plot = 0;
 flag_save = 0;
-flag_conc = 0; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
+flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
 eval_param.HRFmax = 15; % used only for block design runs
@@ -40,7 +36,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 
 tic;
 
-for tl = 1% :1:10% time lag in sec
+for tl = 1 % :1:10% time lag in sec
     timelag = tl;
     
     for ss = 1:numel(sbjfolder) % loop across subjects
@@ -185,16 +181,17 @@ ylabel('CCA GLM')
 %% plot FP
 %% visualize pval
 figure
-FP
-scatter(reshape(FP_SS,size(FP_SS,1)*size(FP_SS,2),1),reshape(FP_CCA,size(FP_SS,1)*size(FP_SS,2),1));
-mx=max([avgp_ss(:); avgp_cca(:)]);
-mn=min([avgp_ss(:); avgp_cca(:)]);
+FP_SS = reshape(FP_SS,size(FP_SS,1)*size(FP_SS,2),1);
+FP_CCA = reshape(FP_CCA,size(FP_SS,1)*size(FP_SS,2),1);
+scatter(FP_SS,FP_CCA);
+mx=max([FP_SS(:); FP_CCA(:)]);
+mn=min([FP_SS(:); FP_CCA(:)]);
 xlim([mn mx])
 ylim([mn mx])
 hold on
 plot([mn mx], [mn mx], 'k')
-scatter(nanmean(avgp_ss(:)), nanmean(avgp_cca(:)), 'xr')
-title(['Average p-val. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
+scatter(nanmean(FP_SS(:)), nanmean(FP_CCA(:)), 'xr')
+title(['# of channels with FP, lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
 xlabel('SS GLM')
 ylabel('CCA GLM')
 

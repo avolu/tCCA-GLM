@@ -36,7 +36,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 
 tic;
 
-for tl = 5% :1:10% time lag in sec
+for tl = 1 % :1:10% time lag in sec
     timelag = tl;
     
     for ss = 1:numel(sbjfolder) % loop across subjects
