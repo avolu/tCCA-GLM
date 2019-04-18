@@ -17,7 +17,6 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 %% Options/Parameter Settings
 flag_half = 2;
 rhoSD_ssThresh = 15;  % mm
-stim_off = 1;  % for now no stim marks...
 flag_plot = 0;
 flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
