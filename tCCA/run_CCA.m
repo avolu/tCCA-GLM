@@ -2,20 +2,22 @@ clear all;
 
 %% subject remarks (resolve!)
 % 1 fine
-% 2,3,5,6,7,8,1011,12,13,14 not enough data to find a solution
+% 2,3,5,6,7,8,10,11,12,13,14 not enough data to find a solution
 % 4 design matrix poorly scaled
 % 9 design matrix VERY poorly scaled
 
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
@@ -28,7 +30,6 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 %% Options/Parameter Settings
 flag_half = 2;
 rhoSD_ssThresh = 15;  % mm
-flag_plot = 1;
 flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
@@ -39,6 +40,11 @@ eval_param.pre = 5;  % HRF range in sec to calculate ttest
 eval_param.post = 10;
 % CCA parameters
 flags.pcaf =  [0 0]; % no pca of X or AUX
+
+%motion artifact detection
+motionflag = false;
+%plot flag
+flag_plot = false;
 
 % Validation parameters
 tlags = 0:1:2;%0:1:10;
@@ -54,25 +60,24 @@ tic;
 %% load ground truth hrf
 hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
 
-
 %iteration number
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-%% initialize result matrices
-nTrials= NaN(numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-DET_SS= NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-DET_CCA= NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-pval_SS = NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-pval_CCA = NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-MSE_SS = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-MSE_CCA = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-CORR_SS = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-CORR_CCA = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
-    
+
+    %% (re-)initialize result matrices
+    nTrials= NaN(2,numel(tlags),numel(stpsize),numel(cthresh));
+    DET_SS= NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    DET_CCA= NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    pval_SS = NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    pval_CCA = NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    MSE_SS = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    MSE_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    CORR_SS = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+    CORR_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
+
     % change to subject directory
     cd([path.dir filesep sbjfolder{sbj} filesep]);
     
@@ -112,7 +117,9 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         
         %% convert testing fNIRS data to concentration and detect motion artifacts
         dod = hmrIntensity2OD(d(tstIDX,:));
-        [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 0.5, 20, 0.4);
+        if motionflag
+            [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 0.5, 20, 5);
+        end
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
@@ -156,28 +163,32 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
                     
+                    if motionflag
+                    else
+                        tInc = [];
+                    end
                     %% Perform GLM
                     % GLM with SS
-                    [yavg_ss, yavgstd_ss, tHRF, nTrials(sbj,tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
+                    [yavg_ss, yavgstd_ss, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                     % GLM with CCA outpout
-                    [yavg_cca, yavgstd_cca, tHRF, nTrials(sbj,tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
+                    [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
                     lst_stim = find(s(tstIDX,:)==1);
-                    lst_stim = lst_stim(1:nTrials(sbj,tt,tlidx,stpidx,ctidx));
+                    lst_stim = lst_stim(1:nTrials(tt,tlidx,stpidx,ctidx));
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
                     end
                     
                     %% EVAL / PLOT
-                    [DET_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), pval_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), ...
-                        pval_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), ...
-                        CORR_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx)] = ...
+                    [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
+                        pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
+                        CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
                         results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf);
                     % Dimensions of output metrics
-                    % #CH x 2(Hbo+HbR) x SBJ x 2 (cv split) x tlag x stepsize x corrthres
+                    % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
                     
                     % display iterno
@@ -187,7 +198,15 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
             end
         end
     end
-    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
+    %% save data for subject
+    disp(['saving sbj ' num2str(sbj) '...'])
+    save([path.save '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
+    % clear vars
+    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn 
+    % reset counter
+    tlidx =0;
+    stpidx =0;
+    ctidx =0;
 end
 
 
