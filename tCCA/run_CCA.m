@@ -80,7 +80,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         t(end,:)=[];
         s(end,:)=[];
     end
-
+    
     % create data split indices
     len = size(AUX,1);
     spltIDX = {1:len/2,len/2+1:len};
@@ -90,6 +90,11 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     for tt = 1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
+        
+        %% convert testing fNIRS data to concentration
+        dod = hmrIntensity2OD(d(tstIDX,:));
+        dod = hmrBandpassFilt(dod, fq, 0, 0.5);
+        dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
         for tl = tlags %loop across timelags
             timelag = tl;
@@ -101,29 +106,30 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                 param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
                 param.NumOfEmb = ceil(timelag*fq / sts);
                 
+                %% Temporal embedding of auxiliary data from testing split
+                aux_sigs = AUX(tstIDX,:);
+                aux_emb = aux_sigs;
+                for i=1:param.NumOfEmb
+                    aux=circshift( aux_sigs, i*param.tau, 1);
+                    aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+                    aux_emb=[aux_emb aux];
+                end
+                
+                %% set correlation trheshold for CCA to 0 so we dont lose anything here
+                param.ct = 0;   % correlation threshold
+                %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+                % use test data of LD channels without synth HRF
+                X = d0_long(trnIDX,:);
+                [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
+                
                 for ctr = cthresh %loop across correlation thresholds
                     ctidx = ctidx+1;
-                    %% set correlation trheshold for CCA
-                    param.ct = ctr;   % correlation threshold
-                    
-                    %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
-                    % use test data of LD channels without synth HRF
-                    X = d0_long(trnIDX,:);
-                    [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
-                    
-                    %% Temporal embedding of auxiliary data from testing split
-                    aux_sigs = AUX(tstIDX,:);
-                    aux_emb = aux_sigs;
-                    for i=1:param.NumOfEmb
-                        aux=circshift( aux_sigs, i*param.tau, 1);
-                        aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
-                        aux_emb=[aux_emb aux];
-                    end
-                    
-                    %% convert testing fNIRS data to concentration
-                    dod = hmrIntensity2OD(d(tstIDX,:));
-                    dod = hmrBandpassFilt(dod, fq, 0, 0.5);
-                    dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
+                    %% now use correlation threshold for CCA outside of function to avoid redundant CCA recalculation
+                    % overwrite: auxiliary cca components that have
+                    % correlation > ctr
+                    compindex=find(ADD_trn{tt}.ccac>ctr);
+                    %overwrite: reduced mapping matrix Av
+                    ADD_trn{tt}.Av_red = ADD_trn{tt}.Av(:,compindex);
                     
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
