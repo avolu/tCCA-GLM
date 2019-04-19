@@ -42,14 +42,14 @@ eval_param.post = 10;
 flags.pcaf =  [0 0]; % no pca of X or AUX
 
 %motion artifact detection
-motionflag = false;
+motionflag = true;
 %plot flag
 flag_plot = false;
 
 % Validation parameters
-tlags = 0:1:2;%0:1:10;
-stpsize = 2:2:12;%2:2:24;
-cthresh = 0.5:0.1:1;%0.1:0.1:1;
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0.1:0.1:1;
 
 tlidx =0;
 stpidx =0;
@@ -64,7 +64,7 @@ hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 1%:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
 
     %% (re-)initialize result matrices
@@ -118,7 +118,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         %% convert testing fNIRS data to concentration and detect motion artifacts
         dod = hmrIntensity2OD(d(tstIDX,:));
         if motionflag
-            [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 0.5, 20, 5);
+            [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 1, 30, 5);
         end
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
@@ -195,18 +195,21 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
                     iterno = iterno+1;
                 end
+                % reset counter
+                ctidx =0;
             end
+            % reset counter
+            stpidx =0;
         end
+        % reset counter
+        tlidx =0;
     end
     %% save data for subject
     disp(['saving sbj ' num2str(sbj) '...'])
     save([path.save '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn 
-    % reset counter
-    tlidx =0;
-    stpidx =0;
-    ctidx =0;
+    
 end
 
 
