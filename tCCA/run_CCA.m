@@ -103,10 +103,9 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
         
-        %% convert testing fNIRS data to concentration
+        %% convert testing fNIRS data to concentration and detect motion artifacts
         dod = hmrIntensity2OD(d(tstIDX,:));
         [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 0.5, 20, 0.4);
-
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
