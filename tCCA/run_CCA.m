@@ -65,6 +65,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     
     %% AUX signals
     AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+    %% zscore AUX signals
+    AUX = zscore(AUX);
     
     %% check if the number of time points is odd/even, if odd make it even... (number of embedded should be the same)
     if mod(size(AUX,1),2) == 1
@@ -78,40 +80,38 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         t(end,:)=[];
         s(end,:)=[];
     end
-    
+
     % create data split indices
     len = size(AUX,1);
     spltIDX = {1:len/2,len/2+1:len};
     trntst = {[1,2], [2,1]};
     
-    for tl = tlags %loop across timelags
-        timelag = tl;
-        tlidx = tlidx+1;
+    %% run test and train CV splits
+    for tt = 1:2
+        tstIDX = spltIDX{trntst{tt}(1)};
+        trnIDX = spltIDX{trntst{tt}(2)};
         
-        for sts = stpsize  %loop across stepsizes
-            stpidx = stpidx+1;
-             %% set stepsize for CCA
-             param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
-             param.NumOfEmb = ceil(timelag*fq / sts);
-               
-            for ctr = cthresh %loop across correlation thresholds
-                ctidx = ctidx+1;
-                %% set correlation trheshold for CCA
-                param.ct = ctr;   % correlation threshold
-                %% run test and train CV splits
-                for tt = 1:2
-                    tstIDX = spltIDX{trntst{tt}(1)};
-                    trnIDX = spltIDX{trntst{tt}(2)};
-                    
-                    %% zscore AUX signals
-                    AUX = zscore(AUX);
+        for tl = tlags %loop across timelags
+            timelag = tl;
+            tlidx = tlidx+1;
+            
+            for sts = stpsize  %loop across stepsizes
+                stpidx = stpidx+1;
+                %% set stepsize for CCA
+                param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
+                param.NumOfEmb = ceil(timelag*fq / sts);
+                
+                for ctr = cthresh %loop across correlation thresholds
+                    ctidx = ctidx+1;
+                    %% set correlation trheshold for CCA
+                    param.ct = ctr;   % correlation threshold
                     
                     %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
                     % use test data of LD channels without synth HRF
                     X = d0_long(trnIDX,:);
                     [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
                     
-                    %% Temporally embed auxiliary data from testing split
+                    %% Temporal embedding of auxiliary data from testing split
                     aux_sigs = AUX(tstIDX,:);
                     aux_emb = aux_sigs;
                     for i=1:param.NumOfEmb
@@ -144,14 +144,17 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     end
                     
                     %% EVAL / PLOT
-                    [DET_SS(:,:,tt,sbj,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,sbj,tlidx,stpidx,ctidx), pval_SS(:,:,tt,sbj,tlidx,stpidx,ctidx), ...
-                        pval_CCA(:,:,tt,sbj,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,sbj,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,sbj,tlidx,stpidx,ctidx), ...
-                        CORR_SS(:,:,tt,sbj,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,sbj,tlidx,stpidx,ctidx)] = ...
+                    [DET_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), pval_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), ...
+                        pval_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx), ...
+                        CORR_SS(:,:,sbj,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,sbj,tt,tlidx,stpidx,ctidx)] = ...
                         results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf);
+                    % Dimensions of output metrics
+                    % #CH x 2(Hbo+HbR) x SBJ x 2 (cv split) x tlag x stepsize x corrthres
+                    % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
                     
                     % display iterno
                     disp(['iter #' num2str(iterno)])
-                    iterno = iterno+1
+                    iterno = iterno+1;
                 end
             end
         end

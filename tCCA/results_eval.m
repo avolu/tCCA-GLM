@@ -76,14 +76,14 @@ DET_CCA = zeros(size(MEAN_CCA,2),2);
     nohrflist = 1:1:size(HbO_SS,3);
     rmvidx = [lstHrfAdd(:,1); lstSS];
     nohrflist(rmvidx)=[];
-%HbO & HbR
+% init variables
 TP_SS=NaN(16,2);
 FP_SS=NaN(16,2);
 TN_SS=NaN(18,2);
 TN_CCA=NaN(18,2);
 TP_CCA=NaN(16,2);
 FP_CCA=NaN(16,2);
-
+%HbO & HbR
 for ii=1:2   
     % SS
     lst_sig = find(pval_SS(:,ii)<=0.05);
@@ -129,15 +129,24 @@ MEAN_SS_ev = MEAN_SS(abs(eval_param.HRFmin*fq)-1:end,:,:);
 MEAN_CCA_ev = MEAN_CCA(abs(eval_param.HRFmin*fq)-1:end,:,:);
 hrfeval = hrf.hrf_conc(1:size(MEAN_SS_ev,1),:);
 
+%init variables
+CORR_SS=NaN(16,2);
+CORR_CCA=NaN(16,2);
+MSE_SS=NaN(16,2);
+MSE_CCA=NaN(16,2);
+
 for ii=1:2
     idx = lstHrfAdd(:,1);
 
     % calculate correlation and MSE
-    CORR_SS(:,ii) = corr(squeeze(MEAN_SS_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
-    CORR_CCA(:,ii) = corr(squeeze(MEAN_CCA_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
-    MSE_SS(:,ii) = sqrt(nanmean((squeeze(MEAN_SS_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
-    MSE_CCA(:,ii) = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
-      
+    buf = corr(squeeze(MEAN_SS_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
+    CORR_SS(1:numel(buf),ii) = buf;
+    buf = corr(squeeze(MEAN_CCA_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
+    CORR_CCA(1:numel(buf),ii) = buf;
+    buf = sqrt(nanmean((squeeze(MEAN_SS_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
+    MSE_SS(1:numel(buf),ii) = buf;
+    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));     
+    MSE_CCA(1:numel(buf),ii) = buf;
 end
 
 
