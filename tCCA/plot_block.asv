@@ -8,7 +8,7 @@ coor_xy = [(SD.SrcPos(SD.MeasList(1:size(SD.MeasList,1)/2,1),1) + SD.DetPos(SD.M
 a = coor_xy(:,1);
 b = coor_xy(:,2);
 
-nf = 40;
+nf = 90;
 % baseline correct the mean for the plots
 % for HbO and HbR
 for i = 1:size(MEAN_SS,3)
@@ -66,37 +66,32 @@ figure;
 for i =lstLL'
     j = 1; % HbO
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
-    if pOxy_SS(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'r','LineWidth',2);
-        title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
+    if pOxy_SS(i,j))<=0.05
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS(:,i),STD_SS(:,i),'r','LineWidth',2);
+        title(['    p = ' (num2str(pOxy_SS(ss,i),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_SS(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i),STD_SS(:,i),STD_SS(:,i),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         xlabel('HRF')
     end
-    txt = ['ch ' num2str(i)];
-    ylabel(txt);
     grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
 end
-suptitle(['GLM with SS - Subject # ' num2str(ss) ' sec']) ;
+suptitle(['GLM - Subject # ' num2str(ss) ' sec']) ;
 
 
 figure;
-for i =lstLL'
-    j = 1; % HbO
+for i=lstLL'
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
-    if pOxy_CCA(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'r','LineWidth',2);
-        title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
-    elseif pOxy_SS(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+    if pOxy_CCA(ss,i)<=0.05
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i),STD_CCA(:,i),STD_CCA(:,i),'r','LineWidth',2);
+        title(['    p = ' (num2str(pOxy_CCA(ss,i),1))],'FontSize',15,'FontWeight','bold','color','k') ;
+    elseif pOxy_CCA(ss,i)>0.05
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i),STD_CCA(:,i),STD_CCA(:,i),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         xlabel('HRF')
     end
-    txt = ['ch ' num2str(i)];
-    ylabel(txt);
-    grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
+    grid; ylim([ylim1 ylim2]); xlim([xlim1 xlim2]);
 end
 suptitle(['GLM with CCA - Subject # ' num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec']) ;
