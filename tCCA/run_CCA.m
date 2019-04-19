@@ -7,7 +7,7 @@ clear all;
 % 9 design matrix VERY poorly scaled
 
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -117,9 +117,12 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         
         %% convert testing fNIRS data to concentration and detect motion artifacts
         dod = hmrIntensity2OD(d(tstIDX,:));
+        
         if motionflag
-            [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 1, 30, 5);
+            [tIncAuto] = hmrMotionArtifact(dod,fq,SD,ones(size(d,1),1),0.5,1,30,5);
+            [s,tRangeStimReject] = enStimRejection(t(tstIDX,:),s,tIncAuto,ones(size(d,1),1),[-2  10]);
         end
+        
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
@@ -163,17 +166,14 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
                     
-                    if motionflag
-                    else
-                        tInc = [];
-                    end
+
                     %% Perform GLM
                     % GLM with SS
                     [yavg_ss, yavgstd_ss, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                     % GLM with CCA outpout
                     [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
                     lst_stim = find(s(tstIDX,:)==1);
