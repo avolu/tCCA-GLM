@@ -1,6 +1,9 @@
+%% EXAMPLE SCRIPT
+% BE AWARE:
+% filtering and zscoring might be necessary/helpful. CCA components
+% (regressors) have arbitrary scaling. Should not be a problem in the GLM
+% regression, but keep it in mind!
 clear all;
-
-
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
 malexflag = 0;
 if malexflag
@@ -51,17 +54,6 @@ hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
 %iteration number
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
-
-%% initialize result matrices
-nTrials= NaN(numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-DET_SS= NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-DET_CCA= NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-pval_SS = NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-pval_CCA = NaN(34,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-MSE_SS = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-MSE_CCA = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-CORR_SS = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
-CORR_CCA = NaN(16,2,numel(sbjfolder),2,numel(tlags),numel(stpsize),numel(cthresh));
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
@@ -173,7 +165,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
                     
                     % display iterno
-                    disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
+                    disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', 'num2str(ceil(1000*iterno/(totiter))/10) '% done'])
                     iterno = iterno+1;
                 end
             end
