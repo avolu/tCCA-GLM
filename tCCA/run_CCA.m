@@ -34,7 +34,7 @@ flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
-eval_param.HRFmax = 15; % used only for block design runs
+eval_param.HRFmax = 17; % used only for block design runs
 eval_param.Hb = 1; % 1 HbO / 0 HbR (for block only)
 eval_param.pre = 5;  % HRF range in sec to calculate ttest
 eval_param.post = 10;
@@ -44,7 +44,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 % Validation parameters
 tlags = 0:1:10;
