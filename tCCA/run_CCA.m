@@ -63,10 +63,13 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     %% load data
     [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
     
+    %% lowpass filter AUX signals
+    AUX = hmrBandpassFilt(AUX, fq, 0, 0.5);
     %% AUX signals
     AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
     %% zscore AUX signals
     AUX = zscore(AUX);
+    
     
     %% check if the number of time points is odd/even, if odd make it even... (number of embedded should be the same)
     if mod(size(AUX,1),2) == 1
@@ -93,6 +96,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         
         %% convert testing fNIRS data to concentration
         dod = hmrIntensity2OD(d(tstIDX,:));
+        [tInc,tIncCh] = hmrMotionArtifactByChannel(dod, fq, SD, ones(size(d,1),1), 0.5, 0.5, 20, 0.4);
+
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
@@ -136,11 +141,11 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     %% Perform GLM
                     % GLM with SS
-                    [yavg_ss, yavgstd_ss, tHRF, nTrials, d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+                    [yavg_ss, yavgstd_ss, tHRF, nTrials(:,sbj,tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
+                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                     % GLM with CCA outpout
-                    [yavg_cca, yavgstd_cca, tHRF, nTrials, d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
+                    [yavg_cca, yavgstd_cca, tHRF, nTrials(:,sbj,tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
+                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
                     lst_stim = find(s(tstIDX,:)==1);
