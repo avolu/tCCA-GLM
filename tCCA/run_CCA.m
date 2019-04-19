@@ -53,6 +53,7 @@ hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
 
 %iteration number
 iterno = 1;
+totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
@@ -141,15 +142,15 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     %% Perform GLM
                     % GLM with SS
-                    [yavg_ss, yavgstd_ss, tHRF, nTrials(:,sbj,tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
+                    [yavg_ss, yavgstd_ss, tHRF, nTrials(sbj,tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
                     % GLM with CCA outpout
-                    [yavg_cca, yavgstd_cca, tHRF, nTrials(:,sbj,tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
+                    [yavg_cca, yavgstd_cca, tHRF, nTrials(sbj,tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, tInc, [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
                     lst_stim = find(s(tstIDX,:)==1);
-                    lst_stim = lst_stim(1:nTrials);
+                    lst_stim = lst_stim(1:nTrials(sbj,tt,tlidx,stpidx,ctidx));
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
                     end
@@ -164,7 +165,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
                     
                     % display iterno
-                    disp(['iter #' num2str(iterno)])
+                    disp(['iter #' num2str(iterno) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
                     iterno = iterno+1;
                 end
             end
