@@ -1,5 +1,10 @@
 clear all;
 
+%% subject remarks (resolve!)
+% 1 fine
+% 2,3,5,6,7,8,1011,12,13,14 not enough data to find a solution
+% 4 design matrix poorly scaled
+% 9 design matrix VERY poorly scaled
 
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
 malexflag = 0;
@@ -137,6 +142,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                 
                 for ctr = cthresh %loop across correlation thresholds
                     ctidx = ctidx+1;
+                    disp(['split: ' num2str(tt) ', tlag: ' num2str(tl) ', stsize: ' num2str(sts) ', ctrhesh: ' num2str(ctr)])
+                    
                     %% now use correlation threshold for CCA outside of function to avoid redundant CCA recalculation
                     % overwrite: auxiliary cca components that have
                     % correlation > ctr
@@ -173,7 +180,6 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     % display iterno
                     disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
-                    disp(['split: ' num2str(tt) ', tlag: ' num2str(tl) ', stsize: ' num2str(sts) ', ctrhesh: ' num2str(ctr)])
                     iterno = iterno+1;
                 end
             end
