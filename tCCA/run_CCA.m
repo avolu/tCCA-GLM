@@ -7,7 +7,7 @@ clear all;
 % 9 design matrix VERY poorly scaled
 
 % ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -28,7 +28,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 %% Options/Parameter Settings
 flag_half = 2;
 rhoSD_ssThresh = 15;  % mm
-flag_plot = 0;
+flag_plot = 1;
 flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters

@@ -91,10 +91,11 @@ for ii=1:2
     TP_SS(1:numel(lst_sig),ii) = ismember(lst_sig,lstHrfAdd(:,1)); % # of true positive channels
     FP_SS(1:numel(lst_sig),ii) = ~ismember(lst_sig,lstHrfAdd(:,1)); % # of false positive channels
     DET_SS(lst_sig(find(TP_SS(:,ii)==1)),ii) = 1;  % TP
-    DET_SS(lst_sig(~find(TP_SS(:,ii)==1)),ii) = 2; % FN 
     DET_SS(lst_sig(find(FP_SS(:,ii)==1)),ii) = -1; % FP
     lst_notsig = find(pval_SS(:,ii)>0.05);
     TN_SS(1:numel(lst_notsig),ii) = ismember(lst_notsig,nohrflist);
+    FN_SS(1:numel(lst_notsig),ii) = ismember(lst_notsig,lstHrfAdd(:,1));
+    DET_SS(lst_notsig(find(FN_SS(:,ii)==1)),ii) = 2; % FN 
     DET_SS(lst_notsig(find(TN_SS(:,ii)==1)),ii) = -2; % TN
    
     % CCA
@@ -102,11 +103,12 @@ for ii=1:2
     TP_CCA(1:numel(lst_sig),ii) = ismember(lst_sig,lstHrfAdd(:,1)); % # of true positive channels
     FP_CCA(1:numel(lst_sig),ii) = ~ismember(lst_sig,lstHrfAdd(:,1)); % # of false positive channels
     DET_CCA(lst_sig(find(TP_CCA(:,ii)==1)),ii) = 1; % TP
-    DET_CCA(lst_sig(~find(TP_CCA(:,ii)==1)),ii) = 2; %FN
     DET_CCA(lst_sig(find(FP_CCA(:,ii)==1)),ii) = -1; % FP
     lst_notsig = find(pval_CCA(:,ii)>0.05);
     nohrflist = 1:1:size(HbO_SS,3);
     TN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,nohrflist);
+    FN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,lstHrfAdd(:,1));
+    DET_CCA(lst_notsig(find(FN_CCA(:,ii)==1)),ii) = 2; % FN 
     DET_CCA(lst_notsig(find(TN_CCA(:,ii)==1)),ii) = -2; % TN
     
     ROCLAB.val = [1,-1,2,-2,0];
