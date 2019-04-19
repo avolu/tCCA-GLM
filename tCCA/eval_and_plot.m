@@ -29,7 +29,6 @@ CORR_CCA = [];
 for sbj = 1%:numel(sbjfolder)
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
     
-    
     %% append subject matrices here
     CORR_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.CORR_CCA;
     CORR_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.CORR_SS;
@@ -94,7 +93,7 @@ z = cthresh;
 % plot correlation
 figure
 [X,Y] = meshgrid(x,y);
-surf(X,Y, squeeze(CORR_CCA(1,:,:,1)))
+surf(X,Y, squeeze(CORR_CCA(1,:,:,1)),'FaceAlpha',0.5)
 xlabel('stepsize / smpl')
 ylabel('time lags / s')
 zlabel('HbO correlation')
@@ -106,6 +105,19 @@ xlabel('stepsize / smpl')
 ylabel('time lags / s')
 zlabel('HbO correlation')
 title('SS GLM')
+
+
+[X,Y] = meshgrid(x,y);
+figure
+for ii=1:9
+    subplot(3,3,ii)
+    contourf(X,Y, squeeze(CORR_CCA(1,:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['HbO Correlation ctrsh: ' num2str(cthresh(ii))])
+    colormap gray
+    colorbar 
+end
 
 % will be useful, keep for later
 %[r,c,v] = ind2sub(size(buf),find(buf == max(buf(:))))
