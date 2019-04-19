@@ -64,7 +64,7 @@ hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 1%:numel(sbjfolder) % loop across subjects
+for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
 
     %% (re-)initialize result matrices
@@ -239,6 +239,13 @@ for sbj = 1:numel(sbjfolder)
         end
     end
 end
+
+
+% will be useful, keep for later
+%[r,c,v] = ind2sub(size(buf),find(buf == max(buf(:))))
+
+
+
 %% visualize # chan
 figure
 scatter(nump_ss(:), nump_cca(:));
