@@ -173,6 +173,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     % display iterno
                     disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
+                    disp(['split: ' num2str(tt) ', tlag: ' num2str(tl) ', stsize: ' num2str(sts) ', ctrhesh: ' num2str(ctr)])
                     iterno = iterno+1;
                 end
             end
