@@ -105,7 +105,6 @@ for ii=1:2
     DET_CCA(lst_sig(find(TP_CCA(:,ii)==1)),ii) = 1; % TP
     DET_CCA(lst_sig(find(FP_CCA(:,ii)==1)),ii) = -1; % FP
     lst_notsig = find(pval_CCA(:,ii)>0.05);
-    nohrflist = 1:1:size(HbO_SS,3);
     TN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,nohrflist);
     FN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,lstHrfAdd(:,1));
     DET_CCA(lst_notsig(find(FN_CCA(:,ii)==1)),ii) = 2; % FN 

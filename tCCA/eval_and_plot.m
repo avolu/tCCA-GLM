@@ -1,7 +1,7 @@
 clear all
 
-% ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-malexflag = 0;
+% ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -56,7 +56,7 @@ if TP_flag
 end
 
 
-%% # of (TP) active channels
+%% # of TP/FP/FN/TN channels
 % for SS and CCA methods:
 foo_SS = permute(DET_SS,[2 1 3 4 5 6 7]);
 foo_SS = reshape(foo_SS, size(foo_SS,1), size(foo_SS,2)*size(foo_SS,3)*size(foo_SS,4)*size(foo_SS,5)*size(foo_SS,6)*size(foo_SS,7));
@@ -77,6 +77,14 @@ for i = 1:size(foo_SS,2)
     Ch_TN_CCA(i) = sum(foo_CCA(:,i)==-2);
 end
 
+% True Positive *Rate* and False Positive *Rate*
+TPR_SS = Ch_TP_SS./(Ch_TP_SS + Ch_FN_SS);
+FPR_SS = Ch_FP_SS./(Ch_FP_SS + Ch_TN_SS);
+
+TPR_CCA = Ch_TP_CCA./(Ch_TP_CCA + Ch_FN_CCA);
+FPR_CCA = Ch_FP_CCA./(Ch_FP_CCA + Ch_TN_CCA);
+
+
 % get F-score
 % SS & CCA
 Precision_SS = Ch_TP_SS ./(Ch_TP_SS + Ch_FP_SS);
@@ -93,12 +101,16 @@ Ch_FP_SS = reshape(Ch_FP_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), siz
 Ch_FN_SS = reshape(Ch_FN_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 Ch_TN_SS = reshape(Ch_TN_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 F_score_SS = reshape(F_score_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
+TPR_SS = reshape(TPR_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
+FPR_SS = reshape(FPR_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 
 Ch_TP_CCA = reshape(Ch_TP_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 Ch_FP_CCA = reshape(Ch_FP_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 Ch_FN_CCA = reshape(Ch_FN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 Ch_TN_CCA = reshape(Ch_TN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 F_score_CCA = reshape(F_score_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
+TPR_CCA = reshape(TPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
+FPR_CCA = reshape(FPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 
 
 
