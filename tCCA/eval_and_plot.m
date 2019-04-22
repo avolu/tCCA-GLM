@@ -1,7 +1,7 @@
 clear all
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -81,7 +81,7 @@ end
 TPR_SS = Ch_TP_SS./(Ch_TP_SS + Ch_FN_SS);
 FPR_SS = Ch_FP_SS./(Ch_FP_SS + Ch_TN_SS);
 
-TPR_CCA = Ch_TP_CCA./(Ch_TP_CCA + Ch_FN_CCA);
+fPR_CCA = Ch_TP_CCA./(Ch_TP_CCA + Ch_FN_CCA);
 FPR_CCA = Ch_FP_CCA./(Ch_FP_CCA + Ch_TN_CCA);
 
 
@@ -109,7 +109,7 @@ Ch_FP_CCA = reshape(Ch_FP_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4)
 Ch_FN_CCA = reshape(Ch_FN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 Ch_TN_CCA = reshape(Ch_TN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 F_score_CCA = reshape(F_score_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
-TPR_CCA = reshape(TPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
+fPR_CCA = reshape(fPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 FPR_CCA = reshape(FPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 
 
@@ -140,6 +140,7 @@ F_score_SS = squeeze(nanmean(F_score_SS,3));
 Ch_FP_CCA = squeeze(nanmean(Ch_FP_CCA,3));
 
 
+
 %% now average across subjects
 CORR_CCA = squeeze(nanmean(CORR_CCA,1));
 CORR_SS = squeeze(nanmean(CORR_SS,1));
@@ -150,6 +151,7 @@ pval_SS = squeeze(nanmean(pval_SS,1));
 F_score_CCA = squeeze(nanmean(F_score_CCA,1));
 F_score_SS = squeeze(nanmean(F_score_SS,1));
 Ch_FP_CCA = squeeze(nanmean(Ch_FP_CCA,1));
+
 
 %% dimensions: HbO/HbR (2) x timelags (11) x stepsize (12) x corr thresh (10)
 
@@ -271,44 +273,62 @@ for hh = 1:2
     end
 end
 
-%% plot FSCORE
-%HBO and HbR
-for hh = 1:2
-    [X,Y] = meshgrid(x,y);
-    figure
-    climits = [min(min(min(squeeze(F_score_CCA(hh,:,:,:))))) max(max(max(squeeze(F_score_CCA(hh,:,:,:)))))];
-    for ii=2:10
-        subplot(3,3,ii-1)
-        contourf(X,Y, squeeze(F_score_CCA(hh,:,:,ii)), 30)
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
-        colormap hot
-        colorbar
-        caxis(climits)
-        % mark maxima
-        hold on
-        buf =  squeeze(F_score_CCA(hh,:,:,ii));
-        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
-        if squeeze(F_score_CCA(hh,r(1),c(1),ii)) == climits(2)
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
-        else
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
-        end
-    end
-end
-
-
-
-
-
-% will be useful, keep for later
-%[r,c,v] = ind2sub(size(buf),find(buf == max(buf(:))))
 
 
 %% First try of objective function and finding optimum
+% fact: struct with factors (weights) for adapting the objective function J
+fact.corr = 1;
+fact.mse =2;
+fact.pval =2;
+fact.fscore=2;
+fact.HbO=1;
+fact.HbR=1;
+% initial guess
+x0 = [5 5 5];
+% normalize inputs
+for hh=1:2
+    CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
+    MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
+    PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
+    FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
+end
+% calculate objective function output for all input tupel
+for tt = 1:11
+    for ss = 1:12
+        for cc = 1:10
+            xx=[tt ss cc];
+            fval(tt,ss,cc) = J_opt(xx, CORR, MSE, PVAL, FSCORE, fact);
+        end
+    end
+end
+% find optimal parameter set
+[t,s,c] = ind2sub(size(fval),find(fval == min(fval(:))));
+disp(['these parameters minimize the objective function: timelag: ' ...
+    num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
 
-
+%% create combined surface plots (depict objective function)
+[X,Y] = meshgrid(x,y);
+figure
+climits = [min(fval(:)) max(fval(:))];
+for ii=2:10
+    subplot(3,3,ii-1)
+    contourf(X,Y, squeeze(fval(:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['Combined (J), ctrsh: ' num2str(cthresh(ii))])
+    colormap(flipud(hot))
+    colorbar
+    caxis(climits)
+    % mark maxima
+    hold on
+    buf =  squeeze(fval(:,:,ii));
+    [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
+    if squeeze(fval(r(1),c(1),ii)) == climits(1)
+        plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+    else
+        plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+    end
+end
 
 
 
