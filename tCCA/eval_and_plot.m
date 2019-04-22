@@ -26,6 +26,7 @@ cthresh = 0.1:0.1:1;
 
 %% load results data from all subjects
 CORR_CCA = [];
+% #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
 for sbj = 1%:numel(sbjfolder)
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
     
