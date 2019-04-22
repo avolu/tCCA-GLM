@@ -68,6 +68,7 @@ xlim2 = HRFmax;
 
 
 figure;
+% SS
 j = 1; % HbO
 foo = 1;
 for i =lstLL'
@@ -94,6 +95,7 @@ suptitle(['GLM with SS - Subject # ' num2str(ss) ' sec']) ;
 
 
 figure;
+% CCA
 foo = 1;
 for i =lstLL'
     j = 1; % HbO
@@ -101,8 +103,8 @@ for i =lstLL'
     hold on;
     if pOxy_CCA(i,j)<=0.05
         errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'r','LineWidth',2);
-        title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
-    elseif pOxy_SS(i,j)>0.05
+        title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
+    elseif pOxy_CCA(i,j)>0.05
         errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
@@ -125,6 +127,7 @@ suptitle(['GLM with CCA - Subject # ' num2str(ss) ',  t_l_a_g= ' num2str(timelag
 
 
 figure;
+% SS
 j = 2; % HbR
 foo = 1;
 for i =lstLL'
@@ -151,6 +154,7 @@ suptitle(['GLM with SS - Subject # ' num2str(ss) ' sec']) ;
 
 
 figure;
+% CCA
 foo = 1;
 for i =lstLL'
     j = 2; % HbR
@@ -158,8 +162,8 @@ for i =lstLL'
     hold on;
     if pOxy_CCA(i,j)<=0.05
         errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'r','LineWidth',2);
-        title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
-    elseif pOxy_SS(i,j)>0.05
+        title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
+    elseif pOxy_CCA(i,j)>0.05
         errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
