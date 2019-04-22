@@ -27,6 +27,8 @@ stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
 
 %% load results data from all subjects
+% Dimensions of output metrics
+% #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
 CORR_CCA = [];
 for sbj = 1:numel(sbjfolder)
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
@@ -86,7 +88,6 @@ z = cthresh;
 hblab = {'HbO', 'HbR'};
 
 %% plot correlation
-
 %HBO and HbR
 for hh = 1:2
     [X,Y] = meshgrid(x,y);
