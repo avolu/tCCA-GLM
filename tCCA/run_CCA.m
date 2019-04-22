@@ -44,7 +44,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
+flag_plot = false;
 
 % Validation parameters
 tlags = 0:1:10;
