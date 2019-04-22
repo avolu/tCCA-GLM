@@ -1,4 +1,4 @@
-function [x, fval] = J_opt(x, CORR, MSE, PVAL, FSCORE, CHNO, fact)
+function [x, fval] = J_opt(x, CORR, MSE, PVAL, FSCORE, fact)
 % J_OPT Cost function to optimize
 % uses results from run_CCA 
 % INPUTS

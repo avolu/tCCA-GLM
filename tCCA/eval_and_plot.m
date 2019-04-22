@@ -21,7 +21,7 @@ set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
 
 % flags
-TP_flag = 1;
+TP_flag = true;
 
 % Validation parameters
 tlags = 0:1:10;
@@ -79,12 +79,12 @@ end
 
 % get F-score
 % SS & CCA
-Precision_SS = Ch_TP_SS .*(Ch_TP_SS + Ch_FP_SS);
-Recall_SS = Ch_TP_SS .*(Ch_TP_SS + Ch_FN_SS);
+Precision_SS = Ch_TP_SS ./(Ch_TP_SS + Ch_FP_SS);
+Recall_SS = Ch_TP_SS ./(Ch_TP_SS + Ch_FN_SS);
 F_score_SS = 2 * (Precision_SS .* Recall_SS)./(Precision_SS + Recall_SS);
 
-Precision_CCA = Ch_TP_CCA .*(Ch_TP_CCA + Ch_FP_CCA);
-Recall_CCA = Ch_TP_CCA .*(Ch_TP_CCA + Ch_FN_CCA);
+Precision_CCA = Ch_TP_CCA ./(Ch_TP_CCA + Ch_FP_CCA);
+Recall_CCA = Ch_TP_CCA ./(Ch_TP_CCA + Ch_FN_CCA);
 F_score_CCA = 2 * (Precision_CCA .* Recall_CCA)./(Precision_CCA + Recall_CCA);
 
 % reshape all to "# of sbjs x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
@@ -123,6 +123,10 @@ MSE_CCA = squeeze(nanmean(MSE_CCA,3));
 MSE_SS = squeeze(nanmean(MSE_SS,3));
 pval_CCA = squeeze(nanmean(pval_CCA,3));
 pval_SS = squeeze(nanmean(pval_SS,3));
+F_score_CCA = squeeze(nanmean(F_score_CCA,3));
+F_score_SS = squeeze(nanmean(F_score_SS,3));
+Ch_FP_CCA = squeeze(nanmean(Ch_FP_CCA,3));
+
 
 %% now average across subjects
 CORR_CCA = squeeze(nanmean(CORR_CCA,1));
@@ -131,7 +135,9 @@ MSE_CCA = squeeze(nanmean(MSE_CCA,1));
 MSE_SS = squeeze(nanmean(MSE_SS,1));
 pval_CCA = squeeze(nanmean(pval_CCA,1));
 pval_SS = squeeze(nanmean(pval_SS,1));
-
+F_score_CCA = squeeze(nanmean(F_score_CCA,1));
+F_score_SS = squeeze(nanmean(F_score_SS,1));
+Ch_FP_CCA = squeeze(nanmean(Ch_FP_CCA,1));
 
 %% dimensions: HbO/HbR (2) x timelags (11) x stepsize (12) x corr thresh (10)
 
@@ -224,6 +230,64 @@ for hh=1:2
         end
     end
 end
+
+
+%% plot FSCORE
+%HBO and HbR
+for hh = 1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(F_score_CCA(hh,:,:,:))))) max(max(max(squeeze(F_score_CCA(hh,:,:,:)))))];
+    for ii=2:10
+        subplot(3,3,ii-1)
+        contourf(X,Y, squeeze(F_score_CCA(hh,:,:,ii)), 30)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
+        colormap hot
+        colorbar
+        caxis(climits)
+        % mark maxima
+        hold on
+        buf =  squeeze(F_score_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
+        if squeeze(F_score_CCA(hh,r(1),c(1),ii)) == climits(2)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+    end
+end
+
+%% plot FSCORE
+%HBO and HbR
+for hh = 1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(F_score_CCA(hh,:,:,:))))) max(max(max(squeeze(F_score_CCA(hh,:,:,:)))))];
+    for ii=2:10
+        subplot(3,3,ii-1)
+        contourf(X,Y, squeeze(F_score_CCA(hh,:,:,ii)), 30)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
+        colormap hot
+        colorbar
+        caxis(climits)
+        % mark maxima
+        hold on
+        buf =  squeeze(F_score_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
+        if squeeze(F_score_CCA(hh,r(1),c(1),ii)) == climits(2)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+    end
+end
+
+
+
 
 
 % will be useful, keep for later
