@@ -289,14 +289,60 @@ end
 
 
 
-
-% will be useful, keep for later
-%[r,c,v] = ind2sub(size(buf),find(buf == max(buf(:))))
-
-
 %% First try of objective function and finding optimum
+% fact: struct with factors (weights) for adapting the objective function J
+fact.corr = 1;
+fact.mse =2;
+fact.pval =2;
+fact.fscore=3;
+fact.HbO=1;
+fact.HbR=1;
+% initial guess
+x0 = [5 5 5];
+% normalize inputs
+for hh=1:2
+    CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
+    MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
+    PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
+    FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
+end
+% calculate objective function output for all input tupel
+for tt = 1:11
+    for ss = 1:12
+        for cc = 1:10
+            xx=[tt ss cc];
+            fval(tt,ss,cc) = J_opt(xx, CORR, MSE, PVAL, FSCORE, fact);
+        end
+    end
+end
+% find optimal parameter set
+[t,s,c] = ind2sub(size(fval),find(fval == min(fval(:))));
+disp(['these parameters minimize the objective function: timelag: ' ...
+    num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
 
-
+%% create combined surface plots (depict objective function)
+[X,Y] = meshgrid(x,y);
+figure
+climits = [min(fval(:)) max(fval(:))];
+for ii=2:10
+    subplot(3,3,ii-1)
+    contourf(X,Y, squeeze(fval(:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['Combined (J), ctrsh: ' num2str(cthresh(ii))])
+    colormap(flipud(hot))
+    colorbar
+    caxis(climits)
+    % mark maxima
+    hold on
+    buf =  squeeze(fval(:,:,ii));
+    [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
+    if squeeze(fval(r(1),c(1),ii)) == climits(1)
+        plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+    else
+        plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+    end
+end
 
 
 
