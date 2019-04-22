@@ -121,9 +121,11 @@ DET_CCA(lstSS,:)= 0;
 
 %% lets do the calculation of the other performance metrics here later on
 % correlation
-% cut to the same timebase
+% cut to the same timebase and baseline correct
 MEAN_SS_ev = MEAN_SS(abs(eval_param.HRFmin*fq)-1:end,:,:);
+MEAN_SS_ev = MEAN_SS_ev-nanmean(MEAN_SS(1:abs(fq*eval_param.HRFmin),:,:),1);
 MEAN_CCA_ev = MEAN_CCA(abs(eval_param.HRFmin*fq)-1:end,:,:);
+MEAN_CCA_ev = MEAN_CCA_ev-nanmean(MEAN_CCA(1:abs(fq*eval_param.HRFmin),:,:),1);
 hrfeval = hrf.hrf_conc(1:size(MEAN_SS_ev,1),:);
 
 %init variables
