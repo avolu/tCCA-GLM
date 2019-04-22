@@ -62,7 +62,7 @@ end
 lstLL = lst(find(rhoSD>=rhoSD_ssThresh & mlAct(lst)==1));
 
 ylim1 = -1e-6;
-ylim2 = 1e-6;
+ylim2 = 1.5e-6;
 xlim1 = HRFmin;
 xlim2 = HRFmax;
 
