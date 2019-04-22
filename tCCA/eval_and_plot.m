@@ -1,18 +1,14 @@
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-<<<<<<< HEAD
-malexflag = 1;
-=======
 malexflag = 0;
->>>>>>> master
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % data directory
+    path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % data directory
+    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
@@ -32,12 +28,7 @@ cthresh = 0.1:0.1:1;
 % Dimensions of output metrics
 % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
 CORR_CCA = [];
-<<<<<<< HEAD
-% #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
-for sbj = 1%:numel(sbjfolder)
-=======
 for sbj = 1:numel(sbjfolder)
->>>>>>> master
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
     
     %% append subject matrices here
