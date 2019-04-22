@@ -1,5 +1,9 @@
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
+<<<<<<< HEAD
 malexflag = 1;
+=======
+malexflag = 0;
+>>>>>>> master
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -25,11 +29,16 @@ stpsize = 2:2:24;
 cthresh = 0.1:0.1:1;
 
 %% load results data from all subjects
+% Dimensions of output metrics
+% #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
 CORR_CCA = [];
+<<<<<<< HEAD
 % #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
 for sbj = 1%:numel(sbjfolder)
+=======
+for sbj = 1:numel(sbjfolder)
+>>>>>>> master
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
-    
     
     %% append subject matrices here
     CORR_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.CORR_CCA;
@@ -59,28 +68,28 @@ pval_CCA = squeeze(nanmean(pval_CCA,2));
 pval_SS = squeeze(nanmean(pval_SS,2));
 
 %% now average across splits
-% CORR_CCA = squeeze(nanmean(CORR_CCA,3));
-% CORR_SS = squeeze(nanmean(CORR_SS,3));
-% MSE_CCA = squeeze(nanmean(MSE_CCA,3));
-% MSE_SS = squeeze(nanmean(MSE_SS,3));
-% pval_CCA = squeeze(nanmean(pval_CCA,3));
-% pval_SS = squeeze(nanmean(pval_SS,3));
+CORR_CCA = squeeze(nanmean(CORR_CCA,3));
+CORR_SS = squeeze(nanmean(CORR_SS,3));
+MSE_CCA = squeeze(nanmean(MSE_CCA,3));
+MSE_SS = squeeze(nanmean(MSE_SS,3));
+pval_CCA = squeeze(nanmean(pval_CCA,3));
+pval_SS = squeeze(nanmean(pval_SS,3));
 
 %% now average across subjects
-% CORR_CCA = squeeze(nanmean(CORR_CCA,1));
-% CORR_SS = squeeze(nanmean(CORR_SS,1));
-% MSE_CCA = squeeze(nanmean(MSE_CCA,1));
-% MSE_SS = squeeze(nanmean(MSE_SS,1));
-% pval_CCA = squeeze(nanmean(pval_CCA,1));
-% pval_SS = squeeze(nanmean(pval_SS,1));
+CORR_CCA = squeeze(nanmean(CORR_CCA,1));
+CORR_SS = squeeze(nanmean(CORR_SS,1));
+MSE_CCA = squeeze(nanmean(MSE_CCA,1));
+MSE_SS = squeeze(nanmean(MSE_SS,1));
+pval_CCA = squeeze(nanmean(pval_CCA,1));
+pval_SS = squeeze(nanmean(pval_SS,1));
 
 % for only one subject
-CORR_CCA = squeeze(nanmean(CORR_CCA,2));
-CORR_SS = squeeze(nanmean(CORR_SS,2));
-MSE_CCA = squeeze(nanmean(MSE_CCA,2));
-MSE_SS = squeeze(nanmean(MSE_SS,2));
-pval_CCA = squeeze(nanmean(pval_CCA,2));
-pval_SS = squeeze(nanmean(pval_SS,2));
+% CORR_CCA = squeeze(nanmean(CORR_CCA,2));
+% CORR_SS = squeeze(nanmean(CORR_SS,2));
+% MSE_CCA = squeeze(nanmean(MSE_CCA,2));
+% MSE_SS = squeeze(nanmean(MSE_SS,2));
+% pval_CCA = squeeze(nanmean(pval_CCA,2));
+% pval_SS = squeeze(nanmean(pval_SS,2));
 
 
 %% dimensions: HbO/HbR (2) x timelags (11) x stepsize (12) x corr thresh (10)
@@ -92,93 +101,92 @@ y = tlags;
 z = cthresh;
 
 
-% plot correlation
+%% plot correlation
 figure
 [X,Y] = meshgrid(x,y);
-surf(X,Y, squeeze(CORR_CCA(1,:,:,1)))
+surf(X,Y, squeeze(CORR_CCA(1,:,:,1)),'FaceAlpha',0.5)
 xlabel('stepsize / smpl')
 ylabel('time lags / s')
 zlabel('HbO correlation')
 title('CCA GLM')
-figure
-[X,Y] = meshgrid(x,y);
-surf(X,Y, squeeze(CORR_SS(1,:,:,1)))
+hold on
+surf(X,Y, squeeze(CORR_CCA(1,:,:,10)),'FaceAlpha',0.5)
 xlabel('stepsize / smpl')
 ylabel('time lags / s')
 zlabel('HbO correlation')
-title('SS GLM')
+title('CCA GLM correlation')
+
+[X,Y] = meshgrid(x,y);
+figure
+for ii=1:9
+    subplot(3,3,ii)
+    contourf(X,Y, squeeze(CORR_CCA(1,:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['HbO Correlation ctrsh: ' num2str(cthresh(ii))])
+    colormap gray
+    colorbar
+end
+
+
+
+
+%% plot MSE
+figure
+[X,Y] = meshgrid(x,y);
+surf(X,Y, squeeze(MSE_CCA(1,:,:,1)),'FaceAlpha',0.5)
+xlabel('stepsize / smpl')
+ylabel('time lags / s')
+zlabel('HbO MSE')
+title('CCA GLM')
+hold on
+surf(X,Y, squeeze(MSE_CCA(1,:,:,10)),'FaceAlpha',0.5)
+xlabel('stepsize / smpl')
+ylabel('time lags / s')
+zlabel('HbO MSE')
+title('CCA GLM MSE')
+
+[X,Y] = meshgrid(x,y);
+figure
+for ii=1:9
+    subplot(3,3,ii)
+    contourf(X,Y, squeeze(MSE_CCA(1,:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['HbO MSE ctrsh: ' num2str(cthresh(ii))])
+    colormap gray
+    colorbar
+end
+
+
+%% plot pvals
+figure
+[X,Y] = meshgrid(x,y);
+surf(X,Y, squeeze(pval_CCA(1,:,:,1)),'FaceAlpha',0.5)
+xlabel('stepsize / smpl')
+ylabel('time lags / s')
+zlabel('HbO pVals')
+title('CCA GLM')
+hold on
+surf(X,Y, squeeze(pval_CCA(1,:,:,10)),'FaceAlpha',0.5)
+xlabel('stepsize / smpl')
+ylabel('time lags / s')
+zlabel('HbO pval')
+title('CCA GLM pval')
+
+[X,Y] = meshgrid(x,y);
+figure
+for ii=1:9
+    subplot(3,3,ii)
+    contourf(X,Y, squeeze(pval_CCA(1,:,:,ii)), 20)
+    xlabel('stepsize / smpl')
+    ylabel('time lags / s')
+    title(['HbO pVals ctrsh: ' num2str(cthresh(ii))])
+    colormap gray
+    colorbar
+end
 
 % will be useful, keep for later
 %[r,c,v] = ind2sub(size(buf),find(buf == max(buf(:))))
 
-
-
-%% visualize # chan
-figure
-scatter(nump_ss(:), nump_cca(:));
-mx=max([nump_ss(:); nump_cca(:)]);
-mn=min([nump_ss(:); nump_cca(:)]);
-xlim([mn mx])
-ylim([mn mx])
-hold on
-plot([mn mx], [mn mx], 'k')
-scatter(nanmean(nump_ss(:)), nanmean(nump_cca(:)), 'xr')
-title(['# of significant channels. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
-xlabel('SS GLM')
-ylabel('CCA GLM')
-
-%% visualize pval
-figure
-scatter(avgp_ss(:), avgp_cca(:));
-mx=max([avgp_ss(:); avgp_cca(:)]);
-mn=min([avgp_ss(:); avgp_cca(:)]);
-xlim([mn mx])
-ylim([mn mx])
-hold on
-plot([mn mx], [mn mx], 'k')
-scatter(nanmean(avgp_ss(:)), nanmean(avgp_cca(:)), 'xr')
-title(['Average p-val. lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
-xlabel('SS GLM')
-ylabel('CCA GLM')
-
-
-%% plot FP
-%% visualize pval
-figure
-FP_SS = reshape(FP_SS,size(FP_SS,1)*size(FP_SS,2),1);
-FP_CCA = reshape(FP_CCA,size(FP_SS,1)*size(FP_SS,2),1);
-scatter(FP_SS,FP_CCA);
-mx=max([FP_SS(:); FP_CCA(:)]);
-mn=min([FP_SS(:); FP_CCA(:)]);
-xlim([mn mx])
-ylim([mn mx])
-hold on
-plot([mn mx], [mn mx], 'k')
-scatter(nanmean(FP_SS(:)), nanmean(FP_CCA(:)), 'xr')
-title(['# of channels with FP, lag = ' num2str(timelag) 's, ct = ' num2str(param.ct) ' \tau = ' num2str(param.tau)])
-xlabel('SS GLM')
-ylabel('CCA GLM')
-
-
-%% Briefly eval p val and # det ch improvement
-for sbj = 1:numel(sbjfolder)
-    for tt = 1:2
-        ss_actidx = find(p_SS{sbj,tt});
-        cca_actidx = find(p_CCA{sbj,tt});
-        
-        % number of activated channels
-        nump_ss(sbj,tt) = numel(ss_actidx);
-        nump_cca(sbj,tt) = numel(cca_actidx);
-        % average pval of discovered channels
-        format long
-        foo = pOxy_SS{sbj,tt};
-        if ~isempty(foo)
-            avgp_ss(sbj,tt) = nanmean(foo(sbj,ss_actidx));
-        end
-        foo = pOxy_CCA{sbj,tt};
-        if ~isempty(foo)
-            avgp_cca(sbj,tt) = nanmean(foo(sbj,cca_actidx));
-        end
-    end
-end
 

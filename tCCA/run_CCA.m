@@ -6,8 +6,8 @@ clear all;
 % 4 design matrix poorly scaled
 % 9 design matrix VERY poorly scaled
 
-% ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
-malexflag = 1;
+% ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -44,12 +44,12 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
+flag_plot = false;
 
 % Validation parameters
 tlags = 0:1:10;
 stpsize = 2:2:24;
-cthresh = 0.1:0.1:1;
+cthresh = 0:0.1:0.9;
 
 tlidx =0;
 stpidx =0;
