@@ -6,7 +6,7 @@ clear all;
 % 4 design matrix poorly scaled
 % 9 design matrix VERY poorly scaled
 
-% ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
+% ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
 malexflag = 0;
 if malexflag
     %Meryem

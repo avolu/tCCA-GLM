@@ -1,4 +1,4 @@
-% ##### FOLLOWIG TWO LINES NEED CHANGE ACCRODING TO USER!
+% ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
 malexflag = 0;
 if malexflag
     %Meryem
@@ -25,6 +25,8 @@ stpsize = 2:2:24;
 cthresh = 0.1:0.1:1;
 
 %% load results data from all subjects
+% Dimensions of output metrics
+% #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
 CORR_CCA = [];
 for sbj = 1:numel(sbjfolder)
     res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
@@ -114,7 +116,7 @@ for ii=1:9
     ylabel('time lags / s')
     title(['HbO Correlation ctrsh: ' num2str(cthresh(ii))])
     colormap gray
-    colorbar 
+    colorbar
 end
 
 
@@ -144,7 +146,7 @@ for ii=1:9
     ylabel('time lags / s')
     title(['HbO MSE ctrsh: ' num2str(cthresh(ii))])
     colormap gray
-    colorbar 
+    colorbar
 end
 
 
@@ -172,7 +174,7 @@ for ii=1:9
     ylabel('time lags / s')
     title(['HbO pVals ctrsh: ' num2str(cthresh(ii))])
     colormap gray
-    colorbar 
+    colorbar
 end
 
 % will be useful, keep for later
