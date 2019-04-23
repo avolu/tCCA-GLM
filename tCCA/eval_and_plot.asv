@@ -154,137 +154,13 @@ Ch_FP_CCA = squeeze(nanmean(Ch_FP_CCA,1));
 
 
 %% dimensions: HbO/HbR (2) x timelags (11) x stepsize (12) x corr thresh (10)
-
-%% 3D surface plots
-
 x = stpsize;
 y = tlags;
 z = cthresh;
 hblab = {'HbO', 'HbR'};
 
-%% plot correlation
-%HBO and HbR
-for hh = 1:2
-    [X,Y] = meshgrid(x,y);
-    figure
-    climits = [min(min(min(squeeze(CORR_CCA(hh,:,:,:))))) max(max(max(squeeze(CORR_CCA(hh,:,:,:)))))];
-    for ii=2:10
-        subplot(3,3,ii-1)
-        contourf(X,Y, squeeze(CORR_CCA(hh,:,:,ii)), 30)
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        title([hblab{hh} ' Correlation ctrsh: ' num2str(cthresh(ii))])
-        colormap hot
-        colorbar
-        caxis(climits)
-        % mark maxima
-        hold on
-        buf =  squeeze(CORR_CCA(hh,:,:,ii));
-        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
-        if squeeze(CORR_CCA(hh,r(1),c(1),ii)) == climits(2)
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
-        else
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
-        end
-    end
-end
-
-
-
-%% plot MSE
-%HBO & HbR
-for hh=1:2
-    [X,Y] = meshgrid(x,y);
-    figure
-    climits = [min(min(min(squeeze(MSE_CCA(hh,:,:,ii))))) max(max(max(squeeze(MSE_CCA(hh,:,:,ii)))))];
-    for ii=2:10
-        subplot(3,3,ii-1)
-        contourf(X,Y, squeeze(MSE_CCA(hh,:,:,ii)), 30)
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        title([hblab{hh} ' MSE ctrsh: ' num2str(cthresh(ii))])
-        colormap(flipud(hot))
-        colorbar
-        caxis(climits)
-        % mark minima
-        hold on
-        buf =  squeeze(MSE_CCA(hh,:,:,ii));
-        [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
-        if squeeze(MSE_CCA(hh,r(1),c(1),ii)) == climits(1)
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
-        else
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
-        end
-    end
-end
-
-%% plot pvals
-%HBO & HbR
-for hh=1:2
-    [X,Y] = meshgrid(x,y);
-    figure
-    climits = [min(min(min(squeeze(pval_CCA(hh,:,:,ii))))) max(max(max(squeeze(pval_CCA(hh,:,:,ii)))))];
-    for ii=2:10
-        subplot(3,3,ii-1)
-        contourf(X,Y, squeeze(pval_CCA(hh,:,:,ii)), 20)
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        title([hblab{hh} ' pVals ctrsh: ' num2str(cthresh(ii))])
-        colormap(flipud(hot))
-        colorbar
-        caxis(climits)
-        % mark minima
-        hold on
-        buf =  squeeze(pval_CCA(hh,:,:,ii));
-        [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
-        if squeeze(pval_CCA(hh,r(1),c(1),ii)) == climits(1)
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
-        else
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
-        end
-    end
-end
-
-
-%% plot FSCORE
-%HBO and HbR
-for hh = 1:2
-    [X,Y] = meshgrid(x,y);
-    figure
-    climits = [min(min(min(squeeze(F_score_CCA(hh,:,:,:))))) max(max(max(squeeze(F_score_CCA(hh,:,:,:)))))];
-    for ii=2:10
-        subplot(3,3,ii-1)
-        contourf(X,Y, squeeze(F_score_CCA(hh,:,:,ii)), 30)
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
-        colormap hot
-        colorbar
-        caxis(climits)
-        % mark maxima
-        hold on
-        buf =  squeeze(F_score_CCA(hh,:,:,ii));
-        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
-        if squeeze(F_score_CCA(hh,r(1),c(1),ii)) == climits(2)
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
-        else
-            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
-        end
-    end
-end
-
-
-
-%% First try of objective function and finding optimum
-% fact: struct with factors (weights) for adapting the objective function J
-fact.corr = 1;
-fact.mse =1;
-fact.pval =1;
-fact.fscore=2;
-fact.HbO=1;
-fact.HbR=1;
-% initial guess
-x0 = [5 5 5];
+%% Global optimum using clustering approach: find parameter set(s) that are in each optimal cluster
+% and find overlaps
 % normalize inputs
 for hh=1:2
     CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
@@ -292,6 +168,72 @@ for hh=1:2
     PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
     FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
 end
+% HbO & HbR
+for hh=1:2
+    k = 30; %start number of clusters
+    R{hh} = [];
+    while isempty(R{hh}) && k >0
+        [L,centers] = imsegkmeans3(single(squeeze(CORR(hh,:,:,:))),k);
+        [m,i] = max(centers);
+        [t,s,c] = ind2sub(size(L),find(L==i));
+        C = [t s c];
+        
+        [L,centers] = imsegkmeans3(single(squeeze(MSE(hh,:,:,:))),k);
+        [m,i] = min(centers);
+        [t,s,c] = ind2sub(size(L),find(L==i));
+        M = [t s c];
+        
+        [L,centers] = imsegkmeans3(single(squeeze(PVAL(hh,:,:,:))),k);
+        [m,i] = min(centers);
+        [t,s,c] = ind2sub(size(L),find(L==i));
+        P = [t s c];
+        
+        [L,centers] = imsegkmeans3(single(squeeze(FSCORE(hh,:,:,:))),k);
+        [m,i] = max(centers);
+        [t,s,c] = ind2sub(size(L),find(L==i));
+        F = [t s c];
+        
+        R1 = intersect(C,M,'rows');
+        R2 = intersect(P,F,'rows');
+        R{hh} = intersect(R1,R2,'rows');
+        if isempty(R{hh})
+            k = k-1;
+        else
+            clust(hh) = k;
+        end
+    end
+end
+buf = intersect(R{1}, R{2}, 'rows');
+R=[];
+R=buf;
+
+disp('=================================================================')
+disp(['Results of cluster analysis, Optimal parameters for HbO and HbR (' num2str(clust(1)) '/' num2str(clust(2)) ' clusters)'])
+for ii = 1:size(R,1)
+    disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,2)))])
+    disp(['Corresponding CORR/MSE/PVAL/FSCORE: ' num2str(CORR_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
+        num2str(MSE_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
+        num2str(pval_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
+        num2str(F_score_CCA(hh,R(ii,1),R(ii,2),R(ii,3)))])
+end
+disp('=================================================================')
+
+
+%% Approach to find a global optimum: use objective function
+% normalize inputs
+for hh=1:2
+    CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
+    MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
+    PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
+    FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
+end
+% fact: struct with factors (weights) for adapting the objective function J
+fact.corr = 1;
+fact.mse =2;
+fact.pval =1;
+fact.fscore=2;
+fact.HbO=1;
+fact.HbR=1;
 % calculate objective function output for all input tupel
 for tt = 1:11
     for ss = 1:12
@@ -303,8 +245,12 @@ for tt = 1:11
 end
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fval),find(fval == min(fval(:))));
+pOpt = [t s c]; 
+disp('=================================================================')
 disp(['these parameters minimize the objective function: timelag: ' ...
     num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
+disp('=================================================================')
+
 
 %% create combined surface plots (depict objective function)
 [X,Y] = meshgrid(x,y);
@@ -319,7 +265,7 @@ for ii=2:10
     colormap(flipud(hot))
     colorbar
     caxis(climits)
-    % mark maxima
+    % mark local optima
     hold on
     buf =  squeeze(fval(:,:,ii));
     [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
@@ -328,7 +274,178 @@ for ii=2:10
     else
         plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
     end
+    % mark optima from cluster analysis
+    ridx = find(R(:,3)==ii);
+    if ~isempty(ridx)
+        for rr = 1:numel(ridx)
+            plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+        end
+    end
+    % mark optimum from objective function
+    if ii == pOpt(3,1)
+        plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+    end
 end
+
+
+%% plot correlation
+%HBO and HbR
+for hh = 1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(CORR_CCA(hh,:,:,:))))) max(max(max(squeeze(CORR_CCA(hh,:,:,:)))))];
+    for ii=1:10
+        subplot(3,4,ii)
+        contourf(X,Y, squeeze(CORR_CCA(hh,:,:,ii)), 30)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' Correlation ctrsh: ' num2str(cthresh(ii))])
+        colormap hot
+        colorbar
+        caxis(climits)
+        % mark local optima
+        hold on
+        buf =  squeeze(CORR_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
+        if squeeze(CORR_CCA(hh,r(1),c(1),ii)) == climits(2)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+        % mark optima from cluster analysis
+        ridx = find(R(:,3)==ii);
+        if ~isempty(ridx)
+            for rr = 1:numel(ridx)
+                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+            end
+        end
+        % mark optimum from objective function
+    if ii == pOpt(3,1)
+        plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+    end
+    end
+end
+
+
+
+%% plot MSE
+%HBO & HbR
+for hh=1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(MSE_CCA(hh,:,:,ii))))) max(max(max(squeeze(MSE_CCA(hh,:,:,ii)))))];
+    for ii=1:10
+        subplot(3,4,ii)
+        contourf(X,Y, squeeze(MSE_CCA(hh,:,:,ii)), 30)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' MSE ctrsh: ' num2str(cthresh(ii))])
+        colormap(flipud(hot))
+        colorbar
+        caxis(climits)
+        % mark local optima
+        hold on
+        buf =  squeeze(MSE_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
+        if squeeze(MSE_CCA(hh,r(1),c(1),ii)) == climits(1)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+        % mark optima from cluster analysis
+        ridx = find(R(:,3)==ii);
+        if ~isempty(ridx)
+            for rr = 1:numel(ridx)
+                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+            end
+        end
+        % mark optimum from objective function
+    if ii == pOpt(3,1)
+        plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+    end
+    end
+end
+
+%% plot pvals
+%HBO & HbR
+for hh=1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(pval_CCA(hh,:,:,ii))))) max(max(max(squeeze(pval_CCA(hh,:,:,ii)))))];
+    for ii=1:10
+        subplot(3,4,ii)
+        contourf(X,Y, squeeze(pval_CCA(hh,:,:,ii)), 20)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' pVals ctrsh: ' num2str(cthresh(ii))])
+        colormap(flipud(hot))
+        colorbar
+        caxis(climits)
+        % mark local optima
+        hold on
+        buf =  squeeze(pval_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
+        if squeeze(pval_CCA(hh,r(1),c(1),ii)) == climits(1)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+        % mark optima from cluster analysis
+        ridx = find(R(:,3)==ii);
+        if ~isempty(ridx)
+            for rr = 1:numel(ridx)
+                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+            end
+        end
+    end
+end
+
+
+%% plot FSCORE
+%HBO and HbR
+for hh = 1:2
+    [X,Y] = meshgrid(x,y);
+    figure
+    climits = [min(min(min(squeeze(F_score_CCA(hh,:,:,:))))) max(max(max(squeeze(F_score_CCA(hh,:,:,:)))))];
+    for ii=1:10
+        subplot(3,4,ii)
+        contourf(X,Y, squeeze(F_score_CCA(hh,:,:,ii)), 30)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
+        colormap hot
+        colorbar
+        caxis(climits)
+        % mark local optima
+        hold on
+        buf =  squeeze(F_score_CCA(hh,:,:,ii));
+        [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
+        if squeeze(F_score_CCA(hh,r(1),c(1),ii)) == climits(2)
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'g')
+        else
+            plot(stpsize(c),tlags(r),'ko','MarkerFaceColor', 'k')
+        end
+        % mark optima from cluster analysis
+        ridx = find(R(:,3)==ii);
+        if ~isempty(ridx)
+            for rr = 1:numel(ridx)
+                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+            end
+        end
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -12,7 +12,6 @@ function [y] = J_opt(x, CORR, MSE, PVAL, FSCORE, fact)
 %   .mse
 %   .pval
 %   .fscore
-%   .chno
 %   .HbO
 %   .HbR
 
