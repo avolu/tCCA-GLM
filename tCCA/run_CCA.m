@@ -180,7 +180,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     lst_stim = find(s(tstIDX,:)==1);
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
-                    elseif size(s(tstIDX,:)) < lst_stim(end) + abs(eval_param.HRFmax) * fq
+                    end
+                    if size(s(tstIDX,:),1) < lst_stim(end) + abs(eval_param.HRFmax) * fq
                         lst_stim = lst_stim(1:end-1);    
                     end
 
