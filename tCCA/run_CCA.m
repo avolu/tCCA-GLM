@@ -44,7 +44,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
+flag_plot = false;
 
 % Validation parameters
 tlags = 0:1:10;
@@ -66,7 +66,7 @@ totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
-
+    
     %% (re-)initialize result matrices
     nTrials= NaN(2,numel(tlags),numel(stpsize),numel(cthresh));
     DET_SS= NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
@@ -77,7 +77,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     MSE_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
     CORR_SS = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
     CORR_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-
+    
     % change to subject directory
     cd([path.dir filesep sbjfolder{sbj} filesep]);
     
@@ -126,6 +126,11 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         dod = hmrBandpassFilt(dod, fq, 0, 0.5);
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
+        %% Perform GLM with SS
+        [yavg_ss, yavgstd_ss, tHRF, nTrialsSS, d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
+            hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
+        
+        %% CCA EVAL
         for tl = tlags %loop across timelags
             timelag = tl;
             tlidx = tlidx+1;
@@ -166,18 +171,18 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
                     
-
-                    %% Perform GLM
-                    % GLM with SS
-                    [yavg_ss, yavgstd_ss, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
-                    % GLM with CCA outpout
+                    
+                    %% Perform GLM with CCA
                     [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
-                    %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
+                    
+                    %% list of channels with stimulus  
                     lst_stim = find(s(tstIDX,:)==1);
+<<<<<<< HEAD
 %                     lst_stim = lst_stim(1:nTrials(tt,tlidx,stpidx,ctidx));
+=======
+>>>>>>> master
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
                     elseif size(s(tstIDX,:)) < lst_stim(end) + abs(eval_param.HRFmax) * fq
@@ -210,7 +215,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['saving sbj ' num2str(sbj) '...'])
     save([path.save '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
     % clear vars
-    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn 
+    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
 end
 
