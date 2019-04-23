@@ -177,11 +177,12 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     
-                    %% list of channels with stimulus MERYEM NEEDS TO CHECK STH
+                    %% list of channels with stimulus  
                     lst_stim = find(s(tstIDX,:)==1);
-                    lst_stim = lst_stim(1:nTrials(tt,tlidx,stpidx,ctidx));
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
+                    elseif size(s(tstIDX,:)) < lst_stim(end) + abs(eval_param.HRFmax) * fq
+                        lst_stim = lst_stim(1:end-1);    
                     end
                     
                     %% EVAL / PLOT

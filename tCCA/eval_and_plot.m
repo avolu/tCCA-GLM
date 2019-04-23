@@ -1,7 +1,7 @@
 clear all
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -206,11 +206,11 @@ end
 buf = intersect(R{1}, R{2}, 'rows');
 R=[];
 R=buf;
-
+hh=1;
 disp('=================================================================')
 disp(['Results of cluster analysis, Optimal parameters for HbO and HbR (' num2str(clust(1)) '/' num2str(clust(2)) ' clusters)'])
 for ii = 1:size(R,1)
-    disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,2)))])
+    disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,3)))])
     disp(['Corresponding CORR/MSE/PVAL/FSCORE: ' num2str(CORR_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(MSE_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(pval_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
@@ -228,12 +228,12 @@ for hh=1:2
     FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
 end
 % fact: struct with factors (weights) for adapting the objective function J
-fact.corr = 1;
+fact.corr = 0;
 fact.mse =2;
-fact.pval =1;
+fact.pval =2;
 fact.fscore=2;
 fact.HbO=1;
-fact.HbR=1;
+fact.HbR=0;
 % calculate objective function output for all input tupel
 for tt = 1:11
     for ss = 1:12
@@ -256,8 +256,8 @@ disp('=================================================================')
 [X,Y] = meshgrid(x,y);
 figure
 climits = [min(fval(:)) max(fval(:))];
-for ii=2:10
-    subplot(3,3,ii-1)
+for ii=1:10
+    subplot(3,4,ii)
     contourf(X,Y, squeeze(fval(:,:,ii)), 20)
     xlabel('stepsize / smpl')
     ylabel('time lags / s')
