@@ -1,4 +1,4 @@
-function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf)
+function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf)
 %PLOT_EVAL Summary of this function goes here
 
 % find short separation channels
@@ -114,10 +114,10 @@ DET_CCA(lstSS,:)= 0;
 %% lets do the calculation of the other performance metrics here later on
 % correlation
 % cut to the same timebase and baseline correct
-MEAN_SS_ev = MEAN_SS(abs(eval_param.HRFmin*fq)-1:end,:,:);
-MEAN_SS_ev = MEAN_SS_ev-nanmean(MEAN_SS(1:abs(fq*eval_param.HRFmin),:,:),1);
-MEAN_CCA_ev = MEAN_CCA(abs(eval_param.HRFmin*fq)-1:end,:,:);
-MEAN_CCA_ev = MEAN_CCA_ev-nanmean(MEAN_CCA(1:abs(fq*eval_param.HRFmin),:,:),1);
+MEAN_SS_ev = yavg_ss(abs(eval_param.HRFmin*fq)-1:end,:,:);
+MEAN_SS_ev = MEAN_SS_ev-nanmean(yavg_ss(1:abs(fq*eval_param.HRFmin),:,:),1);
+MEAN_CCA_ev = yavg_cca(abs(eval_param.HRFmin*fq)-1:end,:,:);
+MEAN_CCA_ev = MEAN_CCA_ev-nanmean(yavg_cca(1:abs(fq*eval_param.HRFmin),:,:),1);
 hrfeval = hrf.hrf_conc(1:size(MEAN_SS_ev,1),:);
 
 %init variables
@@ -130,13 +130,13 @@ for ii=1:2
     idx = lstHrfAdd(:,1);
     
     % calculate correlation and MSE
-    buf = corr(squeeze(MEAN_SS_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
+    buf = corr(squeeze(MEAN_SS_ev(:,ii,idx)),squeeze(hrfeval(:,ii)));
     CORR_SS(1:numel(buf),ii) = buf;
-    buf = corr(squeeze(MEAN_CCA_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
+    buf = corr(squeeze(MEAN_CCA_ev(:,ii,idx)),squeeze(hrfeval(:,ii)));
     CORR_CCA(1:numel(buf),ii) = buf;
-    buf = sqrt(nanmean((squeeze(MEAN_SS_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
+    buf = sqrt(nanmean((squeeze(MEAN_SS_ev(:,ii,idx))-squeeze(hrfeval(:,ii))).^2));
     MSE_SS(1:numel(buf),ii) = buf;
-    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
+    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,ii,idx))-squeeze(hrfeval(:,ii))).^2));
     MSE_CCA(1:numel(buf),ii) = buf;
 end
 

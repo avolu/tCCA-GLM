@@ -7,7 +7,7 @@ clear all;
 % 9 design matrix VERY poorly scaled
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -28,7 +28,6 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 
 %% Options/Parameter Settings
-flag_half = 2;
 rhoSD_ssThresh = 15;  % mm
 flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
@@ -44,7 +43,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 % Validation parameters
 tlags = 0:1:10;
@@ -190,7 +189,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
                         pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
                         CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
-                        results_eval(sbj, d_ss, d_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf);
+                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf);
                     % Dimensions of output metrics
                     % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
