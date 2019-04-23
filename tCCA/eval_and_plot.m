@@ -276,15 +276,6 @@ end
 
 
 %% First try of objective function and finding optimum
-% fact: struct with factors (weights) for adapting the objective function J
-fact.corr = 1;
-fact.mse =2;
-fact.pval =2;
-fact.fscore=2;
-fact.HbO=1;
-fact.HbR=1;
-% initial guess
-x0 = [5 5 5];
 % normalize inputs
 for hh=1:2
     CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
@@ -292,6 +283,13 @@ for hh=1:2
     PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
     FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
 end
+% fact: struct with factors (weights) for adapting the objective function J
+fact.corr = 1;
+fact.mse =2;
+fact.pval =1;
+fact.fscore=2;
+fact.HbO=1;
+fact.HbR=1;
 % calculate objective function output for all input tupel
 for tt = 1:11
     for ss = 1:12
