@@ -245,7 +245,7 @@ for tt = 1:11
 end
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fval),find(fval == min(fval(:))));
-pOpt = [t s c];
+pOpt = [t s c]; 
 disp('=================================================================')
 disp(['these parameters minimize the objective function: timelag: ' ...
     num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
@@ -282,7 +282,7 @@ for ii=2:10
         end
     end
     % mark optimum from objective function
-    if ii == pOpt(1,3)
+    if ii == pOpt(3,1)
         plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
     end
 end
@@ -320,9 +320,9 @@ for hh = 1:2
             end
         end
         % mark optimum from objective function
-        if ii == pOpt(1,3)
-            plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-        end
+    if ii == pOpt(3,1)
+        plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+    end
     end
 end
 
@@ -360,9 +360,9 @@ for hh=1:2
             end
         end
         % mark optimum from objective function
-        if ii == pOpt(1,3)
-            plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-        end
+    if ii == pOpt(3,1)
+        plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+    end
     end
 end
 
@@ -396,10 +396,6 @@ for hh=1:2
             for rr = 1:numel(ridx)
                 plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
             end
-        end
-        % mark optimum from objective function
-        if ii == pOpt(1,3)
-            plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
         end
     end
 end
@@ -435,10 +431,6 @@ for hh = 1:2
             for rr = 1:numel(ridx)
                 plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
             end
-        end
-        % mark optimum from objective function
-        if ii == pOpt(1,3)
-            plot(stpsize(pOpt(1,2)),tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
         end
     end
 end
