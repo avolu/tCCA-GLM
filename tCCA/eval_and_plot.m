@@ -1,7 +1,7 @@
 clear all
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -300,7 +300,7 @@ for hh = 1:2
         xlabel('stepsize / smpl')
         ylabel('time lags / s')
         title([hblab{hh} ' Correlation ctrsh: ' num2str(cthresh(ii))])
-        colormap hot
+        colormap jet
         colorbar
         caxis(climits)
         % mark local optima
@@ -340,7 +340,7 @@ for hh=1:2
         xlabel('stepsize / smpl')
         ylabel('time lags / s')
         title([hblab{hh} ' MSE ctrsh: ' num2str(cthresh(ii))])
-        colormap(flipud(hot))
+        colormap(flipud(jet))
         colorbar
         caxis(climits)
         % mark local optima
@@ -378,7 +378,7 @@ for hh=1:2
         xlabel('stepsize / smpl')
         ylabel('time lags / s')
         title([hblab{hh} ' pVals ctrsh: ' num2str(cthresh(ii))])
-        colormap(flipud(hot))
+        colormap(flipud(jet))
         colorbar
         caxis(climits)
         % mark local optima
@@ -417,7 +417,7 @@ for hh = 1:2
         xlabel('stepsize / smpl')
         ylabel('time lags / s')
         title([hblab{hh} ' FSCORE ctrsh: ' num2str(cthresh(ii))])
-        colormap hot
+        colormap jet
         colorbar
         caxis(climits)
         % mark local optima
@@ -442,17 +442,6 @@ for hh = 1:2
         end
     end
 end
-
-
-
-
-
-
-
-
-
-
-
 
 
 

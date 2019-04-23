@@ -34,27 +34,19 @@ for i=1:size(HbO_SS,3)
 end
 
 
-for i=1:size(HbO_SS,3)
+for i=1:size(HbO_SS,3) % across channels
     % HBO & HBR
     MEAN_HRF_SS(i,:,1)= nanmean(squeeze(HbO_SS(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    STD_HRF_SS(i,:,1)=nanstd(squeeze(HbO_SS(abs(eval_param.HRFmin*fq):eval_param.HRFmax*fq+abs(eval_param.HRFmin*fq),:,i)));
     MEAN_baseline_SS(i,:,1)= nanmean(squeeze(HbO_SS(1:abs(eval_param.HRFmin*fq),:,i)));
-    STD_baseline_SS(i,:,1)=nanstd(squeeze(HbO_SS(1:abs(eval_param.HRFmin*fq),:,i)));
     
     MEAN_HRF_CCA(i,:,1)= nanmean(squeeze(HbO_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    STD_HRF_CCA(i,:,1)=nanstd(squeeze(HbO_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));
     MEAN_baseline_CCA(i,:,1)= nanmean(squeeze(HbO_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
-    STD_baseline_CCA(i,:,1)=nanstd(squeeze(HbO_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
     % HBR
     MEAN_HRF_SS(i,:,2)= nanmean(squeeze(HbR_SS(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    STD_HRF_SS(i,:,2)=nanstd(squeeze(HbR_SS(abs(eval_param.HRFmin*fq):eval_param.HRFmax*fq+abs(eval_param.HRFmin*fq),:,i)));
     MEAN_baseline_SS(i,:,2)= nanmean(squeeze(HbR_SS(1:abs(eval_param.HRFmin*fq),:,i)));
-    STD_baseline_SS(i,:,2)=nanstd(squeeze(HbR_SS(1:abs(eval_param.HRFmin*fq),:,i)));
     
     MEAN_HRF_CCA(i,:,2)= nanmean(squeeze(HbR_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    STD_HRF_CCA(i,:,2)=nanstd(squeeze(HbR_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));
     MEAN_baseline_CCA(i,:,2)= nanmean(squeeze(HbR_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
-    STD_baseline_CCA(i,:,2)=nanstd(squeeze(HbR_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
 end
 
 for i=1:size(HbO_SS,3)
@@ -73,9 +65,9 @@ DET_CCA = zeros(size(MEAN_CCA,2),2);
 
 % get number of active channels that we added HRF (True Positives only!)
 % list of true negatives
-    nohrflist = 1:1:size(HbO_SS,3);
-    rmvidx = [lstHrfAdd(:,1); lstSS];
-    nohrflist(rmvidx)=[];
+nohrflist = 1:1:size(HbO_SS,3);
+rmvidx = [lstHrfAdd(:,1); lstSS];
+nohrflist(rmvidx)=[];
 % init variables
 TP_SS=NaN(16,2);
 FP_SS=NaN(16,2);
@@ -85,7 +77,7 @@ TP_CCA=NaN(16,2);
 FP_CCA=NaN(16,2);
 
 %HbO & HbR
-for ii=1:2   
+for ii=1:2
     % SS
     lst_sig = find(pval_SS(:,ii)<=0.05);
     TP_SS(1:numel(lst_sig),ii) = ismember(lst_sig,lstHrfAdd(:,1)); % # of true positive channels
@@ -95,9 +87,9 @@ for ii=1:2
     lst_notsig = find(pval_SS(:,ii)>0.05);
     TN_SS(1:numel(lst_notsig),ii) = ismember(lst_notsig,nohrflist);
     FN_SS(1:numel(lst_notsig),ii) = ismember(lst_notsig,lstHrfAdd(:,1));
-    DET_SS(lst_notsig(find(FN_SS(:,ii)==1)),ii) = 2; % FN 
+    DET_SS(lst_notsig(find(FN_SS(:,ii)==1)),ii) = 2; % FN
     DET_SS(lst_notsig(find(TN_SS(:,ii)==1)),ii) = -2; % TN
-   
+    
     % CCA
     lst_sig = find(pval_CCA(:,ii)<=0.05);
     TP_CCA(1:numel(lst_sig),ii) = ismember(lst_sig,lstHrfAdd(:,1)); % # of true positive channels
@@ -107,7 +99,7 @@ for ii=1:2
     lst_notsig = find(pval_CCA(:,ii)>0.05);
     TN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,nohrflist);
     FN_CCA(1:numel(lst_notsig),ii) = ismember(lst_notsig,lstHrfAdd(:,1));
-    DET_CCA(lst_notsig(find(FN_CCA(:,ii)==1)),ii) = 2; % FN 
+    DET_CCA(lst_notsig(find(FN_CCA(:,ii)==1)),ii) = 2; % FN
     DET_CCA(lst_notsig(find(TN_CCA(:,ii)==1)),ii) = -2; % TN
     
     ROCLAB.val = [1,-1,2,-2,0];
@@ -115,7 +107,7 @@ for ii=1:2
 end
 
 % remove ss channels from list
-DET_SS(lstSS,:)= 0;  
+DET_SS(lstSS,:)= 0;
 DET_CCA(lstSS,:)= 0;
 
 
@@ -136,7 +128,7 @@ MSE_CCA=NaN(16,2);
 
 for ii=1:2
     idx = lstHrfAdd(:,1);
-
+    
     % calculate correlation and MSE
     buf = corr(squeeze(MEAN_SS_ev(:,idx,ii)),squeeze(hrfeval(:,ii)));
     CORR_SS(1:numel(buf),ii) = buf;
@@ -144,7 +136,7 @@ for ii=1:2
     CORR_CCA(1:numel(buf),ii) = buf;
     buf = sqrt(nanmean((squeeze(MEAN_SS_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
     MSE_SS(1:numel(buf),ii) = buf;
-    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));     
+    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,idx,ii))-squeeze(hrfeval(:,ii))).^2));
     MSE_CCA(1:numel(buf),ii) = buf;
 end
 
