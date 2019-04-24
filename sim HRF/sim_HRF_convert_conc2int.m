@@ -3,7 +3,7 @@ figure
 plot(hrf_conc)
 
 %convert to OD
-hrf_dod=hmrConc2OD(hrf_conc, SD, [6 6]);
+hrf_dod=hmrConc2OD(hrf_conc, hrf_SD, [6 6]);
 
 figure
 plot(hrf_dod)

@@ -161,15 +161,29 @@ y = tlags;
 z = cthresh;
 hblab = {'HbO', 'HbR'};
 
+%% OPTIMA SEARCH: NORMALIZE
+% normalize inputs by X/max or (X-min)/(max-min)
+nflag = 2;
+
+switch nflag 
+    case 1
+    for hh=1:2
+        CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
+        MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
+        PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
+        FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
+    end
+    case 2
+    for hh=1:2
+        CORR(hh,:,:,:) = (CORR_CCA(hh,:,:,:)-min(CORR_CCA(:)))./(max(CORR_CCA(:))-min(CORR_CCA(:)));
+        MSE(hh,:,:,:) = (MSE_CCA(hh,:,:,:)-min(MSE_CCA(:)))./(max(MSE_CCA(:))-min(MSE_CCA(:)));
+        PVAL(hh,:,:,:) = (pval_CCA(hh,:,:,:)-min(pval_CCA(:)))./(max(pval_CCA(:))-min(pval_CCA(:)));
+        FSCORE(hh,:,:,:) = (F_score_CCA(hh,:,:,:)-min(F_score_CCA(:)))./(max(F_score_CCA(:))-min(F_score_CCA(:)));
+    end
+end
+
 %% Global optimum using clustering approach: find parameter set(s) that are in each optimal cluster
 % and find overlaps
-% normalize inputs
-for hh=1:2
-    CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
-    MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
-    PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
-    FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
-end
 % HbO & HbR
 for hh=1:2
     k = 30; %start number of clusters
@@ -224,18 +238,11 @@ disp('=================================================================')
 
 
 %% Approach to find a global optimum: use objective function
-% normalize inputs
-for hh=1:2
-    CORR(hh,:,:,:) = CORR_CCA(hh,:,:,:)./max(CORR_CCA(:));
-    MSE(hh,:,:,:) = MSE_CCA(hh,:,:,:)./max(MSE_CCA(:));
-    PVAL(hh,:,:,:) = pval_CCA(hh,:,:,:)./max(pval_CCA(:));
-    FSCORE(hh,:,:,:) = F_score_CCA(hh,:,:,:)./max(F_score_CCA(:));
-end
 % fact: struct with factors (weights) for adapting the objective function J
 fact.corr = 1;
-fact.mse =2;
+fact.mse =3;
 fact.pval =1;
-fact.fscore=2;
+fact.fscore=3;
 fact.HbO=1;
 fact.HbR=1;
 % calculate objective function output for all input tupel
