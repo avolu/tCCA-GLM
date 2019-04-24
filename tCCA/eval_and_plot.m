@@ -213,10 +213,12 @@ disp('=================================================================')
 disp(['Results of cluster analysis, Optimal parameters for HbO and HbR (' num2str(clust(1)) '/' num2str(clust(2)) ' clusters)'])
 for ii = 1:size(R,1)
     disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,3)))])
-    disp(['Corresponding CORR/MSE/PVAL/FSCORE: ' num2str(CORR_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
+    for hh=1:2
+    disp([hblab{hh} ' - CORR/MSE/PVAL/FSCORE: ' num2str(CORR_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(MSE_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(pval_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(F_score_CCA(hh,R(ii,1),R(ii,2),R(ii,3)))])
+    end
 end
 disp('=================================================================')
 
