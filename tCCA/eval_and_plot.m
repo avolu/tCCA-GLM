@@ -1,7 +1,7 @@
 clear all
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -210,7 +210,7 @@ R=buf;
 disp('=================================================================')
 disp(['Results of cluster analysis, Optimal parameters for HbO and HbR (' num2str(clust(1)) '/' num2str(clust(2)) ' clusters)'])
 for ii = 1:size(R,1)
-    disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,2)))])
+    disp(['Timelag: ' num2str(tlags(R(ii,1))) 's, Stepsize: ' num2str(stpsize(R(ii,2))) 'smpls, Corr Thresh: ' num2str(cthresh(R(ii,3)))])
     disp(['Corresponding CORR/MSE/PVAL/FSCORE: ' num2str(CORR_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(MSE_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
         num2str(pval_CCA(hh,R(ii,1),R(ii,2),R(ii,3))) '/ ' ...
@@ -256,8 +256,8 @@ disp('=================================================================')
 [X,Y] = meshgrid(x,y);
 figure
 climits = [min(fval(:)) max(fval(:))];
-for ii=2:10
-    subplot(3,3,ii-1)
+for ii=1:10
+    subplot(3,4,ii)
     contourf(X,Y, squeeze(fval(:,:,ii)), 20)
     xlabel('stepsize / smpl')
     ylabel('time lags / s')
@@ -278,7 +278,7 @@ for ii=2:10
     ridx = find(R(:,3)==ii);
     if ~isempty(ridx)
         for rr = 1:numel(ridx)
-            plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+            plot(stpsize(R(ridx(rr),2)),tlags(R(ridx(rr),1)),'square','MarkerFaceColor', 'b')
         end
     end
     % mark optimum from objective function
@@ -316,7 +316,7 @@ for hh = 1:2
         ridx = find(R(:,3)==ii);
         if ~isempty(ridx)
             for rr = 1:numel(ridx)
-                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+                plot(stpsize(R(ridx(rr),2)),tlags(R(ridx(rr),1)),'square','MarkerFaceColor', 'b')
             end
         end
         % mark optimum from objective function
@@ -356,7 +356,7 @@ for hh=1:2
         ridx = find(R(:,3)==ii);
         if ~isempty(ridx)
             for rr = 1:numel(ridx)
-                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+                plot(stpsize(R(ridx(rr),2)),tlags(R(ridx(rr),1)),'square','MarkerFaceColor', 'b')
             end
         end
         % mark optimum from objective function
@@ -394,7 +394,7 @@ for hh=1:2
         ridx = find(R(:,3)==ii);
         if ~isempty(ridx)
             for rr = 1:numel(ridx)
-                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+                plot(stpsize(R(ridx(rr),2)),tlags(R(ridx(rr),1)),'square','MarkerFaceColor', 'b')
             end
         end
         % mark optimum from objective function
@@ -433,7 +433,7 @@ for hh = 1:2
         ridx = find(R(:,3)==ii);
         if ~isempty(ridx)
             for rr = 1:numel(ridx)
-                plot(stpsize(R(2,rr)),tlags(R(1,rr)),'square','MarkerFaceColor', 'b')
+                plot(stpsize(R(ridx(rr),2)),tlags(R(ridx(rr),1)),'square','MarkerFaceColor', 'b')
             end
         end
         % mark optimum from objective function
