@@ -7,11 +7,13 @@ if malexflag
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV results data'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV results data'; % save directory
 end
 
 % #####
@@ -34,7 +36,7 @@ cthresh = 0:0.1:0.9;
 
 CORR_CCA = [];
 for sbj = 1:numel(sbjfolder)
-    res{sbj} = load([path.save '\results_sbj' num2str(sbj) '.mat']);
+    res{sbj} = load([path.cvres '\results_sbj' num2str(sbj) '.mat']);
     
     %% append subject matrices here
     CORR_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.CORR_CCA;
