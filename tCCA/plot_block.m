@@ -1,6 +1,6 @@
 % load visual_probe_plot.SD -mat;
 %% plot cross-trial Mean with STD
-function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag,fpath,lstHrfAdd,hrf)
+function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd,hrf)
 
 cd(fpath)
 load visual_probe_plot.SD -mat
@@ -91,7 +91,7 @@ for i =lstLL'
     ylabel(txt);
     grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
 end
-suptitle(['GLM with SS - Subject # ' num2str(ss) ' sec']) ;
+suptitle(['GLM with SS - HbO - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
 
 
 figure;
@@ -118,11 +118,7 @@ for i =lstLL'
     ylabel(txt);
     grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
 end
-suptitle(['GLM with CCA - Subject # ' num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec']) ;
-
-
-
-
+suptitle(['GLM with CCA - HbO - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
 
 
 
@@ -150,7 +146,7 @@ for i =lstLL'
     ylabel(txt);
     grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
 end
-suptitle(['GLM with SS - Subject # ' num2str(ss) ' sec']) ;
+suptitle(['GLM with SS - HbR - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
 
 
 figure;
@@ -177,5 +173,6 @@ for i =lstLL'
     ylabel(txt);
     grid; ylim([ylim1 ylim2]);xlim([xlim1 xlim2]);
 end
-suptitle(['GLM with CCA - Subject # ' num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec']) ;
+suptitle(['GLM with CCA - HbR - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
+
 
