@@ -1,36 +1,144 @@
-function [y] = J_opt(x, CORR, MSE, PVAL, FSCORE, fact)
+function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam)
 % J_OPT Cost function to optimize
-% uses results from run_CCA 
-% INPUTS
-% CORR, MSE, PVAL, FSCORE, CHNO are 4D matrices with results from run_CCA 
-% averaged across subjects, folds and channels: 
-%   (HbO/R (2) x tlags (11) x stpsize (12) x cthresh (10)) 
+% uses results from run_CCA
+% CORR, MSE, PVAL, FSCORE, CHNO are 4D matrices with results from run_CCA
+% averaged across subjects, folds and channels:
+%   (HbO/R (2) x tlags (11) x stpsize (12) x cthresh (10))
+%
+%% INPUTS
 
-% x: input vector with indices [tlag, stsize, cthresh]
-% fact: struct with factors (weights) for adapting J
-%   .corr
-%   .mse
-%   .pval
-%   .fscore
-%   .HbO
-%   .HbR
+% Jparam: struct with parameters/options for optimization
+%   .fact:      struct with factors (weights) for adapting J
+%       .corr
+%       .mse
+%       .pval
+%       .fscore
+%       .HbO
+%       .HbR
+%   .mtype:     optimization using (subjects x channels x folds)
+%        = 1 mean
+%        = 2 all
+%        = 3 median
+%   .nflag:     normalization approach
+%       1: X/max
+%       2:(X-min)/(max-min)
+%   .thresh:    segmentation approach: threshold for segmentation
+%
+
+% Validation parameters
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0:0.1:0.9;
 
 
-% Input data dimensions: 
-% 2(Hbo+HbR) x tlag x stepsize x corrthres
+%% MEDIAN or MEAN or NOTHING across channels, subjects and folds
+% #SBJ x #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
+switch Jparam.mtype
+    %% MEAN
+    case 1
+        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 1);
+        %% MEDIAN
+    case 2
+        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 2);
+        %% ALL
+    case 3
+        % Append all subjects, channels and folds
+        for tt = 1:numel(tlags)
+            for ss = 1:numel(stpsize)
+                for cc = 1:numel(cthresh)
+                    for hh = 1:2
+                        buf = CORR(:,:,hh,:,tt,ss,cc);
+                        C(:,hh,tt,ss,cc) = buf(:);
+                        buf = MSE(:,:,hh,:,tt,ss,cc);
+                        M(:,hh,tt,ss,cc) = buf(:);
+                        buf = FSCORE(:,hh,:,tt,ss,cc);
+                        F(:,hh,tt,ss,cc) = buf(:);
+                        buf = PVAL(:,:,hh,:,tt,ss,cc);
+                        P(:,hh,tt,ss,cc) = buf(:);
+                    end
+                end
+            end
+        end
+end
 
-y = - fact.HbO*fact.corr*CORR(1,x(1),x(2),x(3)) ...
-    - fact.HbR*fact.corr*CORR(2,x(1),x(2),x(3)) ...
-    + fact.HbO*fact.mse*MSE(1,x(1),x(2),x(3)) ...
-    + fact.HbR*fact.mse*MSE(2,x(1),x(2),x(3)) ...
-    + fact.HbO*fact.pval*PVAL(1,x(1),x(2),x(3)) ...
-    + fact.HbR*fact.pval*PVAL(2,x(1),x(2),x(3)) ...
-    - fact.HbO*fact.fscore*FSCORE(1,x(1),x(2),x(3)) ...
-    - fact.HbR*fact.fscore*FSCORE(2,x(1),x(2),x(3));
+
+%% NORMALIZE METRICS FOR OBJECTIVE FUNCTION
+switch Jparam.nflag
+    %% X/(max(X)
+    case 1
+        for hh=1:2
+            C(:,hh,:,:,:) = C(:,hh,:,:,:)./max(C(:,hh,:));
+            M(:,hh,:,:,:) = M(:,hh,:,:,:)./max(M(:,hh,:));
+            P(:,hh,:,:,:) = P(:,hh,:,:,:)./max(P(:,hh,:));
+            F(:,hh,:,:,:) = F(:,hh,:,:,:)./max(F(:,hh,:));
+        end
+        %% (X-min(X))/(max(X)-min(X))
+    case 2
+        for hh=1:2
+            for pp = 1:size(C,1)
+                C(pp,hh,:,:,:) = (C(pp,hh,:,:,:)-min(squeeze(C(pp,hh,:))))/(max(squeeze(C(pp,hh,:)))-min(squeeze(C(pp,hh,:))));
+                M(pp,hh,:,:,:) = (M(pp,hh,:,:,:)-min(squeeze(M(pp,hh,:))))/(max(squeeze(M(pp,hh,:)))-min(squeeze(M(pp,hh,:))));
+                P(pp,hh,:,:,:) = (P(pp,hh,:,:,:)-min(squeeze(P(pp,hh,:))))/(max(squeeze(P(pp,hh,:)))-min(squeeze(P(pp,hh,:))));
+            end
+            for pp = 1:size(F,1)
+                F(pp,hh,:,:,:) = (F(pp,hh,:,:,:)-min(squeeze(F(pp,hh,:))))/(max(squeeze(F(pp,hh,:)))-min(squeeze(F(pp,hh,:))));
+            end
+        end
+end
+
+
+%% Calculate Objective Function Output
+for tt = 1:numel(tlags)
+    for ss = 1:numel(stpsize)
+        for cc = 1:numel(cthresh)
+            fval(tt,ss,cc) = ...
+                - sum(Jparam.fact.HbO*Jparam.fact.corr*C(:,1,tt,ss,cc), 'omitnan') ...
+                - sum(Jparam.fact.HbR*Jparam.fact.corr*C(:,2,tt,ss,cc), 'omitnan') ...
+                + sum(Jparam.fact.HbO*Jparam.fact.mse*M(:,1,tt,ss,cc), 'omitnan') ...
+                + sum(Jparam.fact.HbR*Jparam.fact.mse*M(:,2,tt,ss,cc), 'omitnan') ...
+                + sum(Jparam.fact.HbO*Jparam.fact.pval*P(:,1,tt,ss,cc), 'omitnan') ...
+                + sum(Jparam.fact.HbR*Jparam.fact.pval*P(:,2,tt,ss,cc), 'omitnan') ...
+                - sum(Jparam.fact.HbO*Jparam.fact.fscore*F(:,1,tt,ss,cc), 'omitnan') ...
+                - sum(Jparam.fact.HbR*Jparam.fact.fscore*F(:,2,tt,ss,cc), 'omitnan');
+        end
+    end
+end
 
 
 
-
+%% only for median/mean approach
+if Jparam.mtype == 1 || Jparam.mtype == 2
+    %% Global optimum using segmentation: find parameter set(s) that are in each optimal segment
+    % and find overlaps
+    % HbO & HbR
+    for hh=1:2
+        buf = squeeze(C(:,hh,:,:,:));
+        [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
+        Cs = [t s c];
+        buf = squeeze(M(:,hh,:,:,:));
+        [t,s,c] = ind2sub(size(buf),find(buf<(1-Jparam.thresh)));
+        Ms = [t s c];
+        buf = squeeze(F(:,hh,:,:,:));
+        [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
+        Fs = [t s c];
+        
+        R1 =intersect(Cs,Ms,'rows');
+        R{hh} = intersect(R1,Fs,'rows');
+    end
+    figure
+    for ii=1:10
+        subplot(3,4,ii)
+        idx = find(R{hh}(:,3) == ii);
+        plot(stpsize(R{1}(idx,2)),tlags(R{1}(idx,1)), 'or')
+        hold on
+        plot(stpsize(R{2}(idx,2)),tlags(R{2}(idx,1)), '+b')
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        xlim([2 24])
+        ylim([0 10])
+        title(['optimal intersecting parameters HbO/HbR, ctrsh: ' num2str(cthresh(ii))])
+    end
+end
 
 end
 
