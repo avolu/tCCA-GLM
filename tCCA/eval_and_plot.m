@@ -30,7 +30,7 @@ Jparam.fact.fscore=2;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % segmentation approach: threshold for segmentation
-Jparam.thresh = 0.5;
+Jparam.thresh = 0.7;
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -94,27 +94,6 @@ if TP_flag
     pval_CCA(find(DET_CCA ~= 1)) = NaN;
 end
 
-
-%% # of TP/FP/FN/TN channels
-% for SS and CCA methods:
-foo_SS = permute(DET_SS,[2 1 3 4 5 6 7]);
-foo_SS = reshape(foo_SS, size(foo_SS,1), size(foo_SS,2)*size(foo_SS,3)*size(foo_SS,4)*size(foo_SS,5)*size(foo_SS,6)*size(foo_SS,7));
-foo_CCA = permute(DET_CCA,[2 1 3 4 5 6 7]);
-foo_CCA = reshape(foo_CCA, size(foo_CCA,1), size(foo_CCA,2)*size(foo_CCA,3)*size(foo_CCA,4)*size(foo_CCA,5)*size(foo_CCA,6)*size(foo_CCA,7));
-% ROCLAB.name = {'TP','FP','FN','TN', 'PRND'};
-for i = 1:size(foo_SS,2)
-    % SS
-    Ch_TP_SS(i) = sum(foo_SS(:,i)==1);
-    Ch_FP_SS(i) = sum(foo_SS(:,i)==-1);
-    Ch_FN_SS(i) = sum(foo_SS(:,i)==2);
-    Ch_TN_SS(i) = sum(foo_SS(:,i)==-2);
-    % CCA
-    Ch_TP_CCA(i) = sum(foo_CCA(:,i)==1);
-    Ch_FP_CCA(i) = sum(foo_CCA(:,i)==-1);
-    Ch_FN_CCA(i) = sum(foo_CCA(:,i)==2);
-    Ch_TN_CCA(i) = sum(foo_CCA(:,i)==-2);
-end
-
 %% Calculate True/false positive/negative rates, precision, recall, ...
 tf_errors
 
@@ -173,5 +152,34 @@ if plotmetrics
         contour_plots(squeeze(F_score_CCA(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
     end
 end
+
+%% plot Summary for fixed correlation threshold
+ct = 6;
+[X,Y] = meshgrid(evparams.stpsize,evparams.tlags);
+figure
+dat = {1-fval(:,:,ct), squeeze(CORR_CCA(:,1,:,:,ct)), squeeze(-MSE_CCA(:,1,:,:,ct)), ...
+    squeeze(F_score_CCA(:,1,:,:,ct)), [], ...
+    squeeze(CORR_CCA(:,2,:,:,ct)), squeeze(-MSE_CCA(:,2,:,:,ct)), ...
+    squeeze(F_score_CCA(:,2,:,:,ct))};
+ttl = {'J Opt','CORR HbO','MSE HbO','F HbO', '', 'CORR HbR', 'MSE HbR','F HbR'};
+for dd = 1:numel(dat)
+    if ~isempty(dat{dd})
+        subplot(2,4,dd)
+        climits = [min(dat{dd}(:)) max(dat{dd}(:))];
+        contourf(X,Y, dat{dd}, cntno)
+        xlabel('stepsize / smpl')
+        ylabel('time lags / s')
+        title([ttl{dd} ', cthresh:' num2str(cthresh(ct))])
+        colormap hot
+        limit = climits(2);
+        colorbar
+        caxis(climits)
+        % mark optimum from objective function
+        hold on
+        plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
+        text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)))])
+    end
+end
+
 
 
