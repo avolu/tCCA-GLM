@@ -6,7 +6,7 @@ clear all
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
 % select which hrf amplitude data: 50 or 100
-hrfamp = 100;
+hrfamp = 50;
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
@@ -29,8 +29,22 @@ Jparam.fact.pval =0;
 Jparam.fact.fscore=2;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
+% use weighted region of stepsize reg in all directions around evaluation point?
+reg.step = 1;
+reg.weight =0.1;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
+% set optimal point per hand to investigate (overwrites opt function
+% result), otherwise leave empty
+pOpt =[];
+%pOpt = [5 2 3];
+
+%% settings to keep in mind
+% hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
+% hrf = 50, Jparam.mtype = 3, fact.corr=1,mse=2,fscore=2 -> Timelag 4, stepsize 4, corr thresh 0.5
+%                                                           -> vs Timelag 4 stepsize 4 corr thresh 0.2
+% pOpt = [5 2 3];
+
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -100,17 +114,27 @@ tf_errors
 
 %% Find Global topology and optimum with objective function, includes segmentation approach
 % calculate objective function output for all input tupel
-fval = J_opt(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, Jparam);
+fval = J_opt(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, Jparam ,reg);
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fval),find(fval == min(fval(:))));
-pOpt = [t s c];
+%% overwrite if OPT POINT chosen individually before for further exploration
+if isempty(pOpt)
+    pOpt = [t s c];
+else
+    disp('=================================================================')
+    disp(['these parameters were chosen manually: ' ...
+        num2str(tlags(pOpt(1))) 's, stepsize: ' num2str(stpsize(pOpt(2))) 'smpl, corr threshold: ' num2str(cthresh(pOpt(3)))] )
+    disp('=================================================================')
+end
+    
+
 disp('=================================================================')
 disp(['these parameters minimize the objective function: timelag: ' ...
     num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
 disp('=================================================================')
 
 %% Calculate median/mean metrics
-[CORR_CCA,MSE_CCA,pval_CCA,F_score_CCA] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
+[CORR,MSE,PVAL,FSCORE] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
 
 %% create combined surface plots (depict objective function)
 hblab = {'HbO', 'HbR'};
@@ -118,7 +142,7 @@ hblab = {'HbO', 'HbR'};
 %% Plot Objective function results
 % normalize fval
 fval = (fval-min(fval(:)))/(max(fval(:))-min(fval(:)));
-ttl= 'Objective Function';
+ttl= ['Objective Function, hrf= ' num2str(hrfamp)];
 contour_plots(fval, ttl, evparams, pOpt, cntno, 'min');
 
 if plotmetrics
@@ -126,14 +150,14 @@ if plotmetrics
     %HBO and HbR
     for hh = 1:2
         ttl= [hblab{hh} ' Correlation'];
-        contour_plots(squeeze(CORR_CCA(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
+        contour_plots(squeeze(CORR(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
     end
     
     %% plot MSE
     %HBO and HbR
     for hh = 1:2
         ttl= [hblab{hh} ' MSE'];
-        contour_plots(squeeze(MSE_CCA(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
+        contour_plots(squeeze(MSE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
     end
     
     %% plot pvals
@@ -141,7 +165,7 @@ if plotmetrics
         %HBO and HbR
         for hh = 1:2
             ttl= [hblab{hh} ' p-values'];
-            contour_plots(squeeze(pval_CCA(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
+            contour_plots(squeeze(PVAL(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
         end
     end
     
@@ -149,18 +173,18 @@ if plotmetrics
     %HBO and HbR
     for hh = 1:2
         ttl= [hblab{hh} ' FSCORE'];
-        contour_plots(squeeze(F_score_CCA(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
+        contour_plots(squeeze(FSCORE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
     end
 end
 
-%% plot Summary for fixed correlation threshold
-ct = 6;
+%% plot Summary contours for fixed correlation threshold
+ct = pOpt(3);
 [X,Y] = meshgrid(evparams.stpsize,evparams.tlags);
 figure
-dat = {1-fval(:,:,ct), squeeze(CORR_CCA(:,1,:,:,ct)), squeeze(-MSE_CCA(:,1,:,:,ct)), ...
-    squeeze(F_score_CCA(:,1,:,:,ct)), [], ...
-    squeeze(CORR_CCA(:,2,:,:,ct)), squeeze(-MSE_CCA(:,2,:,:,ct)), ...
-    squeeze(F_score_CCA(:,2,:,:,ct))};
+dat = {1-fval(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(-MSE(:,1,:,:,ct)), ...
+    squeeze(FSCORE(:,1,:,:,ct)), [], ...
+    squeeze(CORR(:,2,:,:,ct)), squeeze(-MSE(:,2,:,:,ct)), ...
+    squeeze(FSCORE(:,2,:,:,ct))};
 ttl = {'J Opt','CORR HbO','MSE HbO','F HbO', '', 'CORR HbR', 'MSE HbR','F HbR'};
 for dd = 1:numel(dat)
     if ~isempty(dat{dd})
@@ -169,7 +193,7 @@ for dd = 1:numel(dat)
         contourf(X,Y, dat{dd}, cntno)
         xlabel('stepsize / smpl')
         ylabel('time lags / s')
-        title([ttl{dd} ', cthresh:' num2str(cthresh(ct))])
+        title([ttl{dd} ', cthresh: ' num2str(cthresh(ct)), ', hrf=' num2str(hrfamp)])
         colormap hot
         limit = climits(2);
         colorbar
@@ -179,6 +203,58 @@ for dd = 1:numel(dat)
         plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
         text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)))])
     end
+end
+
+
+
+%% create scatter plots comparing SS and tCCA
+%append all points
+[CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, 3);
+[CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, 3);
+%pOpt = [pOpt(1) pOpt(2) 4]; %(re-)set the optimal parameterset 
+figure
+ttl = {'CORR', 'MSE', 'F-SCORE'};
+datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+ptcol = {'+r', 'xb', '*k'};
+for ff = 1:3
+    for hh = 1:2
+        axlim = [min([datss{ff}(:,hh); datcca{ff}(:,hh)]) max([datss{ff}(:,hh); datcca{ff}(:,hh)])];
+        subplot(2,3,(hh-1)*3+ff)
+        hold on
+        scatter(squeeze(datss{ff}(:,hh)), squeeze(datcca{ff}(:,hh)), ptcol{hh})
+        plot([axlim(1) axlim(2)], [axlim(1) axlim(2)] ,'k')
+        scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), ptcol{3})
+        % ttest
+        [h,p] = ttest(squeeze(datss{ff}(:,hh)),squeeze(datcca{ff}(:,hh)));
+        if h
+            scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
+        end
+        title([ttl{ff} ' for Tlag/Ssize/Cthresh: ' num2str(tlags(pOpt(1))) ' / ' num2str(stpsize(pOpt(2))) ' / ' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p)])
+        xlim ([axlim(1) axlim(2)])
+        ylim ([axlim(1) axlim(2)])
+        xlabel('SS GLM')
+    ylabel('tCCA GLM')
+    end   
+end
+
+%% Plot F-Score vs corr threshold
+[CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
+[CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, mflag);
+datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
+datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
+figure
+ylabs={'CORR','MSE','F-Score'};
+for ff = 1:3
+    subplot(1,3,ff)
+    hold on
+        plot(cthresh, datcca{ff}(1,:), 'r')
+        plot(cthresh, datss{ff}(1,:), '.r')
+        plot(cthresh, datcca{ff}(2,:), 'b')
+        plot(cthresh, datss{ff}(2,:), '.b')
+        xlabel('Corr threshold')
+        ylabel(ylabs{ff})
+        title([ttl{ff} ' vs Cthresh for Tlag = ' num2str(tlags(pOpt(1))) ' / Stepsize = ' num2str(stpsize(pOpt(2))), ' / hrf = ' num2str(hrfamp)])
 end
 
 

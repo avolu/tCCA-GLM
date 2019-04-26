@@ -8,7 +8,7 @@ cthresh = 0:0.1:0.9;
 
 
 switch mflag
-%% MEAN
+    %% MEAN
     case 1
         %% Average across channels
         C = squeeze(nanmean(CORR,2));
@@ -48,6 +48,25 @@ switch mflag
         M = median(M,1,'omitnan');
         P = median(P,1,'omitnan');
         F = median(F,1,'omitnan');
+    %% ALL
+    case 3
+        % Append all subjects, channels and folds
+        for tt = 1:numel(tlags)
+            for ss = 1:numel(stpsize)
+                for cc = 1:numel(cthresh)
+                    for hh = 1:2
+                        buf = CORR(:,:,hh,:,tt,ss,cc);
+                        C(:,hh,tt,ss,cc) = buf(:);
+                        buf = MSE(:,:,hh,:,tt,ss,cc);
+                        M(:,hh,tt,ss,cc) = buf(:);
+                        buf = FSCORE(:,hh,:,tt,ss,cc);
+                        F(:,hh,tt,ss,cc) = buf(:);
+                        buf = PVAL(:,:,hh,:,tt,ss,cc);
+                        P(:,hh,tt,ss,cc) = buf(:);
+                    end
+                end
+            end
+        end   
 end
 end
 

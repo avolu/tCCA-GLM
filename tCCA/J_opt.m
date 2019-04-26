@@ -1,4 +1,4 @@
-function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam)
+function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam, reg)
 % J_OPT Cost function to optimize
 % uses results from run_CCA
 % CORR, MSE, PVAL, FSCORE, CHNO are 4D matrices with results from run_CCA
@@ -23,7 +23,8 @@ function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam)
 %       1: X/max
 %       2:(X-min)/(max-min)
 %   .thresh:    segmentation approach: threshold for segmentation
-%
+% reg: take neighboring points in all directions into account
+%       = 0 (off) or any other number (on)
 
 % Validation parameters
 tlags = 0:1:10;
@@ -42,23 +43,7 @@ switch Jparam.mtype
         [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 2);
         %% ALL
     case 3
-        % Append all subjects, channels and folds
-        for tt = 1:numel(tlags)
-            for ss = 1:numel(stpsize)
-                for cc = 1:numel(cthresh)
-                    for hh = 1:2
-                        buf = CORR(:,:,hh,:,tt,ss,cc);
-                        C(:,hh,tt,ss,cc) = buf(:);
-                        buf = MSE(:,:,hh,:,tt,ss,cc);
-                        M(:,hh,tt,ss,cc) = buf(:);
-                        buf = FSCORE(:,hh,:,tt,ss,cc);
-                        F(:,hh,tt,ss,cc) = buf(:);
-                        buf = PVAL(:,:,hh,:,tt,ss,cc);
-                        P(:,hh,tt,ss,cc) = buf(:);
-                    end
-                end
-            end
-        end
+        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 3);
 end
 
 
@@ -91,15 +76,41 @@ end
 for tt = 1:numel(tlags)
     for ss = 1:numel(stpsize)
         for cc = 1:numel(cthresh)
-            fval(tt,ss,cc) = ...
-                - sum(Jparam.fact.HbO*Jparam.fact.corr*C(:,1,tt,ss,cc), 'omitnan') ...
-                - sum(Jparam.fact.HbR*Jparam.fact.corr*C(:,2,tt,ss,cc), 'omitnan') ...
-                + sum(Jparam.fact.HbO*Jparam.fact.mse*M(:,1,tt,ss,cc), 'omitnan') ...
-                + sum(Jparam.fact.HbR*Jparam.fact.mse*M(:,2,tt,ss,cc), 'omitnan') ...
-                + sum(Jparam.fact.HbO*Jparam.fact.pval*P(:,1,tt,ss,cc), 'omitnan') ...
-                + sum(Jparam.fact.HbR*Jparam.fact.pval*P(:,2,tt,ss,cc), 'omitnan') ...
-                - sum(Jparam.fact.HbO*Jparam.fact.fscore*F(:,1,tt,ss,cc), 'omitnan') ...
-                - sum(Jparam.fact.HbR*Jparam.fact.fscore*F(:,2,tt,ss,cc), 'omitnan');
+            fval(tt,ss,cc) = 0;
+            % get region indices, throw points outside of parameter set
+            tr = [tt-reg.step:tt+reg.step];
+            tr(find(tr<1))=[];
+            tr(find(tr>numel(tlags)))=[];
+            sr = [ss-reg.step:ss+reg.step];
+            sr(find(sr<1))=[];
+            sr(find(sr>numel(stpsize)))=[];
+            cr = [cc-reg.step:cc+reg.step];
+            cr(find(cr<1))=[];
+            cr(find(cr>numel(cthresh)))=[];
+            % determine divider (number of points in region without origin)
+            div = numel(tr)*numel(sr)*numel(cr)-1;
+            % calc at points and weighted region around that point
+            for ti = tr
+                for si = sr
+                    for ci = cr
+                        if ti == tt && si == ss && ci == cc
+                            divider = 1;
+                        else
+                            divider = div/reg.weight;
+                        end
+                        fval(tt,ss,cc) = fval(tt,ss,cc) + ...
+                            (- sum(Jparam.fact.HbO*Jparam.fact.corr*C(:,1,ti,si,ci), 'omitnan') ...
+                            - sum(Jparam.fact.HbR*Jparam.fact.corr*C(:,2,ti,si,ci), 'omitnan') ...
+                            + sum(Jparam.fact.HbO*Jparam.fact.mse*M(:,1,ti,si,ci), 'omitnan') ...
+                            + sum(Jparam.fact.HbR*Jparam.fact.mse*M(:,2,ti,si,ci), 'omitnan') ...
+                            + sum(Jparam.fact.HbO*Jparam.fact.pval*P(:,1,ti,si,ci), 'omitnan') ...
+                            + sum(Jparam.fact.HbR*Jparam.fact.pval*P(:,2,ti,si,ci), 'omitnan') ...
+                            - sum(Jparam.fact.HbO*Jparam.fact.fscore*F(:,1,ti,si,ci), 'omitnan') ...
+                            - sum(Jparam.fact.HbR*Jparam.fact.fscore*F(:,2,ti,si,ci), 'omitnan')) ...
+                            /divider;
+                    end
+                end
+            end
         end
     end
 end
