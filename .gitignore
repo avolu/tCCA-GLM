@@ -3,3 +3,6 @@
 *.asv
 *.asv
 tCCA/eval_and_plot.asv
+*.asv
+*.asv
+tCCA/run_CCA.asv

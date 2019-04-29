@@ -4,7 +4,7 @@
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 0;
+melexflag = 1;
 % select which hrf amplitude data: 50 or 100
 hrfamp = 50;
 % Use only true positives for evaluation of metrics
@@ -20,25 +20,25 @@ plotmetrics = false;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
-% smoothing / optimization metrics: 1 mean, 2 median or 3 all channels
-Jparam.mtype = 3;
+% smoothing / optimization metrics: 1 mean, 2 median!!! or 3 all channels
+Jparam.mtype = 2;
 % Objective function J weights
-Jparam.fact.corr = 1;
-Jparam.fact.mse =2;
+Jparam.fact.corr = 0;
+Jparam.fact.mse =1;
 Jparam.fact.pval =0;
-Jparam.fact.fscore=2;
+Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 0;%1;
-reg.weight =1;
+reg.step = 2;%1;
+reg.weight =5;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOpt =[];
 %pOpt = [5 2 3];
-%pOpt = [2 8 10];
+%pOpt = [2 8 9];
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
