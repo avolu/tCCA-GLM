@@ -1,4 +1,4 @@
-clear all
+%clear all
 
 %% +++++++++++++++++++++++
 %% SCRIPT CONFIGURATION
@@ -30,14 +30,15 @@ Jparam.fact.fscore=2;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 1;
-reg.weight =0.1;
+reg.step = 0;%1;
+reg.weight =1;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOpt =[];
 %pOpt = [5 2 3];
+%pOpt = [2 8 10];
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8

@@ -12,18 +12,18 @@ switch mflag
     case 1
         %% Average across channels
         C = squeeze(nanmean(CORR,2));
-        M = squeeze(median(MSE,2));
-        P = squeeze(median(PVAL,2));
+        M = squeeze(nanmean(MSE,2));
+        P = squeeze(nanmean(PVAL,2));
         %% now average across splits
-        C = squeeze(median(C,3));
-        M = squeeze(median(M,3));
-        P = squeeze(median(P,3));
-        F = squeeze(median(FSCORE,3));
+        C = squeeze(nanmean(C,3));
+        M = squeeze(nanmean(M,3));
+        P = squeeze(nanmean(P,3));
+        F = squeeze(nanmean(FSCORE,3));
         %% now average across subjects
-        C = median(C,1);
-        M = median(M,1);
-        P = median(P,1);
-        F = median(F,1);
+        C = nanmean(C,1);
+        M = nanmean(M,1);
+        P = nanmean(P,1);
+        F = nanmean(F,1);
         %% MEDIAN
     case 2
         %% Append all subjects, channels and folds
