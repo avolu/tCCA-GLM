@@ -118,38 +118,38 @@ end
 
 
 %% only for median/mean approach
-if Jparam.mtype == 1 || Jparam.mtype == 2
-    %% Global optimum using segmentation: find parameter set(s) that are in each optimal segment
-    % and find overlaps
-    % HbO & HbR
-    for hh=1:2
-        buf = squeeze(C(:,hh,:,:,:));
-        [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
-        Cs = [t s c];
-        buf = squeeze(M(:,hh,:,:,:));
-        [t,s,c] = ind2sub(size(buf),find(buf<(1-Jparam.thresh)));
-        Ms = [t s c];
-        buf = squeeze(F(:,hh,:,:,:));
-        [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
-        Fs = [t s c];
-        
-        R1 =intersect(Cs,Ms,'rows');
-        R{hh} = intersect(R1,Fs,'rows');
-    end
-    figure
-    for ii=1:10
-        subplot(3,4,ii)
-        idx = find(R{hh}(:,3) == ii);
-        plot(stpsize(R{1}(idx,2)),tlags(R{1}(idx,1)), 'or')
-        hold on
-        plot(stpsize(R{2}(idx,2)),tlags(R{2}(idx,1)), '+b')
-        xlabel('stepsize / smpl')
-        ylabel('time lags / s')
-        xlim([2 24])
-        ylim([0 10])
-        title(['optimal intersecting parameters HbO/HbR, ctrsh: ' num2str(cthresh(ii))])
-    end
-end
+% if Jparam.mtype == 1 || Jparam.mtype == 2
+%     %% Global optimum using segmentation: find parameter set(s) that are in each optimal segment
+%     % and find overlaps
+%     % HbO & HbR
+%     for hh=1:2
+%         buf = squeeze(C(:,hh,:,:,:));
+%         [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
+%         Cs = [t s c];
+%         buf = squeeze(M(:,hh,:,:,:));
+%         [t,s,c] = ind2sub(size(buf),find(buf<(1-Jparam.thresh)));
+%         Ms = [t s c];
+%         buf = squeeze(F(:,hh,:,:,:));
+%         [t,s,c] = ind2sub(size(buf),find(buf>Jparam.thresh));
+%         Fs = [t s c];
+%         
+%         R1 =intersect(Cs,Ms,'rows');
+%         R{hh} = intersect(R1,Fs,'rows');
+%     end
+%     figure
+%     for ii=1:10
+%         subplot(3,4,ii)
+%         idx = find(R{hh}(:,3) == ii);
+%         plot(stpsize(R{1}(idx,2)),tlags(R{1}(idx,1)), 'or')
+%         hold on
+%         plot(stpsize(R{2}(idx,2)),tlags(R{2}(idx,1)), '+b')
+%         xlabel('stepsize / smpl')
+%         ylabel('time lags / s')
+%         xlim([2 24])
+%         ylim([0 10])
+%         title(['optimal intersecting parameters HbO/HbR, ctrsh: ' num2str(cthresh(ii))])
+%     end
+% end
 
 end
 
