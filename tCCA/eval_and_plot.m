@@ -36,9 +36,9 @@ reg.weight =5;
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
-pOpt =[];
-%pOpt = [5 2 3];
-%pOpt = [2 8 9];
+pOptfix =[];
+%pOptfix = [5 2 3];
+%pOptfix = [2 8 9];
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
@@ -121,9 +121,10 @@ for hrff=1:2
     % find optimal parameter set
     [t,s,c] = ind2sub(size(fval{hrff}),find(fval{hrff} == min(fval{hrff}(:))));
     %% overwrite if OPT POINT chosen individually before for further exploration
-    if isempty(pOpt)
+    if isempty(pOptfix)
         pOpt = [t s c];
     else
+        pOpt = pOptfix;
         disp('=================================================================')
         disp(['these parameters were chosen manually: ' ...
             num2str(tlags(pOpt(1))) 's, stepsize: ' num2str(stpsize(pOpt(2))) 'smpl, corr threshold: ' num2str(cthresh(pOpt(3)))] )
