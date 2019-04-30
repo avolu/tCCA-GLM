@@ -105,7 +105,7 @@ if flag_trial
 MEAN_SS_ev = Hb_SS(abs(eval_param.HRFmin*fq)-1:end,:,:,:);
 MEAN_SS_ev = MEAN_SS_ev-nanmean(Hb_SS(1:abs(fq*eval_param.HRFmin),:,:,:),1);
 MEAN_CCA_ev = Hb_CCA(abs(eval_param.HRFmin*fq)-1:end,:,:,:);
-MEAN_CCA_ev = MEAN_SS_ev-nanmean(Hb_CCA(1:abs(fq*eval_param.HRFmin),:,:,:),1);
+MEAN_CCA_ev = MEAN_CCA_ev-nanmean(Hb_CCA(1:abs(fq*eval_param.HRFmin),:,:,:),1);
 
 
 hrfeval = hrf.hrf_conc(1:size(MEAN_SS_ev,1),:);
@@ -132,8 +132,8 @@ for ii=1:2 % HbO/R
 end
 end
 
-CORR_SS = sum(CORR_SS,3);
-CORR_CCA = sum(CORR_CCA,3);
+CORR_SS = mean(CORR_SS,3);
+CORR_CCA = mean(CORR_CCA,3);
 MSE_SS = sum(MSE_SS,3);
 MSE_CCA = sum(MSE_CCA,3);
 
