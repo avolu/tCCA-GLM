@@ -44,6 +44,8 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 motionflag = true;
 %plot flag
 flag_plot = true;
+% flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for only estimated hrf)
+flag_trial = 1;
 
 % Validation parameters
 tlags = 0:1:10;
@@ -57,7 +59,7 @@ ctidx =0;
 tic;
 
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_100.mat']);
 
 %iteration number
 iterno = 1;
@@ -190,7 +192,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
                         pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
                         CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
-                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf);
+                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial);
                     % Dimensions of output metrics
                     % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
