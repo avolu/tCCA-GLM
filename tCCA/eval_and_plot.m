@@ -7,6 +7,8 @@ clear all
 melexflag = 0;
 % select which hrf amplitude data: 50 or 100
 hrfamp = 50;
+% select which MSE type: 1 (average of single trial HRF MSEs), 0: MSE of average HRF 
+mseflag = 1;
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
@@ -14,7 +16,7 @@ cntno = 15;
 % plot pvalue results
 pvalflag = false;
 % plot other metrics
-plotmetrics = false;
+plotmetrics = true;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
@@ -37,10 +39,10 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-pOptfix = [5 2 2];
+pOptfix = [4 7 6];
 %pOptfix = [4 7 8];
 %pOptfix = [2 8 9];
-plotOptfix = {pOptfix,[4 7 7]};
+plotOptfix = {pOptfix,[3 12 1]};
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
@@ -58,6 +60,8 @@ if melexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
     path.cvres50 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
     path.cvres100 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
+    path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -65,6 +69,8 @@ else
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
     path.cvres50 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
     path.cvres100 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
+    path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 end
 
 % #####
@@ -89,9 +95,19 @@ for hrff=1:2
     for sbj = 1:numel(sbjfolder)
         switch hrfamp
             case 50
-                res{sbj} = load([path.cvres50 '\results_sbj' num2str(sbj) '.mat']);
+                switch mseflag
+                    case 0
+                        res{sbj} = load([path.cvres50 '\results_sbj' num2str(sbj) '.mat']);
+                    case 1
+                        res{sbj} = load([path.cvres50stmse  '\results_sbj' num2str(sbj) '.mat']);
+                end
             case 100
-                res{sbj} = load([path.cvres100 '\results_sbj' num2str(sbj) '.mat']);
+                switch mseflag
+                    case 0
+                        res{sbj} = load([path.cvres100 '\results_sbj' num2str(sbj) '.mat']);
+                    case 1
+                        res{sbj} = load([path.cvres100stmse  '\results_sbj' num2str(sbj) '.mat']);
+                end   
         end
         
         %% append subject matrices here
@@ -125,6 +141,7 @@ for hrff=1:2
     %% overwrite if OPT POINT chosen individually before for further exploration
     if isempty(pOptfix)
         pOpt = [t s c];
+        plotOptfix{1} = pOpt;
     else
         pOpt = pOptfix;
         disp('=================================================================')
@@ -262,17 +279,26 @@ for hrff=1:2
     for mm = 1:2
         subplot(1,2,mm)
         for pp = 1:2
-                hold on
-                plot(cthresh, datcca{pp}{mm}(1,:), ptype{(2*pp)-1})
-                plot(cthresh, datcca{pp}{mm}(2,:), ptype{2*pp})
-                plot(cthresh(plotOptfix{pp}(3)), datcca{pp}{mm}(1,plotOptfix{pp}(3)), pttype{(2*pp)-1});
-                plot(cthresh(plotOptfix{pp}(3)), datcca{pp}{mm}(2,plotOptfix{pp}(3)), pttype{(2*pp)});
-                xlabel('Corr threshold')
-                ylabel(ylabs{mm})
-                title([ylabs{mm} ' vs Correlation Threshold / hrf = ' num2str(hrfamp)])
+            hold on
+            if mm==1
+                plot(cthresh, 100*(1-datcca{pp}{mm}(1,:)./datss{pp}{mm}(1,:)), ptype{(2*pp)-1});
+                plot(cthresh, 100*(1-datcca{pp}{mm}(2,:)./datss{pp}{mm}(2,:)), ptype{2*pp});
+            else
+                plot(cthresh, 100*(-1+datcca{pp}{mm}(1,:)./datss{pp}{mm}(1,:)), ptype{(2*pp)-1});
+                plot(cthresh, 100*(-1+datcca{pp}{mm}(2,:)./datss{pp}{mm}(2,:)), ptype{2*pp});
+            end
+            xlabel('Corr threshold')
+            ylabel(ylabs{mm})
+            title(['Average ' ylabs{mm} ' improvement over SS GLM in % / hrf = ' num2str(hrfamp)])
         end
-        plot(cthresh, datss{pp}{mm}(1,:), '.r')
-        plot(cthresh, datss{pp}{mm}(2,:), '.b')
+        plot (cthresh, zeros(numel(cthresh),1), '.k')
+        legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+            ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+            ['HbO, @ tlag ' num2str(tlags(plotOptfix{2}(1))) 's, stsize ' num2str(stpsize(plotOptfix{2}(2))*1000/25) 'ms'], ...
+            ['HbR, @ tlag ' num2str(tlags(plotOptfix{2}(1))) 's, stsize ' num2str(stpsize(plotOptfix{2}(2))*1000/25) 'ms'], ...
+            'HbO SS GLM', ...
+            'HbR SS GLM', ...
+            'Location', 'Best')
     end
     
     
