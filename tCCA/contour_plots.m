@@ -1,6 +1,9 @@
 function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, flip)
 %CONTOUR_PLOTS Summary of this function goes here
 %   Detailed explanation goes here
+for tl = 1:numel(evparams.stpsize)
+xtl{tl} = num2str(evparams.stpsize(tl)*1000/25);
+end
 
 %% create combined surface plots (depict objective function)
 [X,Y] = meshgrid(evparams.stpsize,evparams.tlags);
@@ -11,7 +14,9 @@ climits = [min(METRIC(:)) max(METRIC(:))];
 for ii=1:10
     subplot(3,4,ii)
     contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
-    xlabel('stepsize / smpl')
+    xlabel('stepsize / ms')
+    xticks(evparams.stpsize(1:2:end))
+    xticklabels(xtl(1:2:end))
     ylabel('time lags / s')
     title([ttl ', ctrsh: ' num2str(evparams.cthresh(ii))])
     

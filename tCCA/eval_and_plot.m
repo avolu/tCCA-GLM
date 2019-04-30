@@ -10,9 +10,7 @@ hrfamp = 50;
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
-cntno = 10;
-% use mean (1) or median (2) in metric contour plots
-mflag = 2;
+cntno = 15;
 % plot pvalue results
 pvalflag = false;
 % plot other metrics
@@ -21,7 +19,9 @@ plotmetrics = false;
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
 % smoothing / optimization metrics: 1 mean, 2 median!!! or 3 all channels
-Jparam.mtype = 2;
+Jparam.mtype = 1;
+% use mean (1) or median (2) in metric contour plots
+mflag = Jparam.mtype;
 % Objective function J weights
 Jparam.fact.corr = 0;
 Jparam.fact.mse =1;
@@ -30,14 +30,15 @@ Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 2;%1;
-reg.weight =4;
+reg.step = 1;%2;
+reg.weight =1;%4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-%pOptfix = [5 2 3];
+pOptfix = [5 2 2];
+%pOptfix = [4 7 8];
 %pOptfix = [2 8 9];
 
 %% settings to keep in mind
@@ -239,8 +240,10 @@ for hrff=1:2
             ylim ([axlim(1) axlim(2)])
             xlabel('SS GLM')
             ylabel('tCCA GLM')
+            grid on
         end
     end
+    
     
     %% Plot CORR, MSE and F-Score vs corr threshold
     [CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
@@ -270,7 +273,7 @@ end
 ttl= 'Sum Obj. Functions hrf=50|100';
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fval{1}+fval{2}),find(fval{1}+fval{2} == min(fval{1}(:)+fval{2}(:))));
-contour_plots(fval{1}+fval{2}, ttl, evparams, [t,s,c], cntno, 'min');
+contour_plots((fval{1}+fval{2})/max(fval{1}(:)+fval{2}(:)), ttl, evparams, [t,s,c], cntno, 'min');
 
 disp('=================================================================')
     disp(['these parameters minimize the combined objective functions: timelag: ' ...
