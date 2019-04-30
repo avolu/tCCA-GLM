@@ -13,7 +13,7 @@ TP_flag = true;
 cntno = 10;
 % use mean (1) or median (2) in metric contour plots
 mflag = 2;
-% plot pvalue results or not
+% plot pvalue results
 pvalflag = false;
 % plot other metrics
 plotmetrics = false;
@@ -31,7 +31,7 @@ Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
 reg.step = 2;%1;
-reg.weight =5;
+reg.weight =4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
@@ -242,7 +242,7 @@ for hrff=1:2
         end
     end
     
-    %% Plot F-Score vs corr threshold
+    %% Plot CORR, MSE and F-Score vs corr threshold
     [CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
     [CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, mflag);
     datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
@@ -260,6 +260,8 @@ for hrff=1:2
         ylabel(ylabs{ff})
         title([ttl{ff} ' vs Cthresh for Tlag = ' num2str(tlags(pOpt(1))) ' / Stepsize = ' num2str(stpsize(pOpt(2))), ' / hrf = ' num2str(hrfamp)])
     end
+    
+    
 end
 
 
