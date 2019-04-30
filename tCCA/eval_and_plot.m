@@ -40,6 +40,7 @@ pOptfix =[];
 pOptfix = [5 2 2];
 %pOptfix = [4 7 8];
 %pOptfix = [2 8 9];
+plotOptfix = {pOptfix,[4 7 7]};
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
@@ -245,29 +246,39 @@ for hrff=1:2
     end
     
     
-    %% Plot CORR, MSE and F-Score vs corr threshold
+    %% Plot MSE and F-Score vs corr threshold
     [CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
     [CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, mflag);
-    datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
-    datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
+    datss=[];
+    datcca=[];
+    ptype = {'r','b','--r','--b'};
+    pttype = {'or','ob','*r','*b'};
+    for pp = 1:2
+        datss{pp} = {squeeze(MSEss(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:)), squeeze(FSCOREss(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:))};
+        datcca{pp} = {squeeze(MSEcca(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:)), squeeze(FSCOREcca(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:))};
+    end
     figure
-    ylabs={'CORR','MSE','F-Score'};
-    for ff = 1:3
-        subplot(1,3,ff)
-        hold on
-        plot(cthresh, datcca{ff}(1,:), 'r')
-        plot(cthresh, datss{ff}(1,:), '.r')
-        plot(cthresh, datcca{ff}(2,:), 'b')
-        plot(cthresh, datss{ff}(2,:), '.b')
-        xlabel('Corr threshold')
-        ylabel(ylabs{ff})
-        title([ttl{ff} ' vs Cthresh for Tlag = ' num2str(tlags(pOpt(1))) ' / Stepsize = ' num2str(stpsize(pOpt(2))), ' / hrf = ' num2str(hrfamp)])
+    ylabs={'MSE','F-Score'};
+    for mm = 1:2
+        subplot(1,2,mm)
+        for pp = 1:2
+                hold on
+                plot(cthresh, datcca{pp}{mm}(1,:), ptype{(2*pp)-1})
+                plot(cthresh, datcca{pp}{mm}(2,:), ptype{2*pp})
+                plot(cthresh(plotOptfix{pp}(3)), datcca{pp}{mm}(1,plotOptfix{pp}(3)), pttype{(2*pp)-1});
+                plot(cthresh(plotOptfix{pp}(3)), datcca{pp}{mm}(2,plotOptfix{pp}(3)), pttype{(2*pp)});
+                xlabel('Corr threshold')
+                ylabel(ylabs{mm})
+                title([ylabs{mm} ' vs Correlation Threshold / hrf = ' num2str(hrfamp)])
+        end
+        plot(cthresh, datss{pp}{mm}(1,:), '.r')
+        plot(cthresh, datss{pp}{mm}(2,:), '.b')
     end
     
     
 end
 
-
+plotOptfix = {pOptfix,[4 7 7]};
 
 %% Plot combined Mixed Objective Function contour plot
 ttl= 'Sum Obj. Functions hrf=50|100';
