@@ -1,4 +1,4 @@
-function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf)
+function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial)
 %PLOT_EVAL Summary of this function goes here
 
 % find short separation channels
@@ -12,44 +12,27 @@ for iML = 1:length(lst_sig)
     posM(iML,:) = (SD.SrcPos(ml(lst_sig(iML),1),:) + SD.DetPos(ml(lst_sig(iML),2),:)) / 2;
 end
 lstSS = lst_sig(find(rhoSD<15));
+ 
+for j = 1:2 % across HbO/HbR
+    for i = 1:size(lst_stim,1) % across trials
+        Hb_SS(:,i,:,j) = squeeze(d_ss([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],j,:)); % get each trial (HbO)
+        Hb_CCA(:,i,:,j) = squeeze(d_cca([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],j,:)); % get each trial (HbO)
+    end
+end
+% Hb_SS: # of time points X # of trials X # of channels X HbO/HbR
 
-for i = 1:size(lst_stim,1) % across trials
-    HbO_SS(:,i,:) = squeeze(d_ss([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],1,:)); % get each trial (HbO)
-    HbO_CCA(:,i,:) = squeeze(d_cca([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],1,:)); % get each trial (HbO)
-    HbR_SS(:,i,:) = squeeze(d_ss([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],2,:)); % get each trial (HbR)
-    HbR_CCA(:,i,:) = squeeze(d_cca([lst_stim(i) - abs(eval_param.HRFmin) * fq]:[lst_stim(i) + eval_param.HRFmax * fq],2,:)); % get each trial (HbR)
+for j = 1:2 % HbO/HbR
+    for i=1:size(Hb_SS,3) % across channels
+        % HBO & HBR
+        MEAN_HRF_SS(i,:,j)= nanmean(squeeze(Hb_SS(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i,j)));  % channels by trials
+        MEAN_baseline_SS(i,:,j)= nanmean(squeeze(Hb_SS(1:abs(eval_param.HRFmin*fq),:,i,j)));
+        
+        MEAN_HRF_CCA(i,:,j)= nanmean(squeeze(Hb_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i,j)));  % channels by trials
+        MEAN_baseline_CCA(i,:,j)= nanmean(squeeze(Hb_CCA(1:abs(eval_param.HRFmin*fq),:,i,j)));
+    end
 end
 
-for i=1:size(HbO_SS,3)
-    % HBO
-    MEAN_SS(:,i,1)= nanmean(squeeze(HbO_SS(:,:,i)),2);
-    STD_SS(:,i,1)=nanstd(squeeze(HbO_SS(:,:,i)),0,2);
-    MEAN_CCA(:,i,1)= nanmean(squeeze(HbO_CCA(:,:,i)),2);
-    STD_SS(:,i,1)=nanstd(squeeze(HbO_CCA(:,:,i)),0,2);
-    % HBR
-    MEAN_SS(:,i,2)= nanmean(squeeze(HbR_SS(:,:,i)),2);
-    STD_SS(:,i,2)=nanstd(squeeze(HbR_SS(:,:,i)),0,2);
-    MEAN_CCA(:,i,2)= nanmean(squeeze(HbR_CCA(:,:,i)),2);
-    STD_SS(:,i,2)=nanstd(squeeze(HbR_CCA(:,:,i)),0,2);
-end
-
-
-for i=1:size(HbO_SS,3) % across channels
-    % HBO & HBR
-    MEAN_HRF_SS(i,:,1)= nanmean(squeeze(HbO_SS(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    MEAN_baseline_SS(i,:,1)= nanmean(squeeze(HbO_SS(1:abs(eval_param.HRFmin*fq),:,i)));
-    
-    MEAN_HRF_CCA(i,:,1)= nanmean(squeeze(HbO_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    MEAN_baseline_CCA(i,:,1)= nanmean(squeeze(HbO_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
-    % HBR
-    MEAN_HRF_SS(i,:,2)= nanmean(squeeze(HbR_SS(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    MEAN_baseline_SS(i,:,2)= nanmean(squeeze(HbR_SS(1:abs(eval_param.HRFmin*fq),:,i)));
-    
-    MEAN_HRF_CCA(i,:,2)= nanmean(squeeze(HbR_CCA(eval_param.pre*fq+abs(eval_param.HRFmin*fq):eval_param.post*fq+abs(eval_param.HRFmin*fq),:,i)));  % channels by trials
-    MEAN_baseline_CCA(i,:,2)= nanmean(squeeze(HbR_CCA(1:abs(eval_param.HRFmin*fq),:,i)));
-end
-
-for i=1:size(HbO_SS,3)
+for i=1:size(Hb_SS,3)
     format long
     %HbO & HbR
     for ii=1:2
@@ -60,12 +43,12 @@ for i=1:size(HbO_SS,3)
     end
 end
 
-DET_SS = zeros(size(MEAN_SS,2),2);
-DET_CCA = zeros(size(MEAN_CCA,2),2);
+DET_SS = zeros(size(Hb_SS,3),2);
+DET_CCA = zeros(size(Hb_CCA,3),2);
 
 % get number of active channels that we added HRF (True Positives only!)
 % list of true negatives
-nohrflist = 1:1:size(HbO_SS,3);
+nohrflist = 1:1:size(Hb_SS,3);
 rmvidx = [lstHrfAdd(:,1); lstSS];
 nohrflist(rmvidx)=[];
 % init variables
@@ -111,6 +94,55 @@ DET_SS(lstSS,:)= 0;
 DET_CCA(lstSS,:)= 0;
 
 
+
+if flag_trial
+    
+    % %% Sum MSE for each trial
+%% lets do the calculation of the other performance metrics here later on
+% correlation
+% cut to the same timebase and baseline correct
+% HbO and HbR
+MEAN_SS_ev = Hb_SS(abs(eval_param.HRFmin*fq)-1:end,:,:,:);
+MEAN_SS_ev = MEAN_SS_ev-nanmean(Hb_SS(1:abs(fq*eval_param.HRFmin),:,:,:),1);
+MEAN_CCA_ev = Hb_CCA(abs(eval_param.HRFmin*fq)-1:end,:,:,:);
+MEAN_CCA_ev = MEAN_SS_ev-nanmean(Hb_CCA(1:abs(fq*eval_param.HRFmin),:,:,:),1);
+
+
+hrfeval = hrf.hrf_conc(1:size(MEAN_SS_ev,1),:);
+
+%init variables
+CORR_SS=NaN(16,2,size(Hb_SS,2));
+CORR_CCA=NaN(16,2,size(Hb_SS,2));
+MSE_SS=NaN(16,2,size(Hb_SS,2));
+MSE_CCA=NaN(16,2,size(Hb_SS,2));
+
+for ii=1:2 % HbO/R
+    for jj = 1:size(Hb_SS,2) % across trials
+    idx = lstHrfAdd(:,1);
+    
+    % calculate correlation and MSE
+    buf = corr(squeeze(MEAN_SS_ev(:,jj,idx,ii)),squeeze(hrfeval(:,ii)));
+    CORR_SS(1:numel(buf),ii,jj) = buf;
+    buf = corr(squeeze(MEAN_CCA_ev(:,jj,idx,ii)),squeeze(hrfeval(:,ii)));
+    CORR_CCA(1:numel(buf),ii,jj) = buf;
+    buf = sqrt(nanmean((squeeze(MEAN_SS_ev(:,jj,idx,ii))-squeeze(hrfeval(:,ii))).^2));
+    MSE_SS(1:numel(buf),ii,jj) = buf;
+    buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,jj,idx,ii))-squeeze(hrfeval(:,ii))).^2));
+    MSE_CCA(1:numel(buf),ii,jj) = buf;
+end
+end
+
+CORR_SS = sum(CORR_SS,3);
+CORR_CCA = sum(CORR_CCA,3);
+MSE_SS = sum(MSE_SS,3);
+MSE_CCA = sum(MSE_CCA,3);
+
+
+
+else
+
+
+%% MSE for the estimated HRF
 %% lets do the calculation of the other performance metrics here later on
 % correlation
 % cut to the same timebase and baseline correct
@@ -139,6 +171,24 @@ for ii=1:2
     buf = sqrt(nanmean((squeeze(MEAN_CCA_ev(:,ii,idx))-squeeze(hrfeval(:,ii))).^2));
     MSE_CCA(1:numel(buf),ii) = buf;
 end
+
+end
+
+
+
+
+% get mean across trials for the plot_block
+for i=1:size(Hb_SS,3)
+    for j = 1:2
+        % HbO and HbR
+        MEAN_SS(:,i,j)= nanmean(squeeze(Hb_SS(:,:,i,j)),2);
+        STD_SS(:,i,j)=nanstd(squeeze(Hb_SS(:,:,i,j)),0,2);
+        MEAN_CCA(:,i,j)= nanmean(squeeze(Hb_CCA(:,:,i,j)),2);
+        STD_CCA(:,i,j)=nanstd(squeeze(Hb_CCA(:,:,i,j)),0,2);
+        
+    end
+end
+
 
 
 if flag_plot
