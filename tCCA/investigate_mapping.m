@@ -6,11 +6,15 @@ melexflag = 0;
 % number of contours in contour plots
 cntno = 15;
 %% GLOBAL OPTIMUM TO INVESTIGATE
-pOptfix = [4 7 6];
+pOpt = [4 7 6];
 % parameters
-timelag = pOpt(1);
+tlg = pOpt(1);
 sts = pOpt(2);
-cthresh = pOpt(3);
+ct = pOpt(3);
+
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0:0.1:0.9;
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -19,19 +23,11 @@ if melexflag
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
-    path.cvres50 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
-    path.cvres100 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
-    path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
-    path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
-    path.cvres50 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
-    path.cvres100 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
-    path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
-    path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 end
 
 % #####
@@ -50,7 +46,7 @@ disp('=================================================================')
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
-        
+    
     % change to subject directory
     cd([path.dir filesep sbjfolder{sbj} filesep]);
     %% load data
@@ -83,88 +79,38 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     for tt = 1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
-                
-                param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
-                param.NumOfEmb = ceil(timelag*fq / sts);
-                
-                %% Temporal embedding of auxiliary data from testing split
-                aux_sigs = AUX(tstIDX,:);
-                aux_emb = aux_sigs;
-                for i=1:param.NumOfEmb
-                    aux=circshift( aux_sigs, i*param.tau, 1);
-                    aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
-                    aux_emb=[aux_emb aux];
-                end
-                
-                %% set correlation trheshold for CCA to 0 so we dont lose anything here
-                param.ct = 0;   % correlation threshold
-                %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
-                % use test data of LD channels without synth HRF
-                X = d0_long(trnIDX,:);
-                [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
-                
-                for ctr = cthresh %loop across correlation thresholds
-                    ctidx = ctidx+1;
-                    disp(['split: ' num2str(tt) ', tlag: ' num2str(tl) ', stsize: ' num2str(sts) ', ctrhesh: ' num2str(ctr)])
-                    
-                    %% now use correlation threshold for CCA outside of function to avoid redundant CCA recalculation
-                    % overwrite: auxiliary cca components that have
-                    % correlation > ctr
-                    compindex=find(ADD_trn{tt}.ccac>ctr);
-                    %overwrite: reduced mapping matrix Av
-                    ADD_trn{tt}.Av_red = ADD_trn{tt}.Av(:,compindex);
-                    % save mapping matrix and ccac
-                    CCA.Amap(:,:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.Av;
-                    CCA.Amap_red(:,:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.Av;
-                    CCA.ccac(:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.ccac;
-                    
-                    %% Calculate testig regressors with CCA mapping matrix A from testing
-                    REG_tst = aux_emb*ADD_trn{tt}.Av_red;
-                    CCA.REG(:,:,tt,tlidx,stpidx,ctidx)=REG_tst;
-                    
-                    %% Perform GLM with CCA
-                    [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
-                        hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
-                    
-                    
-                    %% list of channels with stimulus  
-                    lst_stim = find(s(tstIDX,:)==1);
-                    if lst_stim(1) < abs(eval_param.HRFmin) * fq
-                        lst_stim = lst_stim(2:end);
-                    end
-                    if size(s(tstIDX,:),1) < lst_stim(end) + abs(eval_param.HRFmax) * fq
-                        lst_stim = lst_stim(1:end-1);    
-                    end
-
-                    
-                    %% EVAL / PLOT
-                    [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
-                        pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
-                        CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
-                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial);
-                    % Dimensions of output metrics
-                    % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
-                    % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
-                    
-                    % display iterno
-                    disp(['iter #' num2str(iterno) ', sbj ' num2str(sbj) ', ' num2str(ceil(1000*iterno/(totiter))/10) '% done'])
-                    iterno = iterno+1;
-                end
-                % reset counter
-                ctidx =0;
-            end
-            % reset counter
-            stpidx =0;
+        
+        param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
+        param.NumOfEmb = ceil(tlg*fq / sts);
+        
+        %% Temporal embedding of auxiliary data from testing split
+        aux_sigs = AUX(tstIDX,:);
+        aux_emb = aux_sigs;
+        for i=1:param.NumOfEmb
+            aux=circshift( aux_sigs, i*param.tau, 1);
+            aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
+            aux_emb=[aux_emb aux];
         end
-        % reset counter
-        tlidx =0;
+        
+        %% set correlation trheshold for CCA to 0 so we dont lose anything here
+        param.ct = 0;   % correlation threshold
+        %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
+        % use test data of LD channels without synth HRF
+        X = d0_long(trnIDX,:);
+        [REG_trn{sbj,tt},  ADD_trn{sbj,tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
+        
+        
+        %% now use correlation threshold for CCA outside of function to avoid redundant CCA recalculation
+        % overwrite: auxiliary cca components that have
+        % correlation > ctr
+        compindex=find(ADD_trn{sbj,tt}.ccac>ct);
+        %overwrite: reduced mapping matrix Av
+        ADD_trn{sbj,tt}.Av_red = ADD_trn{sbj,tt}.Av(:,compindex);
+        
+        
+        %% Calculate testig regressors with CCA mapping matrix A from testing
+        REG_tst{sbj,tt} = aux_emb*ADD_trn{sbj,tt}.Av_red;
     end
-    %% save data for subject
-    disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save '\CV_results_data_50_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
-    % clear vars
-    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
-    
 end
 
 
