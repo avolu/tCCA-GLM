@@ -8,7 +8,7 @@ cntno = 15;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 flags.pcaf =  [0 0]; % no pca of X or AUX in CCA
 
-%% GLOBAL OPTIMUM TO INVESTIGATE
+%% PARAMETER SET = GLOBAL OPTIMUM TO INVESTIGATE
 pOpt = [4 7 6];
 % parameters
 tlg = pOpt(1);
