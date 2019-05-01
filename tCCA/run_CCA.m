@@ -162,10 +162,6 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     compindex=find(ADD_trn{tt}.ccac>ctr);
                     %overwrite: reduced mapping matrix Av
                     ADD_trn{tt}.Av_red = ADD_trn{tt}.Av(:,compindex);
-                    % save mapping matrix and ccac
-                    CCA.Amap(:,:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.Av;
-                    CCA.Amap_red(:,:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.Av;
-                    CCA.ccac(:,tt,tlidx,stpidx,ctidx) = ADD_trn{tt}.ccac;
                     
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
