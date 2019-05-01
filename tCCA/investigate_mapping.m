@@ -1,81 +1,58 @@
-clear all;
+%% +++++++++++++++++++++++
+%% SCRIPT CONFIGURATION
+% +++++++++++++++++++++++
+% user: 1 Meryem | 0 Alex
+melexflag = 0;
+% number of contours in contour plots
+cntno = 15;
+%% GLOBAL OPTIMUM TO INVESTIGATE
+pOptfix = [4 7 6];
+% parameters
+timelag = pOpt(1);
+sts = pOpt(2);
+cthresh = pOpt(3);
 
+%% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
-if malexflag
+if melexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres50 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
+    path.cvres100 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
+    path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres50 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
+    path.cvres100 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
+    path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 end
 
 % #####
-filename = 'resting_sim_50';
+filename = 'resting_sim';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
 
 
-%% Options/Parameter Settings
-rhoSD_ssThresh = 15;  % mm
-flag_save = 0;
-flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
-% results eval parameters
-eval_param.HRFmin = -2;
-eval_param.HRFmax = 17; % used only for block design runs
-eval_param.Hb = 1; % 1 HbO / 0 HbR (for block only)
-eval_param.pre = 5;  % HRF range in sec to calculate ttest
-eval_param.post = 10;
-% CCA parameters
-flags.pcaf =  [0 0]; % no pca of X or AUX
-
-%motion artifact detection
-motionflag = true;
-%plot flag
-flag_plot = false;
-% flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
-flag_trial = 1;
-
-% Validation parameters
-tlags = 0:1:10;
-stpsize = 2:2:24;
-cthresh = 0:0.1:0.9;
-
-tlidx =0;
-stpidx =0;
-ctidx =0;
-
 tic;
 
-%% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
-
-%iteration number
-iterno = 1;
-totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
+disp('=================================================================')
+disp(['these parameters were chosen manually: ' ...
+    num2str(tlags(pOpt(1))) 's, stepsize: ' num2str(stpsize(pOpt(2))) 'smpl, corr threshold: ' num2str(cthresh(pOpt(3)))] )
+disp('=================================================================')
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
-    
-    %% (re-)initialize result matrices
-    nTrials= NaN(2,numel(tlags),numel(stpsize),numel(cthresh));
-    DET_SS= NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    DET_CCA= NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    pval_SS = NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    pval_CCA = NaN(34,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    MSE_SS = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    MSE_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    CORR_SS = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    CORR_CCA = NaN(16,2,2,numel(tlags),numel(stpsize),numel(cthresh));
-    
+        
     % change to subject directory
     cd([path.dir filesep sbjfolder{sbj} filesep]);
-    
     %% load data
     [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
     
@@ -85,8 +62,6 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     AUX = [AUX, d0_short]; % full AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
     %% zscore AUX signals
     AUX = zscore(AUX);
-    
-    
     %% check if the number of time points is odd/even, if odd make it even... (number of embedded should be the same)
     if mod(size(AUX,1),2) == 1
         AUX(end,:)=[];
@@ -99,7 +74,6 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         t(end,:)=[];
         s(end,:)=[];
     end
-    
     % create data split indices
     len = size(AUX,1);
     spltIDX = {1:len/2,len/2+1:len};
@@ -109,30 +83,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     for tt = 1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
-        
-        %% convert testing fNIRS data to concentration and detect motion artifacts
-        dod = hmrIntensity2OD(d(tstIDX,:));
-        
-        if motionflag
-            [tIncAuto] = hmrMotionArtifact(dod,fq,SD,ones(size(d,1),1),0.5,1,30,5);
-            [s,tRangeStimReject] = enStimRejection(t(tstIDX,:),s,tIncAuto,ones(size(d,1),1),[-2  10]);
-        end
-        
-        dod = hmrBandpassFilt(dod, fq, 0, 0.5);
-        dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
-        
-        %% Perform GLM with SS
-        [yavg_ss, yavgstd_ss, tHRF, nTrialsSS, d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
-            hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
-        
-        %% CCA EVAL
-        for tl = tlags %loop across timelags
-            timelag = tl;
-            tlidx = tlidx+1;
-            
-            for sts = stpsize  %loop across stepsizes
-                stpidx = stpidx+1;
-                %% set stepsize for CCA
+                
                 param.tau = sts; %stepwidth for embedding in samples (tune to sample frequency!)
                 param.NumOfEmb = ceil(timelag*fq / sts);
                 
