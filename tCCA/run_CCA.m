@@ -1,7 +1,7 @@
 clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -39,7 +39,7 @@ motionflag = true;
 %plot flag
 flag_plot = false;
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
-flag_trial = 1;
+flag_trial = 0;
 
 % Validation parameters
 tlags = 0:1:10;
@@ -169,7 +169,6 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     %% Calculate testig regressors with CCA mapping matrix A from testing
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
-                    CCA.REG(:,:,tt,tlidx,stpidx,ctidx)=REG_tst;
                     
                     %% Perform GLM with CCA
                     [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
@@ -210,7 +209,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     end
     %% save data for subject
     disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save '\CV_results_datat_20_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
+    save([path.save '\CV_results_data_20' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
