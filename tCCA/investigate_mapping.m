@@ -5,6 +5,9 @@
 melexflag = 0;
 % number of contours in contour plots
 cntno = 15;
+flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
+flags.pcaf =  [0 0]; % no pca of X or AUX in CCA
+
 %% GLOBAL OPTIMUM TO INVESTIGATE
 pOpt = [4 7 6];
 % parameters
@@ -112,11 +115,11 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         REG_tst{sbj,tt} = aux_emb*ADD_trn{sbj,tt}.Av_red;
     end
 end
-
-
 toc;
 
 
+
+%% re-sort and process mapping matrices
 
 
 
