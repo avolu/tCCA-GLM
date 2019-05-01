@@ -210,7 +210,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     end
     %% save data for subject
     disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save '\CV_results_datat_20_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
+    save([path.save '\CV_results_data_20_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
