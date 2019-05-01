@@ -1,7 +1,7 @@
 path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER';
 path.fname = 'resting.nirs';
-path.hrfname = 'hrf_simdat.mat';
-path.savename = 'resting_sim.nirs';
+path.hrfname = 'hrf_simdat_20.mat';
+path.savename = 'resting_sim_20.nirs';
 path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM';
 addpath(genpath(path.code));
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
