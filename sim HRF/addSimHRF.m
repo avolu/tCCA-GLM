@@ -1,4 +1,4 @@
-function [nirs_hrf] = addSimHRF(nirs, hrf, utest)
+function [nirs_hrf] = addSimHRF(nirs, hrf, utest, flag_prune)
 %% adds simulated HRF to intensity nirs data, using random 50% of long
 %% distance channels and a random 0-3.5s onset within 20s windows.
 %% Lowpassfilters and downsamples the data to 25Hz.
@@ -6,6 +6,7 @@ function [nirs_hrf] = addSimHRF(nirs, hrf, utest)
 % Input:    nirs        -   HOMER2 .nirs struct
 %           hrf         -   hrf mat file with simulated HRF data
 %           utest       -   flag for unit test: if true the output signals
+%           flag_prune  -   prune noisy channels (true) or not (false)
 %                           will be constant "ones" only with simulated hrf
 % Output:   same struct with added simulated HRFs. New / updated fields:
 %           .lstHrfAdd  -   list of channels with added HRFs
@@ -47,8 +48,9 @@ end
 nirs_hrf.d0 = nirs_hrf.d;
 
 %% Prune noisy channels
-nirs.SD = enPruneChannels(nirs.d,nirs.SD,ones(size(nirs.d,1),1),[10000  10000000],5,[0  45],0);
-
+if flag_prune
+    nirs.SD = enPruneChannels(nirs.d,nirs.SD,ones(size(nirs.d,1),1),[10000  10000000],5,[0  45],0);
+end
 
 %% Definition channel groups
 % separate SS channels

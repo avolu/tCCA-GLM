@@ -34,7 +34,7 @@ else
 end
 
 % #####
-filename = 'resting_sim';
+filename = 'resting_ds';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
@@ -54,6 +54,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     cd([path.dir filesep sbjfolder{sbj} filesep]);
     %% load data
     [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
+    %% filter and downsample
+    %d0_long 
     
     %% lowpass filter AUX signals
     AUX = hmrBandpassFilt(AUX, fq, 0, 0.5);
