@@ -1,7 +1,7 @@
 clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -15,7 +15,7 @@ else
 end
 
 % #####
-filename = 'resting_sim_50';
+filename = 'resting_sim_20';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
@@ -53,7 +53,7 @@ ctidx =0;
 tic;
 
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
 
 %iteration number
 iterno = 1;
@@ -210,7 +210,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     end
     %% save data for subject
     disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save '\CV_results_data_50_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
+    save([path.save '\CV_results_datat_20_stMSE' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials', 'Amap');
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
