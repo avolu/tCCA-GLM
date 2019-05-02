@@ -6,7 +6,7 @@ clear all
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
 % select which hrf amplitude data: 1 (50%) or 2 (100%)
-hhh = [1 2 3];
+hhh = [1 ]%2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
 mmm = [1 2];
 % Use only true positives for evaluation of metrics
@@ -272,7 +272,7 @@ for metr=mmm
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
-                title([ttl{ff} ' for Tlag/Ssize/Cthresh: ' num2str(tlags(pOpt(1))) ' / ' num2str(stpsize(pOpt(2))) ' / ' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p)])
+                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for tl/ss/ct: ' num2str(tlags(pOpt(1))) ' / ' num2str(stpsize(pOpt(2))) ' / ' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p)])
                 xlim ([axlim(1) axlim(2)])
                 ylim ([axlim(1) axlim(2)])
                 xlabel('SS GLM')
