@@ -5,8 +5,8 @@ clear all
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
-% select which hrf amplitude data: 1 (50%) or 2 (100%)
-hhh = [1 ]%2 3];
+% select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
+hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
 mmm = [1 2];
 % Use only true positives for evaluation of metrics
