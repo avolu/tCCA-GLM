@@ -6,7 +6,7 @@ clear all
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
-hhh = [1 2 3];
+hhh = [3 2 1];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
 mmm = [1 2];
 % Use only true positives for evaluation of metrics
@@ -93,7 +93,9 @@ evparams.cthresh = cthresh;
 
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
-        
+
+
+mseffig = figure;
 
 for metr=mmm
     for hrff=hhh
@@ -227,7 +229,7 @@ for metr=mmm
             squeeze(FSCORE(:,1,:,:,ct)), [], ...
             squeeze(CORR(:,2,:,:,ct)), squeeze(-MSE(:,2,:,:,ct)), ...
             squeeze(FSCORE(:,2,:,:,ct))};
-        ttl = {'J Opt','CORR HbO','MSE HbO','F HbO', '', 'CORR HbR', 'MSE HbR','F HbR'};
+        ttl = {'J Opt','CORR HbO','MSE HbO','F HbO', '', 'CORR HbR', 'MSE HbR', 'F HbR'};
         for dd = 1:numel(dat)
             if ~isempty(dat{dd})
                 subplot(2,4,dd)
@@ -272,7 +274,7 @@ for metr=mmm
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
-                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for tl/ss/ct: ' num2str(tlags(pOpt(1))) ' / ' num2str(stpsize(pOpt(2))) ' / ' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p)])
+                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p) ', ' metrttl{metr}])
                 xlim ([axlim(1) axlim(2)])
                 ylim ([axlim(1) axlim(2)])
                 xlabel('SS GLM')
@@ -283,42 +285,53 @@ for metr=mmm
         
         
         %% Plot MSE and F-Score vs corr threshold
-        [CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
-        [CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, mflag);
-        datss=[];
-        datcca=[];
+        datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
+        datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
         ptype = {'r','b','--r','--b'};
         pttype = {'or','ob','*r','*b'};
-        for pp = 1:2
-            datss{pp} = {squeeze(MSEss(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:)), squeeze(FSCOREss(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:))};
-            datcca{pp} = {squeeze(MSEcca(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:)), squeeze(FSCOREcca(:,:,plotOptfix{pp}(1),plotOptfix{pp}(2),:))};
-        end
-        figure
+        figure(mseffig)
         ylabs={'MSE','F-Score'};
-        for mm = 1:2
-            subplot(1,2,mm)
-            for pp = 1:2
-                hold on
-                if mm==1
-                    plot(cthresh, 100*(1-datcca{pp}{mm}(1,:)./datss{pp}{mm}(1,:)), ptype{(2*pp)-1});
-                    plot(cthresh, 100*(1-datcca{pp}{mm}(2,:)./datss{pp}{mm}(2,:)), ptype{2*pp});
-                else
-                    plot(cthresh, 100*(-1+datcca{pp}{mm}(1,:)./datss{pp}{mm}(1,:)), ptype{(2*pp)-1});
-                    plot(cthresh, 100*(-1+datcca{pp}{mm}(2,:)./datss{pp}{mm}(2,:)), ptype{2*pp});
-                end
-                xlabel('Corr threshold')
-                ylabel(ylabs{mm})
-                title(['Average ' ylabs{mm} ' improvement over SS GLM in % / hrf = ' num2str(hrfamp) ', ' metrttl{metr}])
-            end
-            plot (cthresh, zeros(numel(cthresh),1), '.k')
-            legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
-                ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
-                ['HbO, @ tlag ' num2str(tlags(plotOptfix{2}(1))) 's, stsize ' num2str(stpsize(plotOptfix{2}(2))*1000/25) 'ms'], ...
-                ['HbR, @ tlag ' num2str(tlags(plotOptfix{2}(1))) 's, stsize ' num2str(stpsize(plotOptfix{2}(2))*1000/25) 'ms'], ...
-                'HbO SS GLM', ...
-                'HbR SS GLM', ...
-                'Location', 'Best')
+        if metr == 1
+            midx = 1;
+            pofs =0;
+        else
+            midx = [1 2];
+            pofs =1;
         end
+        for mm = midx
+           subplot(numel(hhh),3,((hrff-1)*numel(hhh))+mm+pofs)
+           grid on
+           hold on 
+            switch mm+pofs
+                case 1
+                    title(['Average ' ylabs{mm} ', hrf = ' num2str(hrfamp) '%, ' metrttl{metr}])
+                    ylim([0.5 3]*1e-6);
+                case 2
+                    title(['Average ' ylabs{mm} ', hrf = ' num2str(hrfamp) '%, ' metrttl{metr}])
+                    ylim([0.5 1.5]*1e-7);
+                case 3
+                    title(['Average ' ylabs{mm} ', hrf = ' num2str(hrfamp) '%'])
+                    ylim([0.25 1]);
+            end
+            errorbar(cthresh, squeeze(nanmean(datcca{mm+1}(:,1,:))), squeeze(nanstd(datcca{mm+1}(:,1,:)))/sqrt(size(datcca{mm+1},1)), 'r');
+            errorbar(cthresh, squeeze(nanmean(datcca{mm+1}(:,2,:))), squeeze(nanstd(datcca{mm+1}(:,2,:)))/sqrt(size(datcca{mm+1},1)), 'b');
+            plot(cthresh, squeeze(nanmean(datss{mm+1}(:,1,:))), '--r');
+            plot(cthresh, squeeze(nanmean(datss{mm+1}(:,2,:))), '--b');
+            % mark selected points
+            plot(cthresh(pOpt(3)), squeeze(nanmean(datcca{mm+1}(:,1,pOpt(3)))),'ok')
+            plot(cthresh(pOpt(3)), squeeze(nanmean(datcca{mm+1}(:,2,pOpt(3)))),'ok')
+            xlabel('Corr threshold')
+            ylabel(ylabs{mm})
+            %plot (ones(10,1)*cthresh(pOpt(3)), zeros(numel(cthresh),1), '.k')
+%             legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+%                 ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+%                 'HbO, SS GLM', ...
+%                 'HbR, SS GLM', ...
+%                 'Location', 'Best')
+        end
+        
+        
+        
         
     end
 end
