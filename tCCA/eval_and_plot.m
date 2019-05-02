@@ -6,7 +6,7 @@ clear all
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
 % select which hrf amplitude data: 1 (50%) or 2 (100%)
-hhh = [1 2];
+hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
 mmm = [1 2];
 % Use only true positives for evaluation of metrics
@@ -58,8 +58,10 @@ if melexflag
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres20 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_20'; % save directory
     path.cvres50 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
     path.cvres100 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 else
@@ -67,8 +69,10 @@ else
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.cvres20 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_20'; % save directory
     path.cvres50 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50'; % save directory
     path.cvres100 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100'; % save directory
+    path.cvres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
 end
@@ -93,13 +97,22 @@ metrttl = {'single trial', 'block avg'};
 
 for metr=mmm
     for hrff=hhh
-        hrfamp = hrff*50;
         %% load results data from all subjects
         % Dimensions of output metrics
         % # of sbjs x #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
         for sbj = 1:numel(sbjfolder)
-            switch hrfamp
-                case 50
+            switch hrff
+                case 1
+                    hrfamp = 20;
+                    switch metr
+                        case 1
+                            res{sbj} = load([path.cvres20stmse  '\results_sbj' num2str(sbj) '.mat']);
+                        case 2
+                            res{sbj} = load([path.cvres20 '\results_sbj' num2str(sbj) '.mat']);
+                            
+                    end
+                case 2
+                    hrfamp = 50;
                     switch metr
                         case 1
                             res{sbj} = load([path.cvres50stmse  '\results_sbj' num2str(sbj) '.mat']);
@@ -107,7 +120,8 @@ for metr=mmm
                             res{sbj} = load([path.cvres50 '\results_sbj' num2str(sbj) '.mat']);
                             
                     end
-                case 100
+                case 3
+                    hrfamp = 100;
                     switch metr
                         case 1
                             res{sbj} = load([path.cvres100stmse  '\results_sbj' num2str(sbj) '.mat']);
