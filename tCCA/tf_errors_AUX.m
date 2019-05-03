@@ -1,5 +1,4 @@
-%% # of TP/FP/FN/TN channels
-% for SS and CCA methods:
+%% # of TP/FP/FN/TN channels for CCA method at one set of CCA parameters using different combinatiosn of AUXs.
 % dimensions of DET_CCA
 % # Subjects x #CH x 2(Hbo+HbR) x 2 (cv split) x AUX combinations
 foo_CCA = permute(DET_CCA,[2 1 3 4 5]); % swapping to get a matrix with ch X everything else
