@@ -3,12 +3,7 @@
 foo_CCA = permute(DET_CCA,[2 1 3 4 5 6 7]);
 foo_CCA = reshape(foo_CCA, size(foo_CCA,1), size(foo_CCA,2)*size(foo_CCA,3)*size(foo_CCA,4)*size(foo_CCA,5)*size(foo_CCA,6)*size(foo_CCA,7));
 % ROCLAB.name = {'TP','FP','FN','TN', 'PRND'};
-for i = 1:size(foo_SS,2)
-    % SS
-    Ch_TP_SS(i) = sum(foo_SS(:,i)==1);
-    Ch_FP_SS(i) = sum(foo_SS(:,i)==-1);
-    Ch_FN_SS(i) = sum(foo_SS(:,i)==2);
-    Ch_TN_SS(i) = sum(foo_SS(:,i)==-2);
+for i = 1:size(foo_CCA,2)
     % CCA
     Ch_TP_CCA(i) = sum(foo_CCA(:,i)==1);
     Ch_FP_CCA(i) = sum(foo_CCA(:,i)==-1);

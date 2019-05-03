@@ -207,7 +207,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
 end
 
 %% save data
-save([path.save '\CV_AUX_contributions_50_stMSE' '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxifno');
+save([path.save '\CV_AUX_contributions_50_stMSE' '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxinfo');
 
 toc;
 

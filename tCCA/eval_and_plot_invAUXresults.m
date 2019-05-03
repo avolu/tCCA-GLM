@@ -103,11 +103,14 @@ CORR = squeeze(nanmean(nanmean(nanmean(CORR_CCA,1),2),4));
 
 
 %% create imagesc matrices from data
-for ii=1:6
-    for jj=1:6
-        CORRim(ii,jj)
-    end
-end
+% for ii=1:6
+%     for jj=1:6
+%         if 
+%         else
+%             CORRim(ii,jj)=NaN;
+%         end
+%     end
+% end
 
 
 mseffig = figure;
