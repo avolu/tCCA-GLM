@@ -10,14 +10,15 @@ flags.pcaf =  [0 0]; % no pca of X or AUX in CCA
 
 %% PARAMETER SET = GLOBAL OPTIMUM TO INVESTIGATE
 pOpt = [4 7 6];
-% parameters
-tlg = pOpt(1);
-sts = pOpt(2);
-ct = pOpt(3);
 
 tlags = 0:1:10;
 stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
+
+% parameters
+tlg = tlags(pOpt(1));
+sts = stpsize(pOpt(2));
+ct = cthresh(pOpt(3));
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -55,7 +56,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     %% load data
     [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
     %% filter and downsample
-    %d0_long 
+    %d0_long
     
     %% lowpass filter AUX signals
     AUX = hmrBandpassFilt(AUX, fq, 0, 0.5);
@@ -115,14 +116,74 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         
         %% Calculate testig regressors with CCA mapping matrix A from testing
         REG_tst{sbj,tt} = aux_emb*ADD_trn{sbj,tt}.Av_red;
+        
+        %% calculate the power contribution of aux signals in each regressor
+        nemb = param.NumOfEmb+1;
+        naux = 10;
+        nauxred = naux-5;
+        %remove mean from aux sig
+        auxbuf = ADD_trn{sbj,tt}.aux_emb-repmat(mean(ADD_trn{sbj,tt}.aux_emb),1,1);
+        for rr = 1:size(ADD_trn{sbj,tt}.Av,2)
+            reg_frac=[];
+            FR=[];
+            %% assemble regressor components per modality
+            for ii = 1:nemb
+                % summarize accelerometer data
+                reg_frac(:,(ii-1)*nauxred+1) = auxbuf(:,[(ii-1)*naux+1:(ii-1)*naux+3])...
+                    *ADD_trn{sbj,tt}.Av((ii-1)*naux+1:(ii-1)*naux+3,rr);
+                % PPG data
+                reg_frac(:,(ii-1)*nauxred+2) = auxbuf(:,(ii-1)*naux+4)...
+                    *ADD_trn{sbj,tt}.Av((ii-1)*naux+4,rr);
+                % BP data
+                reg_frac(:,(ii-1)*nauxred+3) =auxbuf(:,(ii-1)*naux+5)...
+                    *ADD_trn{sbj,tt}.Av((ii-1)*naux+5,rr);
+                % RESP data
+                reg_frac(:,(ii-1)*nauxred+4) = auxbuf(:,(ii-1)*naux+6)...
+                    *ADD_trn{sbj,tt}.Av((ii-1)*naux+6,rr);
+                % summarize short separation data
+                reg_frac(:,(ii-1)*nauxred+5) = auxbuf(:,[(ii-1)*naux+7:(ii-1)*naux+10])...
+                    *ADD_trn{sbj,tt}.Av((ii-1)*naux+7:(ii-1)*naux+10,rr);
+            end
+            
+            %% cross check regressor validity
+            figure
+            plot(REG_trn{sbj,tt}(:,rr));
+            hold on
+            plot((ADD_trn{sbj,tt}.aux_emb-repmat(mean(ADD_trn{sbj,tt}.aux_emb),1,1))*ADD_trn{sbj,tt}.Av(:,rr)) % just for test, should be equal
+            % test assembly of components to full regressor, should lead to
+            % equal result
+            plot(sum(reg_frac,2))
+            %% Calculate power of complete regressor
+            FR=fft(sum(reg_frac,2));
+            powR = FR.*conj(FR);
+            tot_powR = sum(powR);
+            
+            %% calculate and save power fractions of regressor components (modalities)
+            for cc=1:size(reg_frac,2)
+                FRC = fft(reg_frac(:,cc));
+                powRC = FRC.*conj(FRC);
+                RcompPwr(sbj,tt,cc,rr)=sum(powRC)/tot_powR;
+            end
+        end
     end
 end
 toc;
 
+figure 
+imagesc(squeeze(RcompPwr(1,1,:,:)))
+
 
 
 %% re-sort and process mapping matrices
-
+% AUX channels: [acc1 acc2 acc3 PPG BP RESP, d_shortHbO1 d_shortHbO2 d_shortHbR1 d_shortHbR2]
+for sbj = 1:numel(sbjfolder)
+    for tt=1:2
+        ccac((tt-1)*numel(sbjfolder)+sbj,:) = ADD_trn{sbj,tt}.ccac;
+        Amap((tt-1)*numel(sbjfolder)+sbj,:,:) = ADD_trn{sbj,tt}.Av;
+        nReg((tt-1)*numel(sbjfolder)+sbj) = size(ADD_trn{sbj,tt}.Av_red,2);
+        
+    end
+end
 
 
 
