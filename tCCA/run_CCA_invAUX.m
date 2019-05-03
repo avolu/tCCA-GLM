@@ -57,14 +57,15 @@ hrf = load([path.code '\sim HRF\' hrffilenames{hrftype}]);
 
 %% create AUX type combination pairs
 % indices:  0: None, 1: ACC, 2: PPG, 3: BP, 4: RESP, 5: SS NIRS, 6 ALL
-id = [0 1 2 3 4 5];
-auxid = [   0 0 0 0 0 0 1 1 1 1 2 2 2 3 3 4;...
-    1 2 3 4 5 6 2 3 4 5 3 4 5 4 5 5];
-aitern = size(auxid,2);
+auxinfo.id = [0 1 2 3 4 5];
+auxinfo.lab = {'None','ACC','PPG', 'BP', 'RESP', 'SS NIRS', 'ALL'};
+auxinfo.auxid = [   0 0 0 0 0 0 1 1 1 1 2 2 2 3 3 4;...
+                    1 2 3 4 5 6 2 3 4 5 3 4 5 4 5 5];
+aitern = size(auxinfo.auxid,2);
 
 %iteration number
 iterno = 1;
-totiter = numel(sbjfolder)*2*size(auxid,2);
+totiter = numel(sbjfolder)*2*size(auxinfo.auxid,2);
 
 %% (re-)initialize result matrices
         nTrials= NaN(numel(sbjfolder),34,2,aitern);
@@ -90,7 +91,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         %% Create AUX signals (combinations)
         % [acc1 acc2 acc3 PPG BP RESP, d_short];
         auxidx = {[], [1:3], [4], [5], [6], [7:6+size(d0_short,2)], [1:size(AUXbuf,2)]};
-        AUX = [AUXbuf(:,auxidx{auxid(1,aa)+1}), AUXbuf(:,auxidx{auxid(2,aa)+1})];
+        AUX = [AUXbuf(:,auxidx{auxinfo.auxid(1,aa)+1}), AUXbuf(:,auxidx{auxinfo.auxid(2,aa)+1})];
         %% zscore AUX signals
         AUX = zscore(AUX);
         
@@ -160,7 +161,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
             [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
             
             
-            disp(['split: ' num2str(tt) 'aux iter: ' num2str(aa)])
+            disp(['split: ' num2str(tt) ' aux iter: ' num2str(aa)])
             
             %% now use correlation threshold for CCA outside of function to avoid redundant CCA recalculation
             % overwrite: auxiliary cca components that have
@@ -206,7 +207,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
 end
 
 %% save data
-save([path.save '\CV_AUX_contributions_50_stMSE' '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix');
+save([path.save '\CV_AUX_contributions_50_stMSE' '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxifno');
 
 toc;
 

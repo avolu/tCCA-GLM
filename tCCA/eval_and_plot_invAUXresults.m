@@ -53,9 +53,6 @@ evparams.cthresh = cthresh;
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
-
-mseffig = figure;
-
 for metr=mmm
     for hrff=hhh
         %% load results data from all subjects
@@ -95,11 +92,25 @@ for metr=mmm
         
         %% Calculate True/false positive/negative rates, precision, recall, ...
         tf_errors_AUX
-        
-      
- 
-        
-        
     end
 end
+
+%% Average data
+MSE = squeeze(nanmean(nanmean(nanmean(MSE_CCA,1),2),4));
+CORR = squeeze(nanmean(nanmean(nanmean(CORR_CCA,1),2),4));
+%FSCORE = squeeze(nanmean(nanmean(nanmean(CORR_CCA,1),2),4));
+
+
+
+%% create imagesc matrices from data
+for ii=1:6
+    for jj=1:6
+        CORRim(ii,jj)
+    end
+end
+
+
+mseffig = figure;
+subplot(2,2,1)
+imagesc
 
