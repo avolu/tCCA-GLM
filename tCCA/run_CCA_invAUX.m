@@ -15,7 +15,8 @@ else
 end
 
 % #####
-filenames = {'resting_sim_20', 'resting_sim_50', 'resting_sim_100'} ;
+filenames = {'resting_sim_20', 'resting_sim_50', 'resting_sim'} ;
+savefold = {'20', '50', '100'; '20_stMSE','50_stMSE','100_stMSE'};
 hrffilenames = {'hrf_simdat_20.mat', 'hrf_simdat_50.mat', 'hrf_simdat_100.mat'};
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
@@ -39,7 +40,7 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 motionflag = true;
 %plot flag
 flag_plot = false;
-% flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
+% flag for mse/corr for each trial (0 = get mse for average estimated hrf, 1 = get sum of mse for each trial)
 flag_trial = 0;
 % parameters
 tlags = 0:1:10;
@@ -207,7 +208,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
 end
 
 %% save data
-save([path.save '\CV_AUX_contributions_50_stMSE' '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxinfo');
+save([path.save '\CV_AUX_contributions_' savefold{flag_trial+1,hrftype} '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxinfo');
 
 toc;
 
