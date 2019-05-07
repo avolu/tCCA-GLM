@@ -47,7 +47,7 @@ tlags = 0:1:10;
 stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
 % indices of optimal parameterset
-pOptfix = [4 7 6];
+pOptfix = [4 8 6];
 % hrf type (1/2/3: 20/50/100%)
 hrftype =2;
 

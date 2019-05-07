@@ -4,11 +4,11 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 0;
+melexflag = 1;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
-hhh = [2];
-% select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
-mmm = [1];
+hhh = [1 2 3];
+% select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
+mmm = [1 2];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
@@ -25,7 +25,7 @@ Jparam.mtype = 1;
 % use mean (1) or median (2) in metric contour plots
 mflag = Jparam.mtype;
 % Objective function J weights
-Jparam.fact.corr = 0;
+Jparam.fact.corr = 1;
 Jparam.fact.mse =1;
 Jparam.fact.pval =0;
 Jparam.fact.fscore=1;
@@ -39,7 +39,7 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-pOptfix = [4 7 6];
+pOptfix = [4 8 6];
 %pOptfix = [4 7 8];
 %pOptfix = [2 8 9];
 plotOptfix = {pOptfix,[5 2 1]};
