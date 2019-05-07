@@ -43,7 +43,7 @@ flag_plot = false;
 
 % Optimum CCA parameters (obtained through cross-validation analysis of resting data -see tCCA folder)
 timelag = 3;
-sts = 14;
+sts = 16
 cthresh = 0.5;
 
 tic;
