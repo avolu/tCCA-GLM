@@ -1,26 +1,26 @@
 clear all;
-
+ 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
-    %Alex
+    %Alexf
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
-
+ 
 % #####
-filename = 'resting_sim_20';
+filename = 'resting_sim_50';
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
-
-
+ 
+ 
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
 flag_save = 0;
@@ -33,32 +33,32 @@ eval_param.pre = 5;  % HRF range in sec to calculate ttest
 eval_param.post = 10;
 % CCA parameters
 flags.pcaf =  [0 0]; % no pca of X or AUX
-
+ 
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
 flag_trial = 0;
-
+ 
 % Validation parameters
-tlags = 0:1:10;
-stpsize = 2:2:24;
-cthresh = 0:0.1:0.9;
-
+tlags = 3%0:1:10;
+stpsize = 16%2:2:24;
+cthresh = .5%0:0.1:0.9;
+ 
 tlidx =0;
 stpidx =0;
 ctidx =0;
-
+ 
 tic;
-
+ 
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
-
+hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
+ 
 %iteration number
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
-
+ 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
@@ -179,7 +179,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     if size(s(tstIDX,:),1) < lst_stim(end) + abs(eval_param.HRFmax) * fq
                         lst_stim = lst_stim(1:end-1);    
                     end
-
+ 
                     
                     %% EVAL / PLOT
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
@@ -210,12 +210,13 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
 end
-
-
+ 
+ 
 toc;
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
+ 
 

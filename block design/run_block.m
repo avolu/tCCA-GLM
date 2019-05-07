@@ -184,30 +184,8 @@ HbO_Total_Sign_Ch_CCA = sum(lst_sig_CCA(1,:))
 % 
 % HbR_Total_Sign_Ch_CCA = sum(lst_sig_CCA(2,:))
 
-% 
-% % %% plot HbO
-% % foo1 = squeeze(pval_SS(:,1,:));
-% % foo1 = foo1(find(foo1<=0.05));
-% % 
-% % foo2 = squeeze(pval_CCA(:,1,:));
-% % foo2 = foo2(find(foo2<=0.05));
-% % 
-% % figure;
-% % semilogy(foo1,'bd');hold on; %
-% % semilogy(foo2,'rd');
-% % 
-% % plot([1 100],[0.05 0.05],'k')
-% % 
-% % mean1 = 10^mean(log10(foo1));
-% % mean2 = 10^mean(log10(foo2));
-% % plot([1 100],[mean1 mean1],'b--');
-% % plot([1 100],[mean2 mean2],'r--');
 
-% xlabel('subject X channels');
-legend('\color{blue} GLM with SS', '\color{red} GLM with CCA','\color{black} p = 0.05');
-toc;
-
-% Scatter plot HbO p-value
+% Scatter plot HbO p-value in log scale
 foo1 = squeeze(pval_SS(:,1,:));
 foo1 = reshape(foo1,1,size(foo1,1)*size(foo1,2));
 lst_ss = find(foo1<=0.05);
@@ -220,39 +198,25 @@ figure;
 % common sig channels
 scatter(foo1(intersect(lst_ss,lst_cca)),foo2(intersect(lst_ss,lst_cca)));
 hold on;
+
 % sign only with SS
-scatter(foo1(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))), foo2(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))),'rx');
+scatter(foo1(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))), foo2(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))),'rs');
 % sign only with CCA
 scatter(foo1(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))), foo2(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))),'gd');
-plot([0 1], [0 1]);
-xlabel('pval-SS');
-ylabel('pval-CCA');
-grid;
-legend('\color{blue} Common Sign Channels', '\color{red} Sign. only for GLM with SS','\color{green} Sign. only for CCA');
-
-%% plot p-value in log scale
-figure;
-% common sig channels
-scatter(foo1(intersect(lst_ss,lst_cca)),foo2(intersect(lst_ss,lst_cca)));
-hold on;
-
-% sign only with SS
-scatter(foo1(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))), foo2(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))),'rx');
-scatter(foo1(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))), foo2(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))),'gd');
-
-
-
 xlabel('pval-SS');
 ylabel('pval-CCA');
 set(gca,'xscale','log')
 set(gca,'yscale','log')
-plot([1e-12 10], [1e-12 10]);
-plot([1e-12 1], [0.05 0.05]);
-plot([0.05 0.05], [1e-12 1]);
+plot([1e-12 1], [1e-12 1],'m');
+plot([1e-12 1], [0.05 0.05],'k');
+plot([0.05 0.05], [1e-12 1],'k');
+% mean value
+plot(mean(foo1(union(lst_ss,lst_cca))),mean(foo2(union(lst_ss,lst_cca))),'mx','MarkerSize',10,'LineWidth',2);
+
 
 legend('\color{blue} Common Sign Channels', '\color{red} Sign. only for GLM with SS','\color{green} Sign. only for CCA');
-xlim([1e-12,1])
-ylim([1e-12,1])
+xlim([1e-6,1])
+ylim([1e-6,1])
 grid;
 
 
