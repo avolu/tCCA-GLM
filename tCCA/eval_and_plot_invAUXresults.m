@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [2];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
@@ -12,7 +12,7 @@ mmm = [1];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % indices of optimal parameterset
-pOptfix = [4 7 6];
+pOptfix = [4 8 6];
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -48,7 +48,7 @@ evparams.tlags = tlags;
 evparams.stpsize = stpsize;
 evparams.cthresh = cthresh;
 
-metrlab = {'MSE', 'F-Score', 'CORR'};
+metrlab = {'CORR', 'MSE', 'F-Score'};
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
@@ -116,10 +116,9 @@ for metr=mmm
         MSE_HbR = NaN(7,7);
         FSCORE_HbO = NaN(7,7);
         FSCORE_HbR = NaN(7,7);
-        % MSE_HbO = ones(7,7)*min(MSE(1,:));
-        % MSE_HbR = ones(7,7)*min(MSE(2,:));
-        % FSCORE_HbO = ones(7,7)*max(FSCORE(1,:));
-        % FSCORE_HbR = ones(7,7)*max(FSCORE(2,:));
+        CORR_HbO = NaN(7,7);
+        CORR_HbR = NaN(7,7);
+
         dd = {[1 2], [2 1]};
         for ii=1:size(auxinfo.auxid,2)
             for d=1:2
@@ -127,14 +126,16 @@ for metr=mmm
                 MSE_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = MSE(2,ii);
                 FSCORE_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = FSCORE(1,ii);
                 FSCORE_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = FSCORE(2,ii);
+                CORR_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = CORR(1,ii);
+                CORR_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = CORR(2,ii);
             end
         end
-        dat = {-MSE_HbO, FSCORE_HbO, -MSE_HbR, FSCORE_HbR};
+        dat = {CORR_HbO, -MSE_HbO, FSCORE_HbO, CORR_HbR, -MSE_HbR, FSCORE_HbR};
         figure
-        for mm = 1:2
+        for mm = 1:3
             for hh = 1:2
-                subplot(2,2,(hh-1)*hh+mm)
-                c = imagesc(dat{(hh-1)*hh+mm});
+                subplot(2,3,(hh-1)*3+mm)
+                c = imagesc(dat{(hh-1)*3+mm});
                 title([metrlab{mm} ' ' hblab{hh} ' ' metrttl{metr} ' | hrf = ' num2str(hrfamp) '%'])
                 colorbar
                 set(gca,'xaxisLocation','top')

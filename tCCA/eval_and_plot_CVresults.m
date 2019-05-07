@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
@@ -43,6 +43,11 @@ pOptfix = [4 8 6];
 %pOptfix = [4 7 8];
 %pOptfix = [2 8 9];
 plotOptfix = {pOptfix,[5 2 1]};
+
+% fixed scatter plot limits (for better visualization, annotate outliers
+% per hand afterwards!
+sclimflag = true;
+sclims = {[-0.2 1], [-0.2 1]; [0 8]*1e-6, [0 4]*1e-6; [0 1], [0 1]};
 
 %% settings to keep in mind
 % hrf = 50, Jparam.mtype = 2, fact.corr=1,mse=2,fscore=2 -> Timelag 2, stepsize corr thresh 0.8
@@ -263,20 +268,27 @@ for metr=mmm
         ptcol = {'+r', 'xb', '*k'};
         for ff = 1:3
             for hh = 1:2
+                outl = isoutlier(datss{ff}(:,hh));
                 axlim = [min([datss{ff}(:,hh); datcca{ff}(:,hh)]) max([datss{ff}(:,hh); datcca{ff}(:,hh)])];
                 subplot(2,3,(hh-1)*3+ff)
                 hold on
                 scatter(squeeze(datss{ff}(:,hh)), squeeze(datcca{ff}(:,hh)), ptcol{hh})
-                plot([axlim(1) axlim(2)], [axlim(1) axlim(2)] ,'k')
                 scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), ptcol{3})
                 % ttest
                 [h,p] = ttest(squeeze(datss{ff}(:,hh)),squeeze(datcca{ff}(:,hh)));
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
-                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p) ', ' metrttl{metr}])
-                xlim ([axlim(1) axlim(2)])
-                ylim ([axlim(1) axlim(2)])
+                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p, '%0.2g') ', ' metrttl{metr}])
+                if sclimflag
+                    xlim(sclims{ff,hh})
+                    ylim(sclims{ff,hh})
+                    plot([sclims{ff,hh}(1) sclims{ff,hh}(2)], [sclims{ff,hh}(1) sclims{ff,hh}(2)] ,'k')
+                else
+                    xlim ([axlim(1) axlim(2)])
+                    ylim ([axlim(1) axlim(2)])
+                    plot([axlim(1) axlim(2)], [axlim(1) axlim(2)] ,'k')
+                end
                 xlabel('SS GLM')
                 ylabel('tCCA GLM')
                 grid on
@@ -284,7 +296,7 @@ for metr=mmm
         end
         
         
-        %% Plot MSE and F-Score vs corr threshold
+        %% Plot CORR, MSE and F-Score vs corr threshold
         datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
         datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
         ptype = {'r','b','--r','--b'};
