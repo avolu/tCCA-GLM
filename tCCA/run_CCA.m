@@ -42,9 +42,9 @@ flag_plot = true;
 flag_trial = 0;
  
 % Validation parameters
-tlags = 3%0:1:10;
-stpsize = 16%2:2:24;
-cthresh = .5%0:0.1:0.9;
+tlags = 3;%0:1:10;
+stpsize = 16;%2:2:24;
+cthresh = 0.5;%0:0.1:0.9;
  
 tlidx =0;
 stpidx =0;
@@ -185,7 +185,7 @@ for sbj = 9%1:numel(sbjfolder) % loop across subjects
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
                         pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
                         CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
-                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial);
+                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt,tlidx,stpidx,ctidx));
                     % Dimensions of output metrics
                     % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres

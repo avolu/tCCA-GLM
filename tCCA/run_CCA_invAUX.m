@@ -47,7 +47,7 @@ tlags = 0:1:10;
 stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
 % indices of optimal parameterset
-pOptfix = [4 7 6];
+pOptfix = [4 8 6];
 % hrf type (1/2/3: 20/50/100%)
 hrftype =2;
 
@@ -193,7 +193,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
             [buf1, DET_CCA(sbj,:,:,tt,aa), buf2, ...
                 pval_CCA(sbj,:,:,tt,aa), ROCLAB, buf3, MSE_CCA(sbj,:,:,tt,aa), ...
                 buf4, CORR_CCA(sbj,:,:,tt,aa)] = ...
-                results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial);
+                results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrials(sbj,tt,aa));
             % Dimensions of output metrics
             % # Subjects x #CH x 2(Hbo+HbR) x 2 (cv split) x AUX combinations
             

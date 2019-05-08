@@ -1,4 +1,4 @@
-function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial)
+function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrial)
 %PLOT_EVAL Summary of this function goes here
 
 % find short separation channels
@@ -192,7 +192,7 @@ end
 
 
 if flag_plot
-    plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, eval_param.HRFmin, eval_param.HRFmax, fq, pval_SS, pval_CCA, sbj, STD_SS,STD_SS, tHRF, timelag, sts, ctr, path.dir,lstHrfAdd,hrf);
+    plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, eval_param.HRFmin, eval_param.HRFmax, fq, pval_SS, pval_CCA, sbj, STD_SS,STD_SS, tHRF, timelag, sts, ctr, path.dir,lstHrfAdd,hrf, nTrial);
 end
 
 

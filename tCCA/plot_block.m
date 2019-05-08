@@ -1,6 +1,6 @@
 % load visual_probe_plot.SD -mat;
 %% plot cross-trial Mean with STD
-function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd,hrf)
+function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd,hrf, nTrial)
 
 cd(fpath)
 load visual_probe_plot.SD -mat
@@ -75,10 +75,10 @@ for i =lstLL'
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
     hold on;
     if pOxy_SS(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'r','LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j)/sqrt(nTrial),STD_SS_down(:,i,j)/sqrt(nTrial),'r','LineWidth',2);
         title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_SS(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j)/sqrt(nTrial),STD_SS_down(:,i,j)/sqrt(nTrial),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         First_line = ['HRF, Corr: ' num2str(CORR_SS(foo,j),'%0.2g')];
@@ -102,10 +102,10 @@ for i =lstLL'
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
     hold on;
     if pOxy_CCA(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'r','LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j)/sqrt(nTrial),STD_CCA_down(:,i,j)/sqrt(nTrial),'r','LineWidth',2);
         title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_CCA(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j)/sqrt(nTrial),STD_CCA_down(:,i,j)/sqrt(nTrial),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         First_line = ['HRF, Corr: ' num2str(CORR_CCA(foo,j),'%0.2g')];
@@ -130,10 +130,10 @@ for i =lstLL'
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
     hold on;
     if pOxy_SS(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'r','LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j)/sqrt(nTrial),STD_SS_down(:,i,j)/sqrt(nTrial),'r','LineWidth',2);
         title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_SS(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j),STD_SS_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),STD_SS_down(:,i,j)/sqrt(nTrial),STD_SS_down(:,i,j)/sqrt(nTrial),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         First_line = ['HRF, Corr: ' num2str(CORR_SS(foo,j),'%0.2g')];
@@ -157,10 +157,10 @@ for i =lstLL'
     h=subplot('Position',[a1(i),b1(i),0.06,0.1]);
     hold on;
     if pOxy_CCA(i,j)<=0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'r','LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j)/sqrt(nTrial),STD_CCA_down(:,i,j)/sqrt(nTrial),'r','LineWidth',2);
         title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_CCA(i,j)>0.05
-        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j),STD_CCA_down(:,i,j),'color',[0.5 0.5 0.5],'LineWidth',2);
+        errorbar(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),STD_CCA_down(:,i,j)/sqrt(nTrial),STD_CCA_down(:,i,j)/sqrt(nTrial),'color',[0.5 0.5 0.5],'LineWidth',2);
     end
     if any(lstHrfAdd(:,1) == i)
         First_line = ['HRF, Corr: ' num2str(CORR_CCA(foo,j),'%0.2g')];
