@@ -59,7 +59,7 @@ hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
  
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 9%1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
