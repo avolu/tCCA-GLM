@@ -8,7 +8,7 @@ if malexflag
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
-    %Alexf
+    %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
@@ -59,7 +59,7 @@ hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
  
-for sbj = 9%1:numel(sbjfolder) % loop across subjects
+for sbj = 4%1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
