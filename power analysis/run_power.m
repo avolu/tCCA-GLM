@@ -340,3 +340,5 @@ grid;
 
 
 
+mean(log(noise_d_ss_1(:)))
+
