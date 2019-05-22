@@ -2,7 +2,8 @@ function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, flip)
 %CONTOUR_PLOTS Summary of this function goes here
 %   Detailed explanation goes here
 for tl = 1:numel(evparams.stpsize)
-xtl{tl} = num2str(evparams.stpsize(tl)*1000/25);
+xtl{tl} = num2str(evparams.stpsize(tl)/25, '%.2g');
+xtl{tl}=strrep(xtl{tl}, '0.', '.');
 end
 
 %% create combined surface plots (depict objective function)
@@ -12,14 +13,14 @@ end
 figure
 climits = [min(METRIC(:)) max(METRIC(:))];
 for ii=1:10
-    subplot(3,4,ii)
+    subplot(2,5,ii)
     contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
-    xlabel('stepsize / ms')
+    xlabel('stepsize / s')
     xticks(evparams.stpsize(1:2:end))
     xticklabels(xtl(1:2:end))
     ylabel('time lags / s')
-    title([ttl ', ctrsh: ' num2str(evparams.cthresh(ii))])
-    
+    title([ttl ', ct = ' num2str(evparams.cthresh(ii))])
+    grid on
     buf =  squeeze(METRIC(:,:,ii));
     switch flip
         case 'max'
@@ -31,7 +32,10 @@ for ii=1:10
             [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
             limit = climits(1);
     end
-    colorbar
+    if ~mod(ii,5)
+        cb = colorbar;
+        cb.Position = cb.Position + 1e-10;
+    end
     caxis(climits)
     % mark local optima
     hold on

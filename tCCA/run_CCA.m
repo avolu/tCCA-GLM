@@ -1,21 +1,27 @@
 clear all;
  
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
-    %Alexf
+    %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
  
 % #####
-filename = 'resting_sim_50';
+%% simulated data file names
+filename = 'resting_sim_20';
+%% load ground truth hrf
+hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
+%% save folder name
+sfoldername = '\CV_results_data_20';
+
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
@@ -37,23 +43,20 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
+flag_plot = false;
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
 flag_trial = 0;
  
 % Validation parameters
-tlags = 3;%0:1:10;
-stpsize = 16;%2:2:24;
-cthresh = 0.5;%0:0.1:0.9;
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0:0.1:0.9;
  
 tlidx =0;
 stpidx =0;
 ctidx =0;
  
 tic;
- 
-%% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
  
 %iteration number
 iterno = 1;
@@ -205,7 +208,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     end
     %% save data for subject
     disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save '\CV_results_data_20' '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
+    save([path.save sfoldername '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     

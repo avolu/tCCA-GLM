@@ -6,9 +6,9 @@ clear all
 % user: 1 Meryem | 0 Alex
 melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
-hhh = [1 2 3];
+hhh = [1]%2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
-mmm = [1 2];
+mmm = [1] %1 2];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
@@ -55,6 +55,10 @@ sclims = {[-0.2 1], [-0.2 1]; [0 8]*1e-6, [0 4]*1e-6; [0 1], [0 1]};
 %                                                           -> vs Timelag 4 stepsize 4 corr thresh 0.2
 % pOpt = [5 2 3];
 
+%% get colormaps
+cmap_hbo= othercolor('YlOrRd9'); 
+cmap_hbr= othercolor('YlGnBu9'); 
+
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -99,6 +103,11 @@ evparams.cthresh = cthresh;
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
+% xticklabels stepsize in seconds
+for tl = 1:numel(evparams.stpsize)
+    xtl{tl} = num2str(evparams.stpsize(tl)/25, '%.2g');
+    xtl{tl}=strrep(xtl{tl}, '0.', '.');
+end
 
 mseffig = figure;
 
@@ -234,16 +243,22 @@ for metr=mmm
             squeeze(FSCORE(:,1,:,:,ct)), [], ...
             squeeze(CORR(:,2,:,:,ct)), squeeze(-MSE(:,2,:,:,ct)), ...
             squeeze(FSCORE(:,2,:,:,ct))};
-        ttl = {'J Opt','CORR HbO','MSE HbO','F HbO', '', 'CORR HbR', 'MSE HbR', 'F HbR'};
+        ttl = {'J Opt','CORR','MSE','F-Score', '', 'CORR', 'MSE', 'F-Score'};
         for dd = 1:numel(dat)
             if ~isempty(dat{dd})
+                if dd <numel(dat)/2+1
+                    colormap = cmap_hbo;
+                else
+                    colormap = cmap_hbo;
+                end
                 subplot(2,4,dd)
                 climits = [min(dat{dd}(:)) max(dat{dd}(:))];
                 contourf(X,Y, dat{dd}, cntno)
-                xlabel('stepsize / smpl')
+                xlabel('stepsize / s')
+                xticks(evparams.stpsize(1:2:end))
+                xticklabels(xtl(1:2:end))
                 ylabel('time lags / s')
-                title([ttl{dd} ', cthresh: ' num2str(cthresh(ct)), ', hrf=' num2str(hrfamp) ', ' metrttl{metr}])
-                colormap hot
+                title([ttl{dd} ', ct = ' num2str(cthresh(ct)), ', hrf=' num2str(hrfamp) '%, ' metrttl{metr}])
                 limit = climits(2);
                 colorbar
                 caxis(climits)
@@ -351,7 +366,7 @@ end
 plotOptfix = {pOptfix,[4 7 7]};
 
 %% Plot combined Mixed Objective Function contour plot
-ttl= 'Sum all obj. functions';
+ttl= '\Sigma obj. functions';
 fvalmxd = zeros(numel(tlags),numel(stpsize),numel(cthresh));
 for metr=mmm
     for hrff=hhh
