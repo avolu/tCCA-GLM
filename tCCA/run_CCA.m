@@ -62,7 +62,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
  
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 4%1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices

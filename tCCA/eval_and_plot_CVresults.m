@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 0;
+melexflag = 1;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1]%2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF

@@ -226,6 +226,6 @@ figure;
 scatter(lst_sig_SS(1,:),lst_sig_CCA(1,:));
 hold;
 plot([0 20], [0 20]);
-xlabel('pval-SS');
-ylabel('pval-CCA');
+xlabel('# of sign. channels (GLM with SS)');
+ylabel('# of sign. channels (GLM with CCA)');
 grid
