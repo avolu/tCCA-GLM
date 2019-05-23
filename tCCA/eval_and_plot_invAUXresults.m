@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [2];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
@@ -13,6 +13,10 @@ mmm = [1];
 TP_flag = true;
 % indices of optimal parameterset
 pOptfix = [4 8 6];
+
+%Colormaps
+cmap_hbo= flipud(othercolor('YlOrRd9'));
+cmap_hbr= flipud(othercolor('YlGnBu9'));
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -27,6 +31,7 @@ if melexflag
     path.auxres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_20_stMSE'; % save directory
     path.auxres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_50_stMSE'; % save directory
     path.auxres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_100_stMSE'; % save directory
+    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix'
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -38,6 +43,7 @@ else
     path.auxres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_20_stMSE'; % save directory
     path.auxres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_50_stMSE'; % save directory
     path.auxres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_100_stMSE'; % save directory
+    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix'
 end
 
 % Validation parameters
@@ -52,7 +58,8 @@ metrlab = {'CORR', 'MSE', 'F-Score'};
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
-
+% save plot?
+saveplot = true;
 
 disp('=================================================================')
 disp(['these parameters were chosen manually: ' ...
@@ -134,9 +141,10 @@ for metr=mmm
         figure
         for mm = 1:3
             for hh = 1:2
-                subplot(2,3,(hh-1)*3+mm)
+                ax{mm,hh} = subplot(2,3,(hh-1)*3+mm)
                 c = imagesc(dat{(hh-1)*3+mm});
-                title([metrlab{mm} ' ' hblab{hh} ' ' metrttl{metr} ' | hrf = ' num2str(hrfamp) '%'])
+                 title(metrlab{mm})
+                %title([metrlab{mm} ' | ' metrttl{metr} ' | hrf = ' num2str(hrfamp) '%'])
                 colorbar
                 set(gca,'xaxisLocation','top')
                 xticks([1:7]);
@@ -145,7 +153,7 @@ for metr=mmm
                 yticklabels(auxinfo.lab)
                 set(c,'AlphaData',~isnan(dat{(hh-1)*hh+mm}))
                 %% write delta values in percent into tiles
-                offs=0.3;
+                offs=0.4;
                 for yy=2:6
                     for xx=1:yy-1
                         mx = max(dat{(hh-1)*hh+mm}(:));
@@ -154,9 +162,17 @@ for metr=mmm
                     end
                 end
                 text(1-offs, 7, 'MAX')
+                if hh == 1
+                    colormap(ax{mm,hh},cmap_hbo)
+                else
+                    colormap(ax{mm,hh},cmap_hbr)
+                end
             end
         end
-        colormap autumn
     end
 end
-
+set(gcf, 'Position',  [0,50,1840,1030])
+if saveplot
+    export_fig([path.savefig '\Aux_comparison_matrix.pdf'], '-pdf', '-transparent')
+    export_fig([path.savefig '\Aux_comparison_matrix.pdf'], '-png', '-transparent', '-r300')
+end

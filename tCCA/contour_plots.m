@@ -1,4 +1,4 @@
-function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, flip)
+function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, cmap, flip, lopttext)
 %CONTOUR_PLOTS Summary of this function goes here
 %   Detailed explanation goes here
 for tl = 1:numel(evparams.stpsize)
@@ -24,17 +24,21 @@ for ii=1:10
     buf =  squeeze(METRIC(:,:,ii));
     switch flip
         case 'max'
-            colormap hot
+            colormap(cmap)
             [r,c] = ind2sub(size(buf),find(buf == max(buf(:))));
             limit = climits(2);
         case 'min'
-            colormap(flipud(hot))
+            colormap(flipud(cmap))
             [r,c] = ind2sub(size(buf),find(buf == min(buf(:))));
             limit = climits(1);
     end
     if ~mod(ii,5)
         cb = colorbar;
-        cb.Position = cb.Position + 1e-10;
+        if ii/5 == 1
+            cb.Position = [0.917027047511808,0.582968760552204,0.012213203762342,0.342857142957143]; %cb.Position + 1e-10;
+        else
+            cb.Position = [0.917027047511808,0.106986227801112,0.012213203762342,0.342857142957143]
+        end
     end
     caxis(climits)
     % mark local optima
@@ -52,7 +56,9 @@ for ii=1:10
         for pp = 1:p
             plot(evparams.stpsize(c(pp)),evparams.tlags(r(pp)),'ko','MarkerFaceColor', mrkc)
             if pp==1
+                if lopttext
                 text(evparams.stpsize(c(pp)),evparams.tlags(r(pp)), ['\leftarrow ' num2str(METRIC(r(pp),c(pp),ii))])
+                end
             end
         end
         % mark optimum from objective function

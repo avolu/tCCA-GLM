@@ -4,11 +4,11 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
-hhh = [1]%2 3];
+hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
-mmm = [1] %1 2];
+mmm = [1 2];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % number of contours in contour plots
@@ -17,6 +17,10 @@ cntno = 15;
 pvalflag = false;
 % plot other metrics
 plotmetrics = false;
+% plot corresponding number to local optimum in obj function contour plots
+lopttext = false;
+% save plots
+saveplot = true;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
@@ -56,9 +60,9 @@ sclims = {[-0.2 1], [-0.2 1]; [0 8]*1e-6, [0 4]*1e-6; [0 1], [0 1]};
 % pOpt = [5 2 3];
 
 %% get colormaps
-cmap_hbo= othercolor('YlOrRd9'); 
-cmap_hbr= othercolor('YlGnBu9'); 
-
+cmap_hbo= flipud(othercolor('YlOrRd9'));
+cmap_hbr= flipud(othercolor('YlGnBu9'));
+cmap_obj= flipud(othercolor('Greys9'));
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -73,6 +77,7 @@ if melexflag
     path.cvres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
+    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 5-8 contour plots + scatter'
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -84,6 +89,7 @@ else
     path.cvres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
+    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 5-8 contour plots + scatter'
 end
 
 % #####
@@ -101,7 +107,7 @@ evparams.stpsize = stpsize;
 evparams.cthresh = cthresh;
 
 hblab = {'HbO', 'HbR'};
-metrttl = {'single trial', 'block avg'};
+metrttl = {'Single Trial', 'Block Average'};
 
 % xticklabels stepsize in seconds
 for tl = 1:numel(evparams.stpsize)
@@ -201,7 +207,7 @@ for metr=mmm
         % normalize fval
         fval{hrff,metr} = (fval{hrff,metr}-min(fval{hrff,metr}(:)))/(max(fval{hrff,metr}(:))-min(fval{hrff,metr}(:)));
         ttl= ['Obj. func., hrf= ' num2str(hrfamp) ', ' metrttl{metr}];
-        contour_plots(fval{hrff,metr}, ttl, evparams, pOpt, cntno, 'min');
+        contour_plots(fval{hrff,metr}, ttl, evparams, pOpt, cntno, cmap_obj, 'min', lopttext);
         
         if plotmetrics
             %% plot correlation
@@ -239,34 +245,56 @@ for metr=mmm
         ct = pOpt(3);
         [X,Y] = meshgrid(evparams.stpsize,evparams.tlags);
         figure
-        dat = {1-fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(-MSE(:,1,:,:,ct)), ...
+        dat = {1-fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(MSE(:,1,:,:,ct)), ...
             squeeze(FSCORE(:,1,:,:,ct)), [], ...
-            squeeze(CORR(:,2,:,:,ct)), squeeze(-MSE(:,2,:,:,ct)), ...
+            squeeze(CORR(:,2,:,:,ct)), squeeze(MSE(:,2,:,:,ct)), ...
             squeeze(FSCORE(:,2,:,:,ct))};
         ttl = {'J Opt','CORR','MSE','F-Score', '', 'CORR', 'MSE', 'F-Score'};
         for dd = 1:numel(dat)
             if ~isempty(dat{dd})
-                if dd <numel(dat)/2+1
-                    colormap = cmap_hbo;
-                else
-                    colormap = cmap_hbo;
-                end
-                subplot(2,4,dd)
+                ax{dd} = subplot(2,4,dd);
                 climits = [min(dat{dd}(:)) max(dat{dd}(:))];
                 contourf(X,Y, dat{dd}, cntno)
                 xlabel('stepsize / s')
                 xticks(evparams.stpsize(1:2:end))
                 xticklabels(xtl(1:2:end))
                 ylabel('time lags / s')
-                title([ttl{dd} ', ct = ' num2str(cthresh(ct)), ', hrf=' num2str(hrfamp) '%, ' metrttl{metr}])
+                title([ttl{dd}])
                 limit = climits(2);
-                colorbar
+                if dd ==1
+                    colormap(ax{dd},cmap_obj);
+                elseif dd<numel(dat)/2+1
+                    % MSE?
+                    if dd == 3
+                        colormap(ax{dd},flipud(cmap_hbo));
+                    else
+                        colormap(ax{dd},cmap_hbo);
+                    end
+                else
+                    % MSE?
+                    if dd == 7
+                        colormap(ax{dd},flipud(cmap_hbr));
+                    else
+                        colormap(ax{dd},cmap_hbr);
+                    end
+                end
                 caxis(climits)
+                colorbar
                 % mark optimum from objective function
                 hold on
                 plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)))])
+                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')]) 
             end
+            if dd ==5
+                subplot(2,4,dd)
+                text(0,0.5,{['HRF: ' num2str(hrfamp) '%']; metrttl{metr}; ['Correlation Threshold: ' num2str(cthresh(ct))]}, 'FontWeight', 'bold'); 
+                axis off
+            end
+        end
+        set(gcf, 'Position',  [0,538,1300,458])
+        if saveplot
+            export_fig([path.savefig '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-pdf', '-transparent')
+            export_fig([path.savefig '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-png', '-transparent', '-r300')
         end
         
         
@@ -326,9 +354,9 @@ for metr=mmm
             pofs =1;
         end
         for mm = midx
-           subplot(numel(hhh),3,((hrff-1)*numel(hhh))+mm+pofs)
-           grid on
-           hold on 
+            subplot(numel(hhh),3,((hrff-1)*numel(hhh))+mm+pofs)
+            grid on
+            hold on
             switch mm+pofs
                 case 1
                     title(['Average ' ylabs{mm} ', hrf = ' num2str(hrfamp) '%, ' metrttl{metr}])
@@ -350,11 +378,11 @@ for metr=mmm
             xlabel('Corr threshold')
             ylabel(ylabs{mm})
             %plot (ones(10,1)*cthresh(pOpt(3)), zeros(numel(cthresh),1), '.k')
-%             legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
-%                 ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
-%                 'HbO, SS GLM', ...
-%                 'HbR, SS GLM', ...
-%                 'Location', 'Best')
+            %             legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+            %                 ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+            %                 'HbO, SS GLM', ...
+            %                 'HbR, SS GLM', ...
+            %                 'Location', 'Best')
         end
         
         
@@ -377,7 +405,13 @@ fvalmxd = fvalmxd/(numel(mmm)+numel(hhh));
 
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fvalmxd),find(fvalmxd == min(fvalmxd(:))));
-contour_plots((fvalmxd)/max(fvalmxd(:)), ttl, evparams, [t,s,c], cntno, 'min');
+contour_plots((fvalmxd)/max(fvalmxd(:)), ttl, evparams, [t,s,c], cntno, cmap_obj, 'min', lopttext);
+set(gcf, 'Position',  [0,538,1300,458])
+if saveplot
+    export_fig([path.savefig '\sum_optfunct_all.pdf'], '-pdf', '-transparent')
+    export_fig([path.savefig '\sum_optfunct_all.pdf'], '-png', '-transparent', '-r300')
+end
+
 
 disp('=================================================================')
 disp(['these parameters minimize the combined objective functions: timelag: ' ...
