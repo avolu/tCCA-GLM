@@ -185,12 +185,13 @@ HbO_Total_Sign_Ch_CCA = sum(lst_sig_CCA(1,:))
 % HbR_Total_Sign_Ch_CCA = sum(lst_sig_CCA(2,:))
 
 
-% Scatter plot HbO p-value in log scale
-foo1 = squeeze(pval_SS(:,1,:));
+%% Scatter plot HbO/HbR p-value in log scale
+Hb = 1; % HbO:1 ; HbR:2
+foo1 = squeeze(pval_SS(:,Hb,:));
 foo1 = reshape(foo1,1,size(foo1,1)*size(foo1,2));
 lst_ss = find(foo1<=0.05);
 
-foo2 = squeeze(pval_CCA(:,1,:));
+foo2 = squeeze(pval_CCA(:,Hb,:));
 foo2 = reshape(foo2,1,size(foo2,1)*size(foo2,2));
 lst_cca = find(foo2<=0.05);
 
@@ -223,9 +224,33 @@ grid;
 
 %% Scatter plot for number of sign. channels for each subject for SS and CCA methods
 figure;
-scatter(lst_sig_SS(1,:),lst_sig_CCA(1,:));
+scatter(lst_sig_SS(Hb,:),lst_sig_CCA(Hb,:));
 hold;
 plot([0 20], [0 20]);
 xlabel('# of sign. channels (GLM with SS)');
 ylabel('# of sign. channels (GLM with CCA)');
 grid
+
+% sign channels
+% ss
+mean(lst_sig_SS(Hb,:))
+std(lst_sig_SS(Hb,:))
+
+% cca
+mean(lst_sig_CCA(Hb,:))
+std(lst_sig_CCA(Hb,:))
+
+[h,p,c,stats]=ttest(lst_sig_SS(Hb,:),lst_sig_CCA(Hb,:));
+
+
+
+% p-values
+% ss
+mean(foo1(union(lst_ss,lst_cca)))
+std(foo1(union(lst_ss,lst_cca)))
+
+% cca
+mean(foo2(union(lst_ss,lst_cca)))
+std(foo2(union(lst_ss,lst_cca)))
+
+[h,p,c,stats]=ttest(foo1(union(lst_ss,lst_cca)),foo2(union(lst_ss,lst_cca)));
