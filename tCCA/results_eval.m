@@ -1,4 +1,4 @@
-function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrial)
+function [DET_SS, DET_CCA, pval_SS, pval_CCA, ROCLAB, MSE_SS, MSE_CCA, CORR_SS, CORR_CCA] = results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrial)
 %PLOT_EVAL Summary of this function goes here
 
 % find short separation channels
@@ -49,15 +49,17 @@ DET_CCA = zeros(size(Hb_CCA,3),2);
 % get number of active channels that we added HRF (True Positives only!)
 % list of true negatives
 nohrflist = 1:1:size(Hb_SS,3);
-rmvidx = [lstHrfAdd(:,1); lstSS];
+rmvidx = [lstHrfAdd(:,1); lstSS; find(~ismember(nohrflist,[lstLongAct; lstSS]))'];
 nohrflist(rmvidx)=[];
 % init variables
 TP_SS=NaN(16,2);
 FP_SS=NaN(16,2);
 TN_SS=NaN(18,2);
+FN_SS = NaN(16,2);
 TN_CCA=NaN(18,2);
 TP_CCA=NaN(16,2);
 FP_CCA=NaN(16,2);
+FN_CCA = NaN(16,2);
 
 %HbO & HbR
 for ii=1:2
