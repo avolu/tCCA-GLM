@@ -194,7 +194,7 @@ end
 
 
 if flag_plot
-    plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, eval_param.HRFmin, eval_param.HRFmax, fq, pval_SS, pval_CCA, sbj, STD_SS,STD_SS, tHRF, timelag, sts, ctr, path.dir,lstHrfAdd,hrf, nTrial);
+    plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, eval_param.HRFmin, eval_param.HRFmax, fq, pval_SS, pval_CCA, sbj, STD_SS,STD_SS, tHRF, timelag, sts, ctr, path.dir,lstHrfAdd,nohrflist,hrf, nTrial);
 end
 
 

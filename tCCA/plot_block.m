@@ -1,6 +1,6 @@
 % load visual_probe_plot.SD -mat;
 %% plot cross-trial Mean with STD
-function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd,hrf, nTrial)
+function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd, nohrflist, hrf, nTrial)
 
 cd(fpath)
 load visual_probe_plot.SD -mat
@@ -199,17 +199,17 @@ for i =lstLL'
     
     if pOxy_SS(i,j)<=0.05
         if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'r','LineWidth',2);
-        else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'r--','LineWidth',1);  
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'r','LineWidth',2);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'r--','LineWidth',1);
         end
         %         title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_SS(i,j)>0.05
-       if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'m--','LineWidth',1);
-       else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'m','LineWidth',2);
-       end
+        if any(lstHrfAdd(:,1) == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'m--','LineWidth',1);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'m','LineWidth',2);
+        end
     end
     
     %     txt = ['ch ' num2str(i)];
@@ -220,7 +220,7 @@ for i =lstLL'
 end
 
 % SS
-j = 2; % HbO
+j = 2; % HbR
 foo = 1;
 for i =lstLL'
     h=subplot('Position',[a1(i),b1(i)*0.8,0.06,0.1]);
@@ -234,17 +234,17 @@ for i =lstLL'
     end
     if pOxy_SS(i,j)<=0.05
         if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'b','LineWidth',2);
-        else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'b--','LineWidth',1);  
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'b','LineWidth',2);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'b--','LineWidth',1);
         end
         %         title(['    p = ' (num2str(pOxy_SS(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_SS(i,j)>0.05
-       if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'c--','LineWidth',1);
-       else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'c','LineWidth',2);
-       end
+        if any(lstHrfAdd(:,1) == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'c--','LineWidth',1);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_SS_down,1)-1):max(tHRF),MEAN_SS_down(:,i,j),'c','LineWidth',2);
+        end
     end
     
     %     axis off
@@ -286,17 +286,17 @@ for i =lstLL'
     
     if pOxy_CCA(i,j)<=0.05
         if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'r','LineWidth',2);
-        else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'r--','LineWidth',1);  
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'r','LineWidth',2);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'r--','LineWidth',1);
         end
         %         title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_CCA(i,j)>0.05
-       if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'m--','LineWidth',1);
-       else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'m','LineWidth',2);
-       end
+        if any(lstHrfAdd(:,1) == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'m--','LineWidth',1);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'m','LineWidth',2);
+        end
     end
     
     %     txt = ['ch ' num2str(i)];
@@ -306,8 +306,8 @@ for i =lstLL'
     
 end
 
-% SS
-j = 2; % HbO
+% CCA
+j = 2; % HbR
 foo = 1;
 for i =lstLL'
     h=subplot('Position',[a1(i),b1(i)*0.8,0.06,0.1]);
@@ -321,17 +321,17 @@ for i =lstLL'
     end
     if pOxy_CCA(i,j)<=0.05
         if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'b','LineWidth',2);
-        else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'b--','LineWidth',1);  
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'b','LineWidth',2);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'b--','LineWidth',1);
         end
         %         title(['    p = ' (num2str(pOxy_CCA(i,j),1))],'FontSize',15,'FontWeight','bold','color','k') ;
     elseif pOxy_CCA(i,j)>0.05
-       if any(lstHrfAdd(:,1) == i)
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'c--','LineWidth',1);
-       else
-        plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'c','LineWidth',2);
-       end
+        if any(lstHrfAdd(:,1) == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'c--','LineWidth',1);
+        elseif any(nohrflist == i)
+            plot(min(tHRF):(max(tHRF) -min(tHRF))/(size(MEAN_CCA_down,1)-1):max(tHRF),MEAN_CCA_down(:,i,j),'c','LineWidth',2);
+        end
     end
     %     axis off
     %     txt = ['ch ' num2str(i)];
@@ -342,7 +342,7 @@ for i =lstLL'
         set(gca,'xtick',[])
         set(gca,'ytick',[])
     end
-
+    
 end
 % suptitle(['GLM with SS - HbO/HbR - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
 suptitle('GLM with CCA - HbO/HbR') ;
