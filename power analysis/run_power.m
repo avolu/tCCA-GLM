@@ -358,7 +358,7 @@ SEM = SEM./sqrt(size(noise_d_ss_1(:),1)-1);
 figure
 hold on
 bar(1:4,group)
-x_shift = 0.15;
+x_shift = 0.14;
 x = [1-x_shift,1+x_shift,2-x_shift,2+x_shift,3-x_shift,3+x_shift,4-x_shift,4+x_shift];
 errorbar(x,foo,SEM,'.') %errorbar(x,y,err)
 xticklabels({'0.01 < f < 0.1 Hz',' ','0.1 < f < 0.5 Hz',' ','0.5 < f < 1.5 Hz',' ','1.5 < f < 10 Hz'})
