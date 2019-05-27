@@ -50,6 +50,8 @@ nirs_hrf.d0 = nirs_hrf.d;
 %% Prune noisy channels
 if flag_prune
     nirs.SD = enPruneChannels(nirs.d,nirs.SD,ones(size(nirs.d,1),1),[10000  10000000],5,[0  45],0);
+    lstPruned = find(nirs.SD.MeasListAct(1:size(nirs.SD.MeasListAct)/2)==0);
+    nirs_hrf.lstPruned = lstPruned;
 end
 
 %% Definition channel groups
