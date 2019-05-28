@@ -194,8 +194,10 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
             spectPow_norm_cca(:,m) = spectPow_norm;
             h2 = loglog(f,spectPow_norm,'r','LineWidth',0.1);
             h2.Color=[0.9,0,0,0.4];
-                 
+            
+                           
         end
+         legend('\color{blue} GLM with SS', '\color{red} GLM with CCA');
        
         
          % plot average of all active channels
@@ -229,6 +231,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     
                     xlabel('Frequency [Hz]');
                     ylabel('d830 power');
+                    legend('\color{blue} GLM with SS', '\color{red} GLM with CCA');
     end
     
     
@@ -339,6 +342,24 @@ ylim([min(min([noise_d_ss_4(:) noise_d_cca_4(:)])),max(max([noise_d_ss_4(:) nois
 grid;
 
 
+% plot bar plot for mean and std
+noise_ss= [mean(noise_d_ss_1(:)),mean(noise_d_ss_2(:)),mean(noise_d_ss_3(:)),mean(noise_d_ss_4(:))]; % SS
+noise_cca= [mean(noise_d_cca_1(:)),mean(noise_d_cca_2(:)),mean(noise_d_cca_3(:)),mean(noise_d_cca_4(:))]; % SS
+[h,p_noise_1,c,stats]=ttest(noise_d_ss_1(:),noise_d_cca_1(:));
+[h,p_noise_2,c,stats]=ttest(noise_d_ss_2(:),noise_d_cca_2(:));
+[h,p_noise_3,c,stats]=ttest(noise_d_ss_3(:),noise_d_cca_3(:));
+[h,p_noise_4,c,stats]=ttest(noise_d_ss_4(:),noise_d_cca_4(:));
 
-mean(log(noise_d_ss_1(:)))
+group = [noise_ss',noise_cca'];
+foo= [noise_ss',noise_cca']'; foo = foo(:)';
 
+SEM=[std(noise_d_ss_1(:)),std(noise_d_cca_1(:)),std(noise_d_ss_2(:)),std(noise_d_cca_2(:)),std(noise_d_ss_3(:)),std(noise_d_cca_3(:)),std(noise_d_ss_4(:)),std(noise_d_cca_4(:))];  % values for error bars
+SEM = SEM./sqrt(size(noise_d_ss_1(:),1)-1);
+figure
+hold on
+bar(1:4,group)
+x_shift = 0.14;
+x = [1-x_shift,1+x_shift,2-x_shift,2+x_shift,3-x_shift,3+x_shift,4-x_shift,4+x_shift];
+errorbar(x,foo,SEM,'.') %errorbar(x,y,err)
+xticklabels({'0.01 < f < 0.1 Hz',' ','0.1 < f < 0.5 Hz',' ','0.5 < f < 1.5 Hz',' ','1.5 < f < 10 Hz'})
+legend('\color{blue} GLM with SS', '\color{red} GLM with CCA');

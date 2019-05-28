@@ -22,7 +22,7 @@ end
 TPR_SS = Ch_TP_SS./(Ch_TP_SS + Ch_FN_SS);
 FPR_SS = Ch_FP_SS./(Ch_FP_SS + Ch_TN_SS);
 
-fPR_CCA = Ch_TP_CCA./(Ch_TP_CCA + Ch_FN_CCA);
+TPR_CCA = Ch_TP_CCA./(Ch_TP_CCA + Ch_FN_CCA);
 FPR_CCA = Ch_FP_CCA./(Ch_FP_CCA + Ch_TN_CCA);
 
 % get F-score
@@ -49,5 +49,5 @@ Ch_FP_CCA = reshape(Ch_FP_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4)
 Ch_FN_CCA = reshape(Ch_FN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 Ch_TN_CCA = reshape(Ch_TN_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
 F_score_CCA = reshape(F_score_CCA, size(DET_CCA,1), size(DET_CCA,3), size(DET_CCA,4), size(DET_CCA,5), size(DET_CCA,6), size(DET_CCA,7));
-fPR_CCA = reshape(fPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
+TPR_CCA = reshape(TPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 FPR_CCA = reshape(FPR_CCA, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
