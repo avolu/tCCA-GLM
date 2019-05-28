@@ -20,7 +20,7 @@ plotmetrics = false;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
-saveplot = true;
+saveplot = false;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;

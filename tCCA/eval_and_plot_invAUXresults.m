@@ -13,6 +13,8 @@ mmm = [1];
 TP_flag = true;
 % indices of optimal parameterset
 pOptfix = [4 8 6];
+% save plot?
+saveplot = true;
 
 %Colormaps
 cmap_hbo= flipud(othercolor('YlOrRd9'));
@@ -43,7 +45,7 @@ else
     path.auxres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_20_stMSE'; % save directory
     path.auxres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_50_stMSE'; % save directory
     path.auxres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix'
+    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix';
 end
 
 % Validation parameters
@@ -58,8 +60,6 @@ metrlab = {'CORR', 'MSE', 'F-Score'};
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
-% save plot?
-saveplot = true;
 
 disp('=================================================================')
 disp(['these parameters were chosen manually: ' ...
@@ -125,7 +125,7 @@ for metr=mmm
         FSCORE_HbR = NaN(7,7);
         CORR_HbO = NaN(7,7);
         CORR_HbR = NaN(7,7);
-
+        
         dd = {[1 2], [2 1]};
         for ii=1:size(auxinfo.auxid,2)
             for d=1:2
@@ -137,13 +137,13 @@ for metr=mmm
                 CORR_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = CORR(2,ii);
             end
         end
-        dat = {CORR_HbO, -MSE_HbO, FSCORE_HbO, CORR_HbR, -MSE_HbR, FSCORE_HbR};
+        dat = {CORR_HbO, MSE_HbO, FSCORE_HbO, CORR_HbR, MSE_HbR, FSCORE_HbR};
         figure
         for mm = 1:3
             for hh = 1:2
                 ax{mm,hh} = subplot(2,3,(hh-1)*3+mm)
                 c = imagesc(dat{(hh-1)*3+mm});
-                 title(metrlab{mm})
+                title(metrlab{mm})
                 %title([metrlab{mm} ' | ' metrttl{metr} ' | hrf = ' num2str(hrfamp) '%'])
                 colorbar
                 set(gca,'xaxisLocation','top')
@@ -154,18 +154,37 @@ for metr=mmm
                 set(c,'AlphaData',~isnan(dat{(hh-1)*hh+mm}))
                 %% write delta values in percent into tiles
                 offs=0.4;
-                for yy=2:6
-                    for xx=1:yy-1
-                        mx = max(dat{(hh-1)*hh+mm}(:));
-                        val = -(ceil(1000*(mx-dat{(hh-1)*hh+mm}(xx,yy))/mx))/10;
-                        text(xx-offs, yy, [num2str(val,'%+2.0f') '%'])
+                if mm==2
+                    for yy=2:6
+                        for xx=1:yy-1
+                            mn = min(dat{(hh-1)*3+mm}(:));
+                            val = -(ceil(1000*(mn-dat{(hh-1)*3+mm}(xx,yy))/mn))/10;
+                            text(xx-offs, yy, [num2str(val,'%+2.0f') '%'])
+                        end
                     end
-                end
-                text(1-offs, 7, 'MAX')
-                if hh == 1
-                    colormap(ax{mm,hh},cmap_hbo)
+                    text(1-offs, 7, 'MIN')
                 else
-                    colormap(ax{mm,hh},cmap_hbr)
+                    for yy=2:6
+                        for xx=1:yy-1
+                            mx = max(dat{(hh-1)*3+mm}(:));
+                            val = -(ceil(1000*(mx-dat{(hh-1)*3+mm}(xx,yy))/mx))/10;
+                            text(xx-offs, yy, [num2str(val,'%+2.0f') '%'])
+                        end
+                    end
+                    text(1-offs, 7, 'MAX')
+                end
+                if hh == 1
+                    if mm == 2
+                        colormap(ax{mm,hh},flipud(cmap_hbo));
+                    else
+                        colormap(ax{mm,hh},cmap_hbo)
+                    end
+                else
+                    if mm == 2
+                        colormap(ax{mm,hh},flipud(cmap_hbr))
+                    else
+                        colormap(ax{mm,hh},cmap_hbr)
+                    end
                 end
             end
         end
@@ -173,6 +192,6 @@ for metr=mmm
 end
 set(gcf, 'Position',  [0,50,1840,1030])
 if saveplot
-    export_fig([path.savefig '\Aux_comparison_matrix.pdf'], '-pdf', '-transparent')
+    %export_fig([path.savefig '\Aux_comparison_matrix.pdf'], '-pdf', '-transparent')
     export_fig([path.savefig '\Aux_comparison_matrix.pdf'], '-png', '-transparent', '-r300')
 end
