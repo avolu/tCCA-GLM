@@ -12,7 +12,10 @@ mmm = [1];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % indices of optimal parameterset
-pOptfix = [4 8 6];
+%pOptfix = [4 8 6];
+% new run
+pOptfix = [3 10 3];
+
 % save plot?
 saveplot = true;
 
@@ -141,7 +144,7 @@ for metr=mmm
         figure
         for mm = 1:3
             for hh = 1:2
-                ax{mm,hh} = subplot(2,3,(hh-1)*3+mm)
+                ax{mm,hh} = subplot(2,3,(hh-1)*3+mm);
                 c = imagesc(dat{(hh-1)*3+mm});
                 title(metrlab{mm})
                 %title([metrlab{mm} ' | ' metrttl{metr} ' | hrf = ' num2str(hrfamp) '%'])
