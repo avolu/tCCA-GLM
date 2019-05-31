@@ -159,7 +159,7 @@ for sbj = 1:slist % loop across subjects
         %% EVAL / PLOT
         [DET_SS(:,:,tt), DET_CCA(:,:,tt), pval_SS(:,:,tt), pval_CCA(:,:,tt), ...
             ROCLAB, MSE_SS(:,:,tt), MSE_CCA(:,:,tt), CORR_SS(:,:,tt), CORR_CCA(:,:,tt)] = ...
-            results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt));
+            results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt));
         % Dimensions of output metrics
         % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
         % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
