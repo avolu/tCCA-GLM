@@ -1,7 +1,7 @@
 clear all;
  
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -62,7 +62,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
  
-for sbj = 4%1:numel(sbjfolder) % loop across subjects
+for sbj = 1%:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
