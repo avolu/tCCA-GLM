@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
@@ -17,6 +17,8 @@ cntno = 15;
 pvalflag = false;
 % plot other metrics
 plotmetrics = false;
+% plot 50% single trial metrics for paper figure
+plot50st = true;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
@@ -283,11 +285,11 @@ for metr=mmm
                 % mark optimum from objective function
                 hold on
                 plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')]) 
+                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')])
             end
             if dd ==5
                 subplot(2,4,dd)
-                text(0,0.5,{['HRF: ' num2str(hrfamp) '%']; metrttl{metr}; ['Correlation Threshold: ' num2str(cthresh(ct))]}, 'FontWeight', 'bold'); 
+                text(0,0.5,{['HRF: ' num2str(hrfamp) '%']; metrttl{metr}; ['Correlation Threshold: ' num2str(cthresh(ct))]}, 'FontWeight', 'bold');
                 axis off
             end
         end
@@ -317,8 +319,11 @@ for metr=mmm
                 hold on
                 scatter(squeeze(datss{ff}(:,hh)), squeeze(datcca{ff}(:,hh)), ptcol{hh})
                 scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), ptcol{3})
+                disp([ ttl{ff} ' ' metrttl{metr} ' hrf=' num2str(hrfamp) ' MEAN ± STD: SS: ' num2str(nanmean(squeeze(datss{ff}(:,hh)))) ' ± ' num2str(nanstd(squeeze(datss{ff}(:,hh)))) ...
+                    ' tCCA: ' num2str(nanmean(squeeze(datcca{ff}(:,hh)))) ' ± ' num2str(nanstd(squeeze(datcca{ff}(:,hh))))])
                 % ttest
                 [h,p] = ttest(squeeze(datss{ff}(:,hh)),squeeze(datcca{ff}(:,hh)));
+                disp(['ttest: p = ' num2str(p, '%0.2g')])
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
@@ -387,11 +392,85 @@ for metr=mmm
         
         
         
-        
+        %% Plot example HRF 50% Single Trial Scatter and vs cthresh plot
+        if plot50st && metr == 1 && hrff == 2
+            figure
+            %% SCATTER
+            ttl = {'CORR', 'MSE', 'F-SCORE'};
+            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+            ptcol = {'+r', 'xb', '*k'};
+            for ff = 1:3
+                for hh = 1:2
+                    outl = isoutlier(datss{ff}(:,hh));
+                    axlim = [min([datss{ff}(:,hh); datcca{ff}(:,hh)]) max([datss{ff}(:,hh); datcca{ff}(:,hh)])];
+                    subplot(3,3,(hh-1)*3+ff)
+                    hold on
+                    scatter(squeeze(datss{ff}(:,hh)), squeeze(datcca{ff}(:,hh)), ptcol{hh})
+                    scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), ptcol{3})
+                    disp([ ttl{ff} ' ' metrttl{metr} ' hrf=' num2str(hrfamp) ' MEAN ± STD: SS: ' num2str(nanmean(squeeze(datss{ff}(:,hh)))) ' ± ' num2str(nanstd(squeeze(datss{ff}(:,hh)))) ...
+                        ' tCCA: ' num2str(nanmean(squeeze(datcca{ff}(:,hh)))) ' ± ' num2str(nanstd(squeeze(datcca{ff}(:,hh))))])
+                    % ttest
+                    [h,p] = ttest(squeeze(datss{ff}(:,hh)),squeeze(datcca{ff}(:,hh)));
+                    disp(['ttest: p = ' num2str(p, '%0.2g')])
+                    if h
+                        scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'diamond','MarkerFaceColor', 'c')
+                    end
+                    title(ttl{ff})
+                    if sclimflag
+                        xlim(sclims{ff,hh})
+                        ylim(sclims{ff,hh})
+                        plot([sclims{ff,hh}(1) sclims{ff,hh}(2)], [sclims{ff,hh}(1) sclims{ff,hh}(2)] ,'k')
+                    else
+                        xlim ([axlim(1) axlim(2)])
+                        ylim ([axlim(1) axlim(2)])
+                        plot([axlim(1) axlim(2)], [axlim(1) axlim(2)] ,'k')
+                    end
+                    xlabel('SS GLM')
+                    ylabel('tCCA GLM')
+                    grid on
+                end
+            end
+            
+            %% vs correlation threshold
+            %% Plot CORR, MSE and F-Score vs corr threshold
+            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
+            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
+            ptype = {'r','b','--r','--b'};
+            pttype = {'or','ob','*r','*b'};
+            ylabs={'tCCA CORR', 'tCCA MSE','tCCA F-Score'};
+            for mm = 1:numel(ylabs)
+                subplot(3,3,6+mm)
+                grid on
+                hold on
+                title(ttl{mm})
+                errorbar(cthresh, squeeze(nanmean(datcca{mm}(:,1,:))), squeeze(nanstd(datcca{mm}(:,1,:)))/sqrt(size(datcca{mm},1)), 'r');
+                errorbar(cthresh, squeeze(nanmean(datcca{mm}(:,2,:))), squeeze(nanstd(datcca{mm}(:,2,:)))/sqrt(size(datcca{mm},1)), 'b');
+                plot(cthresh, squeeze(nanmean(datss{mm}(:,1,:))), '--r');
+                plot(cthresh, squeeze(nanmean(datss{mm}(:,2,:))), '--b');
+                % mark selected points
+                plot(cthresh(pOpt(3)), squeeze(nanmean(datcca{mm}(:,1,pOpt(3)))),'diamond','MarkerFaceColor', 'c')
+                plot(cthresh(pOpt(3)), squeeze(nanmean(datcca{mm}(:,2,pOpt(3)))),'diamond','MarkerFaceColor', 'c')
+                xlabel('Corr threshold c_t')
+                ylabel(ylabs{mm})
+                xlim([0 0.9])
+                %plot (ones(10,1)*cthresh(pOpt(3)), zeros(numel(cthresh),1), '.k')
+                %             legend(['HbO, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+                %                 ['HbR, @ tlag ' num2str(tlags(plotOptfix{1}(1))) 's, stsize ' num2str(stpsize(plotOptfix{1}(2))*1000/25) 'ms'], ...
+                %                 'HbO, SS GLM', ...
+                %                 'HbR, SS GLM', ...
+                %                 'Location', 'Best')
+            end
+            %% save
+            if saveplot
+                export_fig([path.savefig '\hrf50ST_comb.pdf'], '-pdf', '-transparent')
+                export_fig([path.savefig '\hrf50ST_comb.pdf'], '-png', '-transparent', '-r300')
+            end
+        end
     end
 end
 
-plotOptfix = {pOptfix,[4 7 7]};
+%plotOptfix = {pOptfix,[4 7 7]};
 
 %% Plot combined Mixed Objective Function contour plot
 ttl= '\Sigma obj. functions';
@@ -417,5 +496,6 @@ disp('=================================================================')
 disp(['these parameters minimize the combined objective functions: timelag: ' ...
     num2str(tlags(t)) 's, stepsize: ' num2str(stpsize(s)) 'smpl, corr threshold: ' num2str(cthresh(c))] )
 disp('=================================================================')
+
 
 
