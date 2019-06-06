@@ -49,13 +49,13 @@ for i = 1:size(foo_SS,2)
     
     % CCA
     if (Ch_TP_CCA(i) + Ch_FN_CCA(i)) == 0
-        F_score_SS(i) = NaN;
+        F_score_CCA(i) = NaN;
     end
     if (Ch_TP_CCA(i) + Ch_FP_CCA(i) + Ch_FN_CCA(i)) == 0
-        F_score_SS(i) = 1;
+        F_score_CCA(i) = 1;
     end
     if Ch_TP_CCA(i) == 0 && (Ch_FP_CCA(i) + Ch_FN_CCA(i)) ~= 0
-        F_score_SS(i) = 0;
+        F_score_CCA(i) = 0;
     end
     
 end
