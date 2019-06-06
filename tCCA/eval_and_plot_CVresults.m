@@ -461,6 +461,7 @@ for metr=mmm
                 %                 'HbR, SS GLM', ...
                 %                 'Location', 'Best')
             end
+            set(gcf, 'Position',  [0,538,825,458])
             %% save
             if saveplot
                 export_fig([path.savefig '\hrf50ST_comb.pdf'], '-pdf', '-transparent')
