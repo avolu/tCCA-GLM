@@ -35,6 +35,33 @@ Precision_CCA = Ch_TP_CCA ./(Ch_TP_CCA + Ch_FP_CCA);
 Recall_CCA = Ch_TP_CCA ./(Ch_TP_CCA + Ch_FN_CCA);
 F_score_CCA = 2 * (Precision_CCA .* Recall_CCA)./(Precision_CCA + Recall_CCA);
 
+for i = 1:size(foo_SS,2)
+    % SS
+    if (Ch_TP_SS(i) + Ch_FN_SS(i)) == 0
+        F_score_SS(i) = NaN;
+    end
+    if (Ch_TP_SS(i) + Ch_FP_SS(i) + Ch_FN_SS(i)) == 0
+        F_score_SS(i) = 1;
+    end
+    if Ch_TP_SS(i) == 0 && (Ch_FP_SS(i) + Ch_FN_SS(i)) ~= 0
+        F_score_SS(i) = 0;
+    end
+    
+    % CCA
+    if (Ch_TP_CCA(i) + Ch_FN_CCA(i)) == 0
+        F_score_SS(i) = NaN;
+    end
+    if (Ch_TP_CCA(i) + Ch_FP_CCA(i) + Ch_FN_CCA(i)) == 0
+        F_score_SS(i) = 1;
+    end
+    if Ch_TP_CCA(i) == 0 && (Ch_FP_CCA(i) + Ch_FN_CCA(i)) ~= 0
+        F_score_SS(i) = 0;
+    end
+    
+end
+
+
+
 % reshape all to "# of sbjs x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
 Ch_TP_SS = reshape(Ch_TP_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
 Ch_FP_SS = reshape(Ch_FP_SS, size(DET_SS,1), size(DET_SS,3), size(DET_SS,4), size(DET_SS,5), size(DET_SS,6), size(DET_SS,7));
