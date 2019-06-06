@@ -1,3 +1,7 @@
+%% counters
+nancnt = 0;
+onecnt = 0;
+
 %% # of TP/FP/FN/TN channels
 % for SS and CCA methods:
 foo_SS = permute(DET_SS,[2 1 3 4 5 6 7]);
@@ -50,9 +54,11 @@ for i = 1:size(foo_SS,2)
     % CCA
     if (Ch_TP_CCA(i) + Ch_FN_CCA(i)) == 0
         F_score_CCA(i) = NaN;
+        nancnt = nancnt+1;
     end
     if (Ch_TP_CCA(i) + Ch_FP_CCA(i) + Ch_FN_CCA(i)) == 0
         F_score_CCA(i) = 1;
+        onecnt = onecnt+1;
     end
     if Ch_TP_CCA(i) == 0 && (Ch_FP_CCA(i) + Ch_FN_CCA(i)) ~= 0
         F_score_CCA(i) = 0;
