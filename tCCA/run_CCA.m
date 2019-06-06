@@ -16,11 +16,11 @@ end
  
 % #####
 %% simulated data file names
-filename = 'resting_sim';
+filename = 'resting_sim_50';
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_100.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
 %% save folder name
-sfoldername = '\CV_results_data_100_stMSE';
+sfoldername = '\CV_results_data_50_stMSE';
 
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
@@ -29,7 +29,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
  
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 1;
+flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -43,14 +43,14 @@ flags.pcaf =  [0 0]; % no pca of X or AUX
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
 flag_trial = 1;
  
 % Validation parameters
-tlags = 0:1:10;
-stpsize = 2:2:24;
-cthresh = 0:0.1:0.9;
+tlags = 3%0:1:10;
+stpsize = 16%2:2:24;
+cthresh = 0.5%0:0.1:0.9;
  
 tlidx =0;
 stpidx =0;
