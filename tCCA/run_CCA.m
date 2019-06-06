@@ -16,11 +16,11 @@ end
  
 % #####
 %% simulated data file names
-filename = 'resting_sim_20';
+filename = 'resting_sim';
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_100.mat']);
 %% save folder name
-sfoldername = '\CV_results_data_20';
+sfoldername = '\CV_results_data_100_stMSE';
 
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
@@ -29,7 +29,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
  
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 0;
+flag_save = 1;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -45,7 +45,7 @@ motionflag = true;
 %plot flag
 flag_plot = false;
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
-flag_trial = 0;
+flag_trial = 1;
  
 % Validation parameters
 tlags = 0:1:10;
@@ -62,7 +62,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
  
-for sbj = 1%:numel(sbjfolder) % loop across subjects
+for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
@@ -207,8 +207,10 @@ for sbj = 1%:numel(sbjfolder) % loop across subjects
         tlidx =0;
     end
     %% save data for subject
+if flag_save
     disp(['saving sbj ' num2str(sbj) '...'])
     save([path.save sfoldername '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
+end
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
