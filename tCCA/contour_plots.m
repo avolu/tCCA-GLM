@@ -14,7 +14,9 @@ figure
 climits = [min(METRIC(:)) max(METRIC(:))];
 for ii=1:10
     subplot(2,5,ii)
-    contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
+    imagesc(squeeze(METRIC(:,:,ii)))
+    set(gca,'YDir','normal');
+%     contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
     xlabel('stepsize / s')
     xticks(evparams.stpsize(1:2:end))
     xticklabels(xtl(1:2:end))
@@ -67,5 +69,6 @@ for ii=1:10
             text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii))])
         end
 end
+colormap jet
 end
 
