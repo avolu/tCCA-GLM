@@ -14,9 +14,10 @@ figure
 climits = [min(METRIC(:)) max(METRIC(:))];
 for ii=1:10
     subplot(2,5,ii)
-<<<<<<< Updated upstream
+
 %     imagesc(squeeze(METRIC(:,:,ii)))
-    %// Define your data
+% create finer grid
+%// Define your data
 data = squeeze(METRIC(:,:,ii));    
 
 %// Define integer grid of coordinates for the above data
@@ -28,7 +29,7 @@ data = squeeze(METRIC(:,:,ii));
 %// Interpolate the data and show the output
 outData = interp2(X1, Y1, data, X2, Y2, 'linear');
 imagesc(outData);
-
+    set(gca,'YDir','normal');
 %// Cosmetic changes for the axes
 set(gca, 'XTick', linspace(1,size(X2,2),size(X1,2))); 
 set(gca, 'YTick', linspace(1,size(X2,1),size(X1,1)));
@@ -36,25 +37,6 @@ set(gca, 'XTickLabel', 0:size(X1,1));
 set(gca, 'YTickLabel', 0:size(X1,2));
 
     
-    
-=======
-%   imagesc(squeeze(METRIC(:,:,ii)))    
- 
-% create finer grid
-    data = squeeze(METRIC(:,:,ii));    
-    %// Define integer grid of coordinates for the above data
-    [X1,Y1] = meshgrid(1:size(data,2), 1:size(data,1));
-
-    %// Define a finer grid of points
-    [X2,Y2] = meshgrid(1:0.1:size(data,2), 1:0.1:size(data,1));
-
-    %// Interpolate the data and show the output
-    outData = interp2(X1, Y1, data, X2, Y2, 'linear');
-    imagesc(outData);
-    
-
->>>>>>> Stashed changes
-    set(gca,'YDir','normal');
 %     contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
     xlabel('stepsize / s')
 %     xticks(evparams.stpsize(1:2:end))
@@ -62,12 +44,11 @@ set(gca, 'YTickLabel', 0:size(X1,2));
     ylabel('time lags / s')
     title([ttl ', ct = ' num2str(evparams.cthresh(ii))])
 %     grid on
-<<<<<<< Updated upstream
+
 buf = data;
 %     buf =  squeeze(METRIC(:,:,ii));
-=======
-    buf =  squeeze(METRIC(:,:,ii));
->>>>>>> Stashed changes
+
+
     switch flip
         case 'max'
             colormap(cmap)
