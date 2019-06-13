@@ -14,6 +14,7 @@ figure
 climits = [min(METRIC(:)) max(METRIC(:))];
 for ii=1:10
     subplot(2,5,ii)
+<<<<<<< Updated upstream
 %     imagesc(squeeze(METRIC(:,:,ii)))
     %// Define your data
 data = squeeze(METRIC(:,:,ii));    
@@ -36,6 +37,23 @@ set(gca, 'YTickLabel', 0:size(X1,2));
 
     
     
+=======
+%   imagesc(squeeze(METRIC(:,:,ii)))    
+ 
+% create finer grid
+    data = squeeze(METRIC(:,:,ii));    
+    %// Define integer grid of coordinates for the above data
+    [X1,Y1] = meshgrid(1:size(data,2), 1:size(data,1));
+
+    %// Define a finer grid of points
+    [X2,Y2] = meshgrid(1:0.1:size(data,2), 1:0.1:size(data,1));
+
+    %// Interpolate the data and show the output
+    outData = interp2(X1, Y1, data, X2, Y2, 'linear');
+    imagesc(outData);
+    
+
+>>>>>>> Stashed changes
     set(gca,'YDir','normal');
 %     contourf(X,Y, squeeze(METRIC(:,:,ii)), cntno)
     xlabel('stepsize / s')
@@ -44,8 +62,12 @@ set(gca, 'YTickLabel', 0:size(X1,2));
     ylabel('time lags / s')
     title([ttl ', ct = ' num2str(evparams.cthresh(ii))])
 %     grid on
+<<<<<<< Updated upstream
 buf = data;
 %     buf =  squeeze(METRIC(:,:,ii));
+=======
+    buf =  squeeze(METRIC(:,:,ii));
+>>>>>>> Stashed changes
     switch flip
         case 'max'
             colormap(cmap)
@@ -64,7 +86,8 @@ buf = data;
             cb.Position = [0.917027047511808,0.106986227801112,0.012213203762342,0.342857142957143]
         end
     end
-    caxis(climits)
+%     caxis(climits)
+%     caxis([0 0.6])
     % mark local optima
     hold on
     if squeeze(METRIC(r(1),c(1),ii)) == limit
@@ -92,5 +115,6 @@ buf = data;
         end
 end
 colormap jet
+
 end
 

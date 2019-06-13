@@ -355,11 +355,13 @@ foo= [noise_ss',noise_cca']'; foo = foo(:)';
 
 SEM=[std(noise_d_ss_1(:)),std(noise_d_cca_1(:)),std(noise_d_ss_2(:)),std(noise_d_cca_2(:)),std(noise_d_ss_3(:)),std(noise_d_cca_3(:)),std(noise_d_ss_4(:)),std(noise_d_cca_4(:))];  % values for error bars
 SEM = SEM./sqrt(size(noise_d_ss_1(:),1)-1);
+
 figure
 hold on
 bar(1:4,group)
 x_shift = 0.14;
 x = [1-x_shift,1+x_shift,2-x_shift,2+x_shift,3-x_shift,3+x_shift,4-x_shift,4+x_shift];
 errorbar(x,foo,SEM,'.') %errorbar(x,y,err)
-xticklabels({'0.01 < f < 0.1 Hz',' ','0.1 < f < 0.5 Hz',' ','0.5 < f < 1.5 Hz',' ','1.5 < f < 10 Hz'})
+xticklabels({'0.01 < f < 0.1 Hz',' ','0.1 < f < 0.5 Hz',' ','0.5 < f < 1.5 Hz',' ','1.5 < f < 10 Hz'});
+xtickangle(30);
 legend('\color{blue} GLM with SS', '\color{red} GLM with CCA');

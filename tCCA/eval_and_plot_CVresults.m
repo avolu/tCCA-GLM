@@ -36,8 +36,8 @@ Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 1;%2;
-reg.weight =0.25 ;%4;
+reg.step = 1% 1;%2;
+reg.weight = 1%0.25 ;%4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
