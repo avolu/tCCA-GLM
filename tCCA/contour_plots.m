@@ -90,17 +90,17 @@ for ii=1:10
         p=1;
     end
     for pp = 1:p
-        plot((evparams.stpsize(c(pp))-2)*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ),'ko','MarkerFaceColor', mrkc)
+        plot((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ),'ko','MarkerFaceColor', mrkc)
         if pp==1
             if lopttext
-                text((evparams.stpsize(c(pp))-2)*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(r(pp),c(pp),ii))])
+                text((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(r(pp),c(pp),ii))])
             end
         end
     end
     % mark optimum from objective function
     if ii == pOpt(1,3)
-        plot((evparams.stpsize(pOpt(1,2))-2)*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density),'diamond','MarkerFaceColor', 'c')
-        text((evparams.stpsize(pOpt(1,2))-2)*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii))])
+        plot((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density),'diamond','MarkerFaceColor', 'c')
+        text((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii))])
     end
 end
 colormap jet
