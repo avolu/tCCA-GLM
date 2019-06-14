@@ -283,11 +283,11 @@ for metr=mmm
                 % mark optimum from objective function
                 hold on
                 plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')]) 
+                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')])
             end
             if dd ==5
                 subplot(2,4,dd)
-                text(0,0.5,{['HRF: ' num2str(hrfamp) '%']; metrttl{metr}; ['Correlation Threshold: ' num2str(cthresh(ct))]}, 'FontWeight', 'bold'); 
+                text(0,0.5,{['HRF: ' num2str(hrfamp) '%']; metrttl{metr}; ['Correlation Threshold: ' num2str(cthresh(ct))]}, 'FontWeight', 'bold');
                 axis off
             end
         end
@@ -322,7 +322,9 @@ for metr=mmm
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
-                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p, '%0.2g') ', ' metrttl{metr}])
+                %         title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p, '%0.2g') ', ' metrttl{metr}])
+                title(ttl{ff})
+                
                 if sclimflag
                     xlim(sclims{ff,hh})
                     ylim(sclims{ff,hh})
@@ -334,9 +336,16 @@ for metr=mmm
                 end
                 xlabel('SS GLM')
                 ylabel('tCCA GLM')
-                grid on
+                
+                fooylim=get(gca,'ylim');
+                fooxlim=get(gca,'xlim');
+                
+                text(fooxlim(2)*0.1,fooylim(2)*0.9,['p = ' num2str(p, '%0.2g')],'FontSize',10)
+                %                 grid on
             end
         end
+        suptitle(['hrf = ' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))),', ' metrttl{metr}]);
+        
         
         
         %% Plot CORR, MSE and F-Score vs corr threshold
