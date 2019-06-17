@@ -103,5 +103,4 @@ for ii=1:10
         text((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii))])
     end
 end
-colormap jet
 end

@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
@@ -37,7 +37,7 @@ Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
 reg.step = 1% %2;
-reg.weight = 0.25% %4;
+reg.weight = 0;%0.25% %4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
@@ -62,7 +62,7 @@ sclims = {[-0.2 1], [-0.2 1]; [0 8]*1e-6, [0 4]*1e-6; [0 1], [0 1]};
 %% get colormaps
 cmap_hbo= flipud(othercolor('YlOrRd9'));
 cmap_hbr= flipud(othercolor('YlGnBu9'));
-cmap_obj= flipud(othercolor('Greys9'));
+cmap_obj= flipud(jet);
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
