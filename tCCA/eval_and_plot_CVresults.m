@@ -38,8 +38,8 @@ Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 1;%2;
-reg.weight =1;%4;
+reg.step = 1% %2;
+reg.weight = 0;%0.25% %4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
@@ -64,7 +64,7 @@ sclims = {[-0.2 1], [-0.2 1]; [0 8]*1e-6, [0 4]*1e-6; [0 1], [0 1]};
 %% get colormaps
 cmap_hbo= flipud(othercolor('YlOrRd9'));
 cmap_hbr= flipud(othercolor('YlGnBu9'));
-cmap_obj= flipud(othercolor('Greys9'));
+cmap_obj= flipud(jet);
 
 %% Data
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
@@ -327,7 +327,9 @@ for metr=mmm
                 if h
                     scatter(nanmean(squeeze(datss{ff}(:,hh))), nanmean(squeeze(datcca{ff}(:,hh))), 'ok')
                 end
-                title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p, '%0.2g') ', ' metrttl{metr}])
+                %         title([ttl{ff} ', hrf=' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))), ' | p = ' num2str(p, '%0.2g') ', ' metrttl{metr}])
+                title(ttl{ff})
+                
                 if sclimflag
                     xlim(sclims{ff,hh})
                     ylim(sclims{ff,hh})
@@ -339,9 +341,16 @@ for metr=mmm
                 end
                 xlabel('SS GLM')
                 ylabel('tCCA GLM')
-                grid on
+                
+                fooylim=get(gca,'ylim');
+                fooxlim=get(gca,'xlim');
+                
+                text(fooxlim(2)*0.1,fooylim(2)*0.9,['p = ' num2str(p, '%0.2g')],'FontSize',10)
+                %                 grid on
             end
         end
+        suptitle(['hrf = ' num2str(hrfamp) ', for t/s/c: ' num2str(tlags(pOpt(1))) '/' num2str(stpsize(pOpt(2))) '/' num2str(cthresh(pOpt(3))),', ' metrttl{metr}]);
+        
         
         
         %% Plot CORR, MSE and F-Score vs corr threshold
