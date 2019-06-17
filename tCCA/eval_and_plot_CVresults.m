@@ -7,7 +7,7 @@ clear all
 melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
-% select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of block average HRF
+% select which metric type: 1 (average of single trial HRF RMSEs), 2: RMSE of block average HRF
 mmm = [1 2];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
@@ -22,7 +22,7 @@ plot50st = true;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
-saveplot = false;
+saveplot = true;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
@@ -38,7 +38,7 @@ Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
 % use weighted region of stepsize reg in all directions around evaluation point?
-reg.step = 1% %2;
+reg.step = 0;% %2;
 reg.weight = 0;%0.25% %4;
 % segmentation approach: threshold for segmentation
 Jparam.thresh = 0.7;
@@ -79,7 +79,7 @@ if melexflag
     path.cvres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 5-8 contour plots + scatter'
+    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 & 13contour plots + scatter';
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -91,7 +91,7 @@ else
     path.cvres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 5-8 contour plots + scatter'
+    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 & 13contour plots + scatter';
 end
 
 % #####
@@ -109,7 +109,7 @@ evparams.stpsize = stpsize;
 evparams.cthresh = cthresh;
 
 hblab = {'HbO', 'HbR'};
-metrttl = {'Single Trial', 'Block Average'};
+metrttl = {'Single Trial', 'Across Trials'};
 
 % xticklabels stepsize in seconds
 for tl = 1:numel(evparams.stpsize)
@@ -159,8 +159,8 @@ for metr=mmm
             CORR_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.CORR_SS;
             DET_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.DET_CCA;
             DET_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.DET_SS;
-            MSE_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.MSE_CCA;
-            MSE_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.MSE_SS;
+            RMSE_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.MSE_CCA;
+            RMSE_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.MSE_SS;
             pval_CCA(sbj,:,:,:,:,:,:,:) = res{sbj}.pval_CCA;
             pval_SS(sbj,:,:,:,:,:,:,:) = res{sbj}.pval_SS;
             nTrials(sbj,:,:,:,:) = res{sbj}.nTrials;
@@ -179,7 +179,7 @@ for metr=mmm
         
         %% Find Global topology and optimum with objective function, includes segmentation approach
         % calculate objective function output for all input tupel
-        fval{hrff,metr} = J_opt(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, Jparam ,reg);
+        fval{hrff,metr} = J_opt(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, Jparam ,reg);
         % find optimal parameter set
         [t,s,c] = ind2sub(size(fval{hrff}),find(fval{hrff} == min(fval{hrff}(:))));
         %% overwrite if OPT POINT chosen individually before for further exploration
@@ -201,7 +201,7 @@ for metr=mmm
         disp('=================================================================')
         
         %% Calculate median/mean metrics
-        [CORR,MSE,PVAL,FSCORE] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, mflag);
+        [CORR,RMSE,PVAL,FSCORE] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, mflag);
         
         %% create combined surface plots (depict objective function)
         
@@ -219,11 +219,11 @@ for metr=mmm
                 contour_plots(squeeze(CORR(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
             end
             
-            %% plot MSE
+            %% plot RMSE
             %HBO and HbR
             for hh = 1:2
-                ttl= [hblab{hh} ' MSE'];
-                contour_plots(squeeze(MSE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
+                ttl= [hblab{hh} ' RMSE'];
+                contour_plots(squeeze(RMSE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
             end
             
             %% plot pvals
@@ -245,35 +245,43 @@ for metr=mmm
         
         %% plot Summary contours for fixed correlation threshold
         ct = pOpt(3);
+        grid_density = 0.01;
         [X,Y] = meshgrid(evparams.stpsize,evparams.tlags);
+        %// Define integer grid of coordinates for the above data
+        [X1,Y1] = meshgrid(2:2:max(X(:)), 0:max(Y(:)));
+        %// Define a finer grid of points
+        [X2,Y2] = meshgrid(2:grid_density*2:max(X(:)), 0:grid_density :max(Y(:)));
         figure
-        dat = {1-fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(MSE(:,1,:,:,ct)), ...
+        dat = {1-fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(RMSE(:,1,:,:,ct)), ...
             squeeze(FSCORE(:,1,:,:,ct)), [], ...
-            squeeze(CORR(:,2,:,:,ct)), squeeze(MSE(:,2,:,:,ct)), ...
+            squeeze(CORR(:,2,:,:,ct)), squeeze(RMSE(:,2,:,:,ct)), ...
             squeeze(FSCORE(:,2,:,:,ct))};
-        ttl = {'J Opt','CORR','MSE','F-Score', '', 'CORR', 'MSE', 'F-Score'};
+        ttl = {'J Opt','CORR','RMSE','F-Score', '', 'CORR', 'RMSE', 'F-Score'};
         for dd = 1:numel(dat)
             if ~isempty(dat{dd})
                 ax{dd} = subplot(2,4,dd);
                 climits = [min(dat{dd}(:)) max(dat{dd}(:))];
-                contourf(X,Y, dat{dd}, cntno)
-                xlabel('stepsize / s')
-                xticks(evparams.stpsize(1:2:end))
-                xticklabels(xtl(1:2:end))
-                ylabel('time lags / s')
+                %// Interpolate the data and show the output
+                outData = interp2(X1, Y1, dat{dd}, X2, Y2, 'linear');
+                imagesc(outData);
+                set(gca,'YDir','normal');
+                %// Cosmetic changes for the axes
+                foo = linspace(1,size(X2,2),size(X1,2));
+                set(gca, 'XTick', foo(1:2:end), 'XTickLabel', xtl(1:2:end));
+                set(gca, 'YTick', linspace(1,size(X2,1),size(X1,1)),'YTickLabel', 0:size(X1,2));
                 title([ttl{dd}])
                 limit = climits(2);
                 if dd ==1
                     colormap(ax{dd},cmap_obj);
                 elseif dd<numel(dat)/2+1
-                    % MSE?
+                    % RMSE?
                     if dd == 3
                         colormap(ax{dd},flipud(cmap_hbo));
                     else
                         colormap(ax{dd},cmap_hbo);
                     end
                 else
-                    % MSE?
+                    % RMSE?
                     if dd == 7
                         colormap(ax{dd},flipud(cmap_hbr));
                     else
@@ -281,11 +289,13 @@ for metr=mmm
                     end
                 end
                 caxis(climits)
+                xlabel('stepsize / s')
+                ylabel('time lags / s')
                 colorbar
                 % mark optimum from objective function
                 hold on
-                plot(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)),'diamond','MarkerFaceColor', 'c')
-                text(evparams.stpsize(pOpt(1,2)),evparams.tlags(pOpt(1,1)), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)), '%.2g')])
+                plot((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density),'diamond','MarkerFaceColor', 'c')
+                text((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(dat{dd}(pOpt(1,1),pOpt(1,2)),'%.2g')])
             end
             if dd ==5
                 subplot(2,4,dd)
@@ -303,13 +313,13 @@ for metr=mmm
         
         %% create scatter plots comparing SS and tCCA
         %append all points
-        [CORRcca,MSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, MSE_CCA, pval_CCA, F_score_CCA, 3);
-        [CORRss,MSEss,PVALss,FSCOREss] = medmean(CORR_SS, MSE_SS, pval_SS, F_score_SS, 3);
+        [CORRcca,RMSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, 3);
+        [CORRss,RMSEss,PVALss,FSCOREss] = medmean(CORR_SS, RMSE_SS, pval_SS, F_score_SS, 3);
         %pOpt = [pOpt(1) pOpt(2) 4]; %(re-)set the optimal parameterset
         figure
-        ttl = {'CORR', 'MSE', 'F-SCORE'};
-        datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
-        datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+        ttl = {'CORR', 'RMSE', 'F-SCORE'};
+        datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(RMSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+        datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(RMSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
         ptcol = {'+r', 'xb', '*k'};
         for ff = 1:3
             for hh = 1:2
@@ -353,13 +363,13 @@ for metr=mmm
         
         
         
-        %% Plot CORR, MSE and F-Score vs corr threshold
-        datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
-        datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
+        %% Plot CORR, RMSE and F-Score vs corr threshold
+        datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(RMSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
+        datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(RMSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
         ptype = {'r','b','--r','--b'};
         pttype = {'or','ob','*r','*b'};
         figure(mseffig)
-        ylabs={'MSE','F-Score'};
+        ylabs={'RMSE','F-Score'};
         if metr == 1
             midx = 1;
             pofs =0;
@@ -405,9 +415,9 @@ for metr=mmm
         if plot50st && metr == 1 && hrff == 2
             figure
             %% SCATTER
-            ttl = {'CORR', 'MSE', 'F-SCORE'};
-            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
-            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+            ttl = {'CORR', 'RMSE', 'F-SCORE'};
+            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(RMSEss(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),pOpt(3)))};
+            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(RMSEcca(:,:,pOpt(1),pOpt(2),pOpt(3))), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),pOpt(3)))};
             ptcol = {'+r', 'xb', '*k'};
             for ff = 1:3
                 for hh = 1:2
@@ -437,17 +447,20 @@ for metr=mmm
                     end
                     xlabel('SS GLM')
                     ylabel('tCCA GLM')
-                    grid on
+                   
+                    fooylim=get(gca,'ylim');
+                    fooxlim=get(gca,'xlim');
+                    
+                    text(fooxlim(2)*0.1,fooylim(2)*0.9,['p = ' num2str(p, '%0.2g')],'FontSize',10)
                 end
             end
-            
             %% vs correlation threshold
-            %% Plot CORR, MSE and F-Score vs corr threshold
-            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
-            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(MSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
+            %% Plot CORR, RMSE and F-Score vs corr threshold
+            datss = {squeeze(CORRss(:,:,pOpt(1),pOpt(2),:)), squeeze(RMSEss(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREss(:,:,pOpt(1),pOpt(2),:))};
+            datcca = {squeeze(CORRcca(:,:,pOpt(1),pOpt(2),:)), squeeze(RMSEcca(:,:,pOpt(1),pOpt(2),:)), squeeze(FSCOREcca(:,:,pOpt(1),pOpt(2),:))};
             ptype = {'r','b','--r','--b'};
             pttype = {'or','ob','*r','*b'};
-            ylabs={'tCCA CORR', 'tCCA MSE','tCCA F-Score'};
+            ylabs={'tCCA CORR', 'tCCA RMSE','tCCA F-Score'};
             for mm = 1:numel(ylabs)
                 subplot(3,3,6+mm)
                 grid on
@@ -470,7 +483,7 @@ for metr=mmm
                 %                 'HbR, SS GLM', ...
                 %                 'Location', 'Best')
             end
-            set(gcf, 'Position',  [0,538,825,458])
+            set(gcf, 'Position',  [2,356,712,640])
             %% save
             if saveplot
                 export_fig([path.savefig '\hrf50ST_comb.pdf'], '-pdf', '-transparent')

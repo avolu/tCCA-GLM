@@ -1,6 +1,11 @@
 function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, cmap, flip, lopttext)
 %   CONTOUR_PLOTS Summary of this function goes here
 %   Detailed explanation goes here
+
+%% plot local optima
+plopt = false;
+
+
 for tl = 1:numel(evparams.stpsize)
     xtl{tl} = num2str(evparams.stpsize(tl)/25, '%.2g');
     xtl{tl}=strrep(xtl{tl}, '0.', '.');
@@ -72,35 +77,37 @@ for ii=1:10
         if ii/5 == 1
             cb.Position = [0.917027047511808,0.582968760552204,0.012213203762342,0.342857142957143]; %cb.Position + 1e-10;
         else
-            cb.Position = [0.917027047511808,0.106986227801112,0.012213203762342,0.342857142957143]
+            cb.Position = [0.917027047511808,0.106986227801112,0.012213203762342,0.342857142957143];
         end
     end
     %     caxis(climits)
     caxis([0 0.5])
     % mark local optima
     hold on
-    if squeeze(METRIC(r(1),c(1),ii)) == limit
-        mrkc = 'g';
-    else
-        mrkc = 'k';
-    end
-    if numel(r)<4
-        p=numel(r);
-    else
-        p=1;
-    end
-    for pp = 1:p
-        plot((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ),'ko','MarkerFaceColor', mrkc)
-        if pp==1
-            if lopttext
-                text((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(r(pp),c(pp),ii))])
+    if plopt
+        if squeeze(METRIC(r(1),c(1),ii)) == limit
+            mrkc = 'g';
+        else
+            mrkc = 'k';
+        end
+        if numel(r)<4
+            p=numel(r);
+        else
+            p=1;
+        end
+        for pp = 1:p
+            plot((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ),'ko','MarkerFaceColor', mrkc)
+            if pp==1
+                if lopttext
+                    text((evparams.stpsize(c(pp))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(r(pp))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(r(pp),c(pp),ii))])
+                end
             end
         end
     end
     % mark optimum from objective function
     if ii == pOpt(1,3)
         plot((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density),'diamond','MarkerFaceColor', 'c')
-        text((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii))])
+        text((evparams.stpsize(pOpt(1,2))-evparams.stpsize(1))*(1/(grid_density*2)),evparams.tlags(pOpt(1,1))*(1/grid_density ), ['\leftarrow ' num2str(METRIC(pOpt(1,1),pOpt(1,2),ii), '%.2g')])
     end
 end
 end

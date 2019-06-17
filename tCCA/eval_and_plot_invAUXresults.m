@@ -7,14 +7,13 @@ clear all
 melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [2];
-% select which metric type: 1 (average of single trial HRF MSEs), 2: MSE of average HRF
+% select which metric type: 1 (average of single trial HRF RMSEs), 2: RMSE of average HRF
 mmm = [1];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % indices of optimal parameterset
-%pOptfix = [4 8 6];
-% new run
-pOptfix = [3 10 3];
+pOptfix = [4 8 6];
+
 
 % save plot?
 saveplot = true;
@@ -36,7 +35,7 @@ if melexflag
     path.auxres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_20_stMSE'; % save directory
     path.auxres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_50_stMSE'; % save directory
     path.auxres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix'
+    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 10 AUX contribution Matrix'
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -48,7 +47,7 @@ else
     path.auxres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_20_stMSE'; % save directory
     path.auxres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_50_stMSE'; % save directory
     path.auxres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_AUX_contributions_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 9 AUX contribution Matrix';
+    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 10 AUX contribution Matrix';
 end
 
 % Validation parameters
@@ -59,7 +58,7 @@ evparams.tlags = tlags;
 evparams.stpsize = stpsize;
 evparams.cthresh = cthresh;
 
-metrlab = {'CORR', 'MSE', 'F-Score'};
+metrlab = {'CORR', 'RMSE', 'F-Score'};
 hblab = {'HbO', 'HbR'};
 metrttl = {'single trial', 'block avg'};
 
@@ -113,7 +112,7 @@ for metr=mmm
         for aa = 1:size(MSE_CCA,5)
             for hh=1:2
                 a = MSE_CCA(:,:,hh,:,aa);
-                MSE(hh,aa)=nanmean(a(:));
+                RMSE(hh,aa)=nanmean(a(:));
                 a = F_score_CCA(:,hh,:,aa);
                 FSCORE(hh,aa)=nanmean(a(:));
                 a = CORR_CCA(:,:,hh,:,aa);
@@ -122,8 +121,8 @@ for metr=mmm
         end
         
         %% create imagesc matrices from data
-        MSE_HbO = NaN(7,7);
-        MSE_HbR = NaN(7,7);
+        RMSE_HbO = NaN(7,7);
+        RMSE_HbR = NaN(7,7);
         FSCORE_HbO = NaN(7,7);
         FSCORE_HbR = NaN(7,7);
         CORR_HbO = NaN(7,7);
@@ -132,15 +131,17 @@ for metr=mmm
         dd = {[1 2], [2 1]};
         for ii=1:size(auxinfo.auxid,2)
             for d=1:2
-                MSE_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = MSE(1,ii);
-                MSE_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = MSE(2,ii);
+                RMSE_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = RMSE(1,ii);
+                RMSE_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = RMSE(2,ii);
                 FSCORE_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = FSCORE(1,ii);
                 FSCORE_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = FSCORE(2,ii);
                 CORR_HbO(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = CORR(1,ii);
                 CORR_HbR(auxinfo.auxid(dd{d}(1),ii)+1,auxinfo.auxid(dd{d}(2),ii)+1) = CORR(2,ii);
             end
         end
-        dat = {CORR_HbO, MSE_HbO, FSCORE_HbO, CORR_HbR, MSE_HbR, FSCORE_HbR};
+        dat = {CORR_HbO, RMSE_HbO, FSCORE_HbO, CORR_HbR, RMSE_HbR, FSCORE_HbR};
+        % abs text color thresholds
+        tthr = [22 80 30; 8 22 15];
         figure
         for mm = 1:3
             for hh = 1:2
@@ -162,7 +163,13 @@ for metr=mmm
                         for xx=1:yy-1
                             mn = min(dat{(hh-1)*3+mm}(:));
                             val = -(ceil(1000*(mn-dat{(hh-1)*3+mm}(xx,yy))/mn))/10;
-                            text(xx-offs, yy, [num2str(val,'%+2.0f') '%'])
+                            if abs(val)>abs(tthr(hh,mm))
+                                tcol = 'w';
+                            else
+                                tcol ='k';
+                            end
+                            t=text(xx-offs, yy, [num2str(val,'%+2.0f') '%']);
+                            t.Color = tcol;
                         end
                     end
                     text(1-offs, 7, 'MIN')
@@ -171,7 +178,13 @@ for metr=mmm
                         for xx=1:yy-1
                             mx = max(dat{(hh-1)*3+mm}(:));
                             val = -(ceil(1000*(mx-dat{(hh-1)*3+mm}(xx,yy))/mx))/10;
-                            text(xx-offs, yy, [num2str(val,'%+2.0f') '%'])
+                            if abs(val)>abs(tthr(hh,mm))
+                                tcol = 'w';
+                            else
+                                tcol ='k';
+                            end
+                            t = text(xx-offs, yy, [num2str(val,'%+2.0f') '%']);
+                            t.Color = tcol;
                         end
                     end
                     text(1-offs, 7, 'MAX')
