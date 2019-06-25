@@ -173,8 +173,10 @@ for metr=mmm
             pval_CCA(find(DET_CCA ~= 1)) = NaN;
         end
         
-        %% Calculate True/false positive/negative rates, precision, recall, ...
+        %% ******************************************************************* %
+        %% Calculate True/false positive/negative rates, precision, recall, ... 
         tf_errors_CV
+        %% ******************************************************************* %
         
         
         %% Find Global topology and optimum with objective function, includes segmentation approach
