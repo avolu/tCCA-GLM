@@ -122,6 +122,9 @@ end
 
 mseffig = figure;
 
+rocfig = figure;
+roccol = {'.r', '.b'};
+
 for metr=mmm
     for hrff=hhh
         %% load results data from all subjects
@@ -177,7 +180,7 @@ for metr=mmm
         end
         
         %% ******************************************************************* %
-        %% Calculate True/false positive/negative rates, precision, recall, ... 
+        %% Calculate True/false positive/negative rates, precision, recall, ...
         tf_errors_CV
         %% ******************************************************************* %
         
@@ -452,7 +455,7 @@ for metr=mmm
                     end
                     xlabel('SS GLM')
                     ylabel('tCCA GLM')
-                   
+                    
                     fooylim=get(gca,'ylim');
                     fooxlim=get(gca,'xlim');
                     
@@ -495,8 +498,47 @@ for metr=mmm
                 export_fig([path.savefig '\hrf50ST_comb.pdf'], '-png', '-transparent', '-r300')
             end
         end
+        
+        if metr == 1
+            %% "ROC" plot
+            pOptfix1 = [4 8 6];
+            pOptfix2 = [5 2 1];
+            lims = {[0 0.5], [0 0.5], [0 0.5]; ...
+                [0 0.5], [0 0.85], [0.5 1]};
+            figure(rocfig)
+            for chrom = 1:2
+                subplot(2,3,(chrom-1)*3+hrff)
+                fprcca = squeeze(mean(mean(FPR_CCA,1),3));
+                tprcca = squeeze(mean(mean(TPR_CCA,1),3));
+                fprss = squeeze(mean(mean(FPR_SS,1),3));
+                tprss = squeeze(mean(mean(TPR_SS,1),3));
+                
+                scatter(fprcca(chrom,:),tprcca(chrom,:),roccol{chrom})
+                hold on
+                scatter(fprcca(chrom,pOptfix1(1),pOptfix1(2),pOptfix1(3)),tprcca(chrom,pOptfix1(1),pOptfix1(2),pOptfix1(3)), 'dc', 'MarkerFaceColor', 'c', 'MarkerEdgeColor', 'k')
+                scatter(fprcca(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)),tprcca(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)), 'dy', 'MarkerFaceColor', 'y', 'MarkerEdgeColor', 'k')
+                
+                scatter(fprss(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)),tprss(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)), 'sg', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k')
+                xlabel('FPR')
+                ylabel('TPR')
+                %ylim([min(tprcca(:)) max(tprcca(:))])
+                ylim(lims{2,hrff})
+                xlim(lims{1,hrff})
+                plot([lims{1,hrff}(1) lims{1,hrff}(2)], [lims{2,hrff}(1) lims{2,hrff}(2)], '-k')
+                grid on
+            end
+        end
     end
 end
+
+% save roc plot
+if saveplot
+    figure(rocfig)
+    set(gcf, 'Position',  [3,570,685,426])
+    export_fig([path.savefig '\rocplot.pdf'], '-pdf', '-transparent')
+    export_fig([path.savefig '\rocplot.pdf'], '-png', '-transparent', '-r300')
+end
+
 
 %plotOptfix = {pOptfix,[4 7 7]};
 
