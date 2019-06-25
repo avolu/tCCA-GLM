@@ -1,4 +1,4 @@
-function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam, reg)
+function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, FPR, Jparam, reg)
 % J_OPT Cost function to optimize
 % uses results from run_CCA
 % CORR, MSE, PVAL, FSCORE, CHNO are 4D matrices with results from run_CCA
@@ -13,6 +13,7 @@ function [fval] = J_opt(CORR, MSE, PVAL, FSCORE, Jparam, reg)
 %       .mse
 %       .pval
 %       .fscore
+%       .fpr
 %       .HbO
 %       .HbR
 %   .mtype:     optimization using (subjects x channels x folds)
@@ -37,13 +38,13 @@ cthresh = 0:0.1:0.9;
 switch Jparam.mtype
     %% MEAN
     case 1
-        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 1);
+        [C,M,P,F,R] = medmean(CORR, MSE, PVAL, FSCORE, FPR, 1);
         %% MEDIAN
     case 2
-        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 2);
+        [C,M,P,F,R] = medmean(CORR, MSE, PVAL, FSCORE, FPR, 2);
         %% ALL
     case 3
-        [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, 3);
+        [C,M,P,F,R] = medmean(CORR, MSE, PVAL, FSCORE, FPR, 3);
 end
 
 
@@ -56,6 +57,7 @@ switch Jparam.nflag
             M(:,hh,:,:,:) = M(:,hh,:,:,:)./max(M(:,hh,:));
             P(:,hh,:,:,:) = P(:,hh,:,:,:)./max(P(:,hh,:));
             F(:,hh,:,:,:) = F(:,hh,:,:,:)./max(F(:,hh,:));
+            R(:,hh,:,:,:) = R(:,hh,:,:,:)./max(R(:,hh,:));
         end
         %% (X-min(X))/(max(X)-min(X))
     case 2
@@ -67,6 +69,7 @@ switch Jparam.nflag
             end
             for pp = 1:size(F,1)
                 F(pp,hh,:,:,:) = (F(pp,hh,:,:,:)-min(squeeze(F(pp,hh,:))))/(max(squeeze(F(pp,hh,:)))-min(squeeze(F(pp,hh,:))));
+                R(pp,hh,:,:,:) = (R(pp,hh,:,:,:)-min(squeeze(R(pp,hh,:))))/(max(squeeze(R(pp,hh,:)))-min(squeeze(R(pp,hh,:))));
             end
         end
 end
@@ -106,7 +109,9 @@ for tt = 1:numel(tlags)
                             + sum(1/size(P,1)*Jparam.fact.HbO*Jparam.fact.pval*P(:,1,ti,si,ci), 'omitnan') ...
                             + sum(1/size(P,1)*Jparam.fact.HbR*Jparam.fact.pval*P(:,2,ti,si,ci), 'omitnan') ...
                             - sum(1/size(F,1)*Jparam.fact.HbO*Jparam.fact.fscore*F(:,1,ti,si,ci), 'omitnan') ...
-                            - sum(1/size(F,1)*Jparam.fact.HbR*Jparam.fact.fscore*F(:,2,ti,si,ci), 'omitnan')) ...
+                            - sum(1/size(F,1)*Jparam.fact.HbR*Jparam.fact.fscore*F(:,2,ti,si,ci), 'omitnan') ...
+                            + sum(1/size(R,1)*Jparam.fact.HbO*Jparam.fact.fscore*R(:,1,ti,si,ci), 'omitnan') ...
+                            + sum(1/size(R,1)*Jparam.fact.HbR*Jparam.fact.fscore*R(:,2,ti,si,ci), 'omitnan')) ...
                             /divider;
                     end
                 end

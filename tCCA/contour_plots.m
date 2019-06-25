@@ -81,7 +81,7 @@ for ii=1:10
         end
     end
     %     caxis(climits)
-    caxis([0 0.5])
+    caxis([0 0.75])
     % mark local optima
     hold on
     if plopt

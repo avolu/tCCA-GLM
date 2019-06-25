@@ -22,7 +22,7 @@ plot50st = true;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
-saveplot = true;
+saveplot = false;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
@@ -34,6 +34,7 @@ mflag = Jparam.mtype;
 Jparam.fact.corr = 1;
 Jparam.fact.mse =1;
 Jparam.fact.pval =0;
+Jparam.fact.fpr =1;
 Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
@@ -45,8 +46,8 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-pOptfix = [4 8 6];
-%pOptfix = [4 7 8];
+%pOptfix = [4 8 6];
+pOptfix = [5 2 1];
 %pOptfix = [2 8 9];
 plotOptfix = {pOptfix,[5 2 1]};
 
@@ -181,7 +182,7 @@ for metr=mmm
         
         %% Find Global topology and optimum with objective function, includes segmentation approach
         % calculate objective function output for all input tupel
-        fval{hrff,metr} = J_opt(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, Jparam ,reg);
+        fval{hrff,metr} = J_opt(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, FPR_CCA, Jparam ,reg);
         % find optimal parameter set
         [t,s,c] = ind2sub(size(fval{hrff}),find(fval{hrff} == min(fval{hrff}(:))));
         %% overwrite if OPT POINT chosen individually before for further exploration
@@ -203,7 +204,7 @@ for metr=mmm
         disp('=================================================================')
         
         %% Calculate median/mean metrics
-        [CORR,RMSE,PVAL,FSCORE] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, mflag);
+        [CORR,RMSE,PVAL,FSCORE,FPR] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, FPR_CCA, mflag);
         
         %% create combined surface plots (depict objective function)
         
@@ -315,8 +316,8 @@ for metr=mmm
         
         %% create scatter plots comparing SS and tCCA
         %append all points
-        [CORRcca,RMSEcca,PVALcca,FSCOREcca] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, 3);
-        [CORRss,RMSEss,PVALss,FSCOREss] = medmean(CORR_SS, RMSE_SS, pval_SS, F_score_SS, 3);
+        [CORRcca,RMSEcca,PVALcca,FSCOREcca,FPRcca] = medmean(CORR_CCA, RMSE_CCA, pval_CCA, F_score_CCA, FPR_CCA, 3);
+        [CORRss,RMSEss,PVALss,FSCOREss,FPRss] = medmean(CORR_SS, RMSE_SS, pval_SS, F_score_SS, FPR_SS, 3);
         %pOpt = [pOpt(1) pOpt(2) 4]; %(re-)set the optimal parameterset
         figure
         ttl = {'CORR', 'RMSE', 'F-SCORE'};

@@ -1,4 +1,4 @@
-function [C,M,P,F] = medmean(CORR, MSE, PVAL, FSCORE, mflag)
+function [C,M,P,F,R] = medmean(CORR, MSE, PVAL, FSCORE, FPR, mflag)
 %MEDMEAN Summary of this function goes here
 
 % Validation parameters
@@ -19,11 +19,13 @@ switch mflag
         M = squeeze(nanmean(M,3));
         P = squeeze(nanmean(P,3));
         F = squeeze(nanmean(FSCORE,3));
+        R = squeeze(nanmean(FPR,3));
         %% now average across subjects
         C = nanmean(C,1);
         M = nanmean(M,1);
         P = nanmean(P,1);
         F = nanmean(F,1);
+        R = nanmean(R,1);
         %% MEDIAN
     case 2
         %% Append all subjects, channels and folds
@@ -37,6 +39,8 @@ switch mflag
                         M(:,hh,tt,ss,cc) = buf(:);
                         buf = FSCORE(:,hh,:,tt,ss,cc);
                         F(:,hh,tt,ss,cc) = buf(:);
+                        buf = FPR(:,hh,:,tt,ss,cc);
+                        R(:,hh,tt,ss,cc) = buf(:);
                         buf = PVAL(:,:,hh,:,tt,ss,cc);
                         P(:,hh,tt,ss,cc) = buf(:);
                     end
@@ -48,6 +52,7 @@ switch mflag
         M = median(M,1,'omitnan');
         P = median(P,1,'omitnan');
         F = median(F,1,'omitnan');
+        R = median(R,1,'omitnan');
     %% ALL
     case 3
         % Append all subjects, channels and folds
@@ -61,6 +66,8 @@ switch mflag
                         M(:,hh,tt,ss,cc) = buf(:);
                         buf = FSCORE(:,hh,:,tt,ss,cc);
                         F(:,hh,tt,ss,cc) = buf(:);
+                        buf = FPR(:,hh,:,tt,ss,cc);
+                        R(:,hh,tt,ss,cc) = buf(:);
                         buf = PVAL(:,:,hh,:,tt,ss,cc);
                         P(:,hh,tt,ss,cc) = buf(:);
                     end
