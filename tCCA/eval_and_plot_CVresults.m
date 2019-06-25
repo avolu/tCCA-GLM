@@ -34,7 +34,7 @@ mflag = Jparam.mtype;
 Jparam.fact.corr = 1;
 Jparam.fact.mse =1;
 Jparam.fact.pval =0;
-Jparam.fact.fpr =1;
+Jparam.fact.fpr =0;
 Jparam.fact.fscore=1;
 Jparam.fact.HbO=1;
 Jparam.fact.HbR=1;
@@ -46,10 +46,12 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-%pOptfix = [4 8 6];
-pOptfix = [5 2 1];
-%pOptfix = [2 8 9];
+pOptfix = [4 8 6];
+%pOptfix = [5 2 1];
+
 plotOptfix = {pOptfix,[5 2 1]};
+% contour plot axis limit
+cxlmt = 0.5;
 
 % fixed scatter plot limits (for better visualization, annotate outliers
 % per hand afterwards!
@@ -212,21 +214,21 @@ for metr=mmm
         % normalize fval
         fval{hrff,metr} = (fval{hrff,metr}-min(fval{hrff,metr}(:)))/(max(fval{hrff,metr}(:))-min(fval{hrff,metr}(:)));
         ttl= ['Obj. func., hrf= ' num2str(hrfamp) ', ' metrttl{metr}];
-        contour_plots(fval{hrff,metr}, ttl, evparams, pOpt, cntno, cmap_obj, 'min', lopttext);
+        contour_plots(fval{hrff,metr}, ttl, evparams, pOpt, cntno, cmap_obj, 'min', lopttext, cxlmt);
         
         if plotmetrics
             %% plot correlation
             %HBO and HbR
             for hh = 1:2
                 ttl= [hblab{hh} ' Correlation'];
-                contour_plots(squeeze(CORR(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
+                contour_plots(squeeze(CORR(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max', cxlmt);
             end
             
             %% plot RMSE
             %HBO and HbR
             for hh = 1:2
                 ttl= [hblab{hh} ' RMSE'];
-                contour_plots(squeeze(RMSE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
+                contour_plots(squeeze(RMSE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min', cxlmt);
             end
             
             %% plot pvals
@@ -234,7 +236,7 @@ for metr=mmm
                 %HBO and HbR
                 for hh = 1:2
                     ttl= [hblab{hh} ' p-values'];
-                    contour_plots(squeeze(PVAL(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min');
+                    contour_plots(squeeze(PVAL(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'min', cxlmt);
                 end
             end
             
@@ -242,7 +244,7 @@ for metr=mmm
             %HBO and HbR
             for hh = 1:2
                 ttl= [hblab{hh} ' FSCORE'];
-                contour_plots(squeeze(FSCORE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max');
+                contour_plots(squeeze(FSCORE(:,hh,:,:,:)), ttl,evparams, pOpt, cntno, 'max', cxlmt);
             end
         end
         
@@ -510,7 +512,7 @@ fvalmxd = fvalmxd/(numel(mmm)+numel(hhh));
 
 % find optimal parameter set
 [t,s,c] = ind2sub(size(fvalmxd),find(fvalmxd == min(fvalmxd(:))));
-contour_plots((fvalmxd)/max(fvalmxd(:)), ttl, evparams, [t,s,c], cntno, cmap_obj, 'min', lopttext);
+contour_plots((fvalmxd)/max(fvalmxd(:)), ttl, evparams, [t,s,c], cntno, cmap_obj, 'min', lopttext, cxlmt);
 set(gcf, 'Position',  [0,538,1300,458])
 if saveplot
     export_fig([path.savefig '\sum_optfunct_all.pdf'], '-pdf', '-transparent')

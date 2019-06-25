@@ -1,4 +1,4 @@
-function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, cmap, flip, lopttext)
+function [] = contour_plots(METRIC, ttl, evparams, pOpt, cntno, cmap, flip, lopttext, cxlmt)
 %   CONTOUR_PLOTS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -81,7 +81,7 @@ for ii=1:10
         end
     end
     %     caxis(climits)
-    caxis([0 0.75])
+    caxis([0 cxlmt])
     % mark local optima
     hold on
     if plopt
