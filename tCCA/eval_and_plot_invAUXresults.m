@@ -16,7 +16,7 @@ pOptfix = [4 8 6];
 
 
 % save plot?
-saveplot = true;
+saveplot = false;
 
 %Colormaps
 cmap_hbo= flipud(othercolor('YlOrRd9'));
