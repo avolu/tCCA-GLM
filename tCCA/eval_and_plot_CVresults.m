@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 0;
+melexflag = 1;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF RMSEs), 2: RMSE of block average HRF
@@ -521,11 +521,21 @@ for metr=mmm
                 scatter(fprss(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)),tprss(chrom,pOptfix2(1),pOptfix2(2),pOptfix2(3)), 'sg', 'MarkerFaceColor', 'g', 'MarkerEdgeColor', 'k')
                 xlabel('FPR')
                 ylabel('TPR')
-                %ylim([min(tprcca(:)) max(tprcca(:))])
+                
+                switch hrff
+                    case 1
+                        title(['hrf = ' num2str(hrfamp) ' %'])
+                    case 2
+                        title(['hrf = ' num2str(hrfamp) ' %'])
+                    case 3
+                        title(['hrf = ' num2str(hrfamp) ' %'])
+                end
+                 %ylim([min(tprcca(:)) max(tprcca(:))])
                 ylim(lims{2,hrff})
                 xlim(lims{1,hrff})
                 plot([lims{1,hrff}(1) lims{1,hrff}(2)], [lims{2,hrff}(1) lims{2,hrff}(2)], '-k')
                 grid on
+                
             end
         end
     end
