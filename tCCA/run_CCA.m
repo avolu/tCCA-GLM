@@ -1,7 +1,7 @@
 clear all;
- 
+
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -13,23 +13,25 @@ else
     path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
     path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
- 
+
 % #####
 %% simulated data file names
-filename = 'resting_sim_50';
+filename = 'resting_sim_20';
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
 %% save folder name
-sfoldername = '\CV_results_data_50_stMSE';
+sfoldername = '\CV_results_data_20';
+% flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
+flag_trial = 0;
 
 set(groot,'defaultFigureCreateFcn',@(fig,~)addToolbarExplorationButtons(fig))
 set(groot,'defaultAxesCreateFcn',@(ax,~)set(ax.Toolbar,'Visible','off'))
 sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'Subj41', 'Subj43', 'Subj44','Subj46','Subj47','Subj49','Subj51'};
- 
- 
+
+
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 0;
+flag_save = 1;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -39,30 +41,32 @@ eval_param.pre = 5;  % HRF range in sec to calculate ttest
 eval_param.post = 10;
 % CCA parameters
 flags.pcaf =  [0 0]; % no pca of X or AUX
- 
+flags.shrink = true;
+% perform old cca or regularized (rtcca)
+rtccaflag = true;
+
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
-% flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
-flag_trial = 1;
- 
+flag_plot = false;
+
+
 % Validation parameters
-tlags = 3%0:1:10;
-stpsize = 16%2:2:24;
-cthresh = 0.5%0:0.1:0.9;
- 
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0:0.1:0.9;
+
 tlidx =0;
 stpidx =0;
 ctidx =0;
- 
+
 tic;
- 
+
 %iteration number
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
- 
-for sbj = 4%1:numel(sbjfolder) % loop across subjects
+
+for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
@@ -153,7 +157,13 @@ for sbj = 4%1:numel(sbjfolder) % loop across subjects
                 %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
                 % use test data of LD channels without synth HRF
                 X = d0_long(trnIDX,:);
-                [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
+                if ~rtccaflag
+                    %% Old tCCA
+                    [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
+                else
+                    %% new tCCA with shrinkage
+                    [REG_trn{tt},  ADD_trn{tt}] = rtcca(X,AUX(trnIDX,:),param,flags);
+                end
                 
                 for ctr = cthresh %loop across correlation thresholds
                     ctidx = ctidx+1;
@@ -174,15 +184,15 @@ for sbj = 4%1:numel(sbjfolder) % loop across subjects
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     
-                    %% list of channels with stimulus  
+                    %% list of channels with stimulus
                     lst_stim = find(s(tstIDX,:)==1);
                     if lst_stim(1) < abs(eval_param.HRFmin) * fq
                         lst_stim = lst_stim(2:end);
                     end
                     if size(s(tstIDX,:),1) < lst_stim(end) + abs(eval_param.HRFmax) * fq
-                        lst_stim = lst_stim(1:end-1);    
+                        lst_stim = lst_stim(1:end-1);
                     end
- 
+                    
                     
                     %% EVAL / PLOT
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
@@ -207,21 +217,21 @@ for sbj = 4%1:numel(sbjfolder) % loop across subjects
         tlidx =0;
     end
     %% save data for subject
-if flag_save
-    disp(['saving sbj ' num2str(sbj) '...'])
-    save([path.save sfoldername '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
-end
+    if flag_save
+        disp(['saving sbj ' num2str(sbj) '...'])
+        save([path.save sfoldername '\results_sbj' num2str(sbj) '.mat'], 'DET_SS', 'DET_CCA', 'pval_SS', 'pval_CCA', 'ROCLAB', 'MSE_SS', 'MSE_CCA', 'CORR_SS', 'CORR_CCA', 'nTrials');
+    end
     % clear vars
     clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
     
 end
- 
- 
+
+
 toc;
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
 

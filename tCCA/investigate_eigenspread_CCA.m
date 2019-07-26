@@ -9,9 +9,9 @@ if malexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
-    path.code = 'E:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
-    path.save = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
@@ -34,7 +34,7 @@ tlags = 3;%0:1:10;
 stpsize = 16;%2:2:24;
 cthresh = 0.5;%0:0.1:0.9;
 
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 5:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     % change to subject directory
@@ -90,41 +90,48 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         param.ct = 0;   % correlation threshold
         %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
         % use test data of LD channels without synth HRF
-        X = d0_long(trnIDX,:);
+        
+        %% %% NEW!!! ZSCORE THE DATA
+        X = zscore(d0_long(trnIDX,:));
         % use the test data of aux
-        Y = aux_emb;
+        Y = zscore(aux_emb);
         
         %% This is where the following function would run        
         [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
         %% But we formulate the generalised eigenvalue equation to investigate the eigenvalue spectrum
         
-        % Center the variables
-        X = X - repmat(mean(X,1), size(X,1), 1);
-        Y = Y - repmat(mean(Y,1), size(X,1), 1);
         % time points
-        T = size(X,1);
+        T = size(X,1)-1;
         % Calculate empirical Auto-Covariance matrices
         Cxx = X'*X/T;
         Cyy = Y'*Y/T;
         % Calculate empirical Cross-Covariance matrices
         Cxy = X'*Y/T;
         Cyx = Y'*X/T;
+        % Shrinkage of covariance matrix with 'optimal' parameter see Ledoit et al. 2004 
+        % Calculate estimated Auto-Covariance matrices
+        [CxxStar, gammaX, Tx] = cshrink(X');
+        [CyyStar, gammaY, Ty] = cshrink(Y');
         
         % put auto-covariance matrices into block matrix form (generalized eigenvalue problem) 
         [dx, dy] = size(Cxy);
+        % smaller of both dimensions: 
+        ds = min(dx,dy);
         % A = [0 Cxy; Cyx 0]
         A = [zeros(dx,dx) Cxy; Cyx zeros(dy, dy)];
         % B = [Cxx 0; 0 Cyy]
         B = [Cxx zeros(dx,dy); zeros(dy, dx) Cyy ];
-
-        % add regularization 
-        gamma = 0%.01;
-        B = B + gamma*eye(dx + dy);
+        Bshrink = [CxxStar zeros(dx,dy); zeros(dy, dx) CyyStar ];
         
         % calculate eigenvalues of B
         lambda_b = eig(B);
         figure
         plot(lambda_b)
+        
+        % calculate eigenvalues of Bshrink
+        lambda_bshrink = eig(Bshrink);
+        figure
+        plot(lambda_bshrink)
         
         % Calculate Generalized Eigenvalues
         %   [V,D] = EIG(A,B) produces a diagonal matrix D of generalized
@@ -135,12 +142,25 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
         figure
         plot(lambda)
         
-        Wx = V(1:dx, 1:dx);
-        Wy = V(dx+1:end, dx+1:end);
-       
+        [Vs, Ds] = eig(A,Bshrink);
+        lambdashrink=diag(Ds);
+        figure
+        plot(lambdashrink)
+        
+        Wx = Vs(1:dx, 1:ds);
+        Wy = Vs(end-dy+1:end, end-ds+1:end);
+        Wy = flip(Wy,2);
+        
         Sx = X*Wx;
         Sy = Y*Wy;
         
+        
+        figure
+        plot(Sx(:,1))
+        hold on
+        plot(-Sy(:,1))
+        
+
     end
 % clear vars
 clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
