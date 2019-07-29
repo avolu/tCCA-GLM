@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 1;
+melexflag = 0;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF RMSEs), 2: RMSE of block average HRF
@@ -46,12 +46,12 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-pOptfix = [4 8 6];
-%pOptfix = [5 2 1];
+%pOptfix1 = [4 8 6];
+pOptfix2 = [3 8 5];
 
-plotOptfix = {pOptfix,[5 2 1]};
+plotOptfix = {pOptfix,pOptfix2};
 % contour plot axis limit
-cxlmt = 0.5;
+cxlmt = 1;
 
 % fixed scatter plot limits (for better visualization, annotate outliers
 % per hand afterwards!
@@ -501,8 +501,8 @@ for metr=mmm
         
         if metr == 1
             %% "ROC" plot
-            pOptfix1 = [4 8 6];
-            pOptfix2 = [5 2 1];
+            pOptfix1 = plotOptfix{1};
+            pOptfix2 = plotOptfix{2};
             lims = {[0 0.5], [0 0.5], [0 0.5]; ...
                 [0 0.5], [0 0.85], [0.5 1]};
             figure(rocfig)
