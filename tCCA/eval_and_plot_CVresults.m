@@ -22,7 +22,7 @@ plot50st = true;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
-saveplot = false;
+saveplot = true;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
@@ -45,7 +45,7 @@ reg.weight = 0;%0.25% %4;
 Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
-pOptfix =[];
+pOptfix =[4 1 4];
 pOptfix1 = [4 1 4];
 %previous to regularization pOptfix1 = [4 8 6];
 pOptfix2 = [3 8 5];
@@ -83,7 +83,8 @@ if melexflag
     path.cvres20stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 & 13contour plots + scatter';
+    path.savefig1 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 contour plots';
+    path.savefig2 = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 13 & 14 Scatter and ROC';
 else
     %Alex
     path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -95,7 +96,8 @@ else
     path.cvres20stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_20_stMSE'; % save directory
     path.cvres50stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_50_stMSE'; % save directory
     path.cvres100stmse = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\CV_results_data_100_stMSE'; % save directory
-    path.savefig = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 & 13contour plots + scatter';
+    path.savefig1 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 7-9 contour plots';
+    path.savefig2 = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FIGURES\Fig 13 & 14 Scatter and ROC';
 end
 
 % #####
@@ -261,7 +263,7 @@ for metr=mmm
         %// Define a finer grid of points
         [X2,Y2] = meshgrid(2:grid_density*2:max(X(:)), 0:grid_density :max(Y(:)));
         figure
-        dat = {1-fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(RMSE(:,1,:,:,ct)), ...
+        dat = {fval{hrff,metr}(:,:,ct), squeeze(CORR(:,1,:,:,ct)), squeeze(RMSE(:,1,:,:,ct)), ...
             squeeze(FSCORE(:,1,:,:,ct)), [], ...
             squeeze(CORR(:,2,:,:,ct)), squeeze(RMSE(:,2,:,:,ct)), ...
             squeeze(FSCORE(:,2,:,:,ct))};
@@ -281,7 +283,7 @@ for metr=mmm
                 title([ttl{dd}])
                 limit = climits(2);
                 if dd ==1
-                    colormap(ax{dd},cmap_obj);
+                    colormap(ax{dd},flipud(cmap_obj));
                 elseif dd<numel(dat)/2+1
                     % RMSE?
                     if dd == 3
@@ -314,8 +316,8 @@ for metr=mmm
         end
         set(gcf, 'Position',  [0,538,1300,458])
         if saveplot
-            export_fig([path.savefig '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-pdf', '-transparent')
-            export_fig([path.savefig '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-png', '-transparent', '-r300')
+            export_fig([path.savefig1 '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-pdf', '-transparent')
+            export_fig([path.savefig1 '\contours_hrf=' num2str(hrfamp) '%_' metrttl{metr}], '-png', '-transparent', '-r300')
         end
         
         
@@ -495,8 +497,8 @@ for metr=mmm
             set(gcf, 'Position',  [2,356,712,640])
             %% save
             if saveplot
-                export_fig([path.savefig '\hrf50ST_comb.pdf'], '-pdf', '-transparent')
-                export_fig([path.savefig '\hrf50ST_comb.pdf'], '-png', '-transparent', '-r300')
+                export_fig([path.savefig2 '\hrf50ST_comb.pdf'], '-pdf', '-transparent')
+                export_fig([path.savefig2 '\hrf50ST_comb.pdf'], '-png', '-transparent', '-r300')
             end
         end
         
@@ -546,8 +548,8 @@ end
 if saveplot
     figure(rocfig)
     set(gcf, 'Position',  [3,570,685,426])
-    export_fig([path.savefig '\rocplot.pdf'], '-pdf', '-transparent')
-    export_fig([path.savefig '\rocplot.pdf'], '-png', '-transparent', '-r300')
+    export_fig([path.savefig2 '\rocplot.pdf'], '-pdf', '-transparent')
+    export_fig([path.savefig2 '\rocplot.pdf'], '-png', '-transparent', '-r300')
 end
 
 
@@ -568,8 +570,8 @@ fvalmxd = fvalmxd/(numel(mmm)+numel(hhh));
 contour_plots((fvalmxd)/max(fvalmxd(:)), ttl, evparams, [t,s,c], cntno, cmap_obj, 'min', lopttext, cxlmt);
 set(gcf, 'Position',  [0,538,1300,458])
 if saveplot
-    export_fig([path.savefig '\sum_optfunct_all.pdf'], '-pdf', '-transparent')
-    export_fig([path.savefig '\sum_optfunct_all.pdf'], '-png', '-transparent', '-r300')
+    export_fig([path.savefig1 '\sum_optfunct_all.pdf'], '-pdf', '-transparent')
+    export_fig([path.savefig1 '\sum_optfunct_all.pdf'], '-png', '-transparent', '-r300')
 end
 
 

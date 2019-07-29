@@ -12,11 +12,10 @@ mmm = [1];
 % Use only true positives for evaluation of metrics
 TP_flag = true;
 % indices of optimal parameterset
-pOptfix = [4 8 6];
-
+pOptfix = [4 1 4];
 
 % save plot?
-saveplot = false;
+saveplot = true;
 
 %Colormaps
 cmap_hbo= flipud(othercolor('YlOrRd9'));
