@@ -106,7 +106,7 @@ for sbj = 5:numel(sbjfolder) % loop across subjects
         %% plot example CCA component of both modalities for both methods
         % black: matlab cca results
         % green: regularized own cca results
-        comp=20;
+        comp=1;
         % find common sign
         s = sign(corr(ADD_trn2{tt}.U(:,comp),ADD_trn{tt}.U(:,comp)));
         figure
