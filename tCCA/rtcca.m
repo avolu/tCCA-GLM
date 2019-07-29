@@ -1,4 +1,4 @@
-function [ REG, ADD] = rtcca( X, AUX, param, flags )
+function [ REG, ADD ] = rtcca( X, AUX, param, flags )
 % rtcca uses multimodal data, here fNIRS, acceleration and auxiliary signals, to
 % extract regressors for GLM-based noise reduction using temporally embedded
 % CCA regularized with shrinkage of covariance matrices with 'optimal' parameter from Ledoit & Wolf 2004
@@ -130,7 +130,7 @@ ADD.Av_red = ADD.Av(:,compindex);
 
 
 %% TEMPORARY FOR INVESTIGATION
-eigenspec = true
+eigenspec = false;
 if eigenspec
     
     % calculate eigenvalues of B

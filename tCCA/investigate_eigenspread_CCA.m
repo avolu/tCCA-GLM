@@ -1,4 +1,4 @@
-clear all;
+%clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
 malexflag = 0;
@@ -34,7 +34,7 @@ tlags = 3;%0:1:10;
 stpsize = 16;%2:2:24;
 cthresh = 0.5;%0:0.1:0.9;
 
-for sbj = 5:numel(sbjfolder) % loop across subjects
+for sbj = 1%:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     % change to subject directory
@@ -70,7 +70,7 @@ for sbj = 5:numel(sbjfolder) % loop across subjects
     trntst = {[1,2], [2,1]};
     
     %% run test and train CV splits
-    for tt = 1:2
+    for tt = 1%:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
         
@@ -100,7 +100,7 @@ for sbj = 5:numel(sbjfolder) % loop across subjects
         [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
         %% This is the new function with shrinkage
         %% we formulate the generalised eigenvalue equation to investigate the generalized eigenvalue probolem and eigenspectrum
-        flags.shrink = true;
+        flags.shrink = false;
         [REG_trn2{tt},  ADD_trn2{tt}] = rtcca(X,AUX(trnIDX,:),param,flags);
         
         %% plot example CCA component of both modalities for both methods

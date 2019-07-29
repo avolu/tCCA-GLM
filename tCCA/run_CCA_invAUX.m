@@ -25,7 +25,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 0;
+flag_save = 1;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -41,13 +41,15 @@ motionflag = true;
 %plot flag
 flag_plot = false;
 % flag for mse/corr for each trial (0 = get mse for average estimated hrf, 1 = get sum of mse for each trial)
-flag_trial = 0;
+flag_trial = 1;
 % parameters
 tlags = 0:1:10;
 stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
 % indices of optimal parameterset
-pOptfix = [4 8 6];
+pOptfix = [4 1 4];
+
+% previous to regularization pOptfix = [4 8 6];
 % hrf type (1/2/3: 20/50/100%)
 hrftype =2;
 
@@ -193,7 +195,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
             [buf1, DET_CCA(sbj,:,:,tt,aa), buf2, ...
                 pval_CCA(sbj,:,:,tt,aa), ROCLAB, buf3, MSE_CCA(sbj,:,:,tt,aa), ...
                 buf4, CORR_CCA(sbj,:,:,tt,aa)] = ...
-                results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, eval_param, flag_plot, path, hrf, flag_trial, nTrials(sbj,tt,aa));
+                results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrials(sbj,tt,aa));
             % Dimensions of output metrics
             % # Subjects x #CH x 2(Hbo+HbR) x 2 (cv split) x AUX combinations
             
@@ -208,7 +210,9 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
 end
 
 %% save data
-save([path.save '\CV_AUX_contributions_' savefold{flag_trial+1,hrftype} '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxinfo');
+if flag_save
+    save([path.save '\CV_AUX_contributions_' savefold{flag_trial+1,hrftype} '\results_all_sbj.mat'], 'DET_CCA', 'pval_CCA', 'ROCLAB', 'MSE_CCA', 'CORR_CCA', 'nTrials', 'pOptfix', 'auxinfo');
+end
 
 toc;
 

@@ -46,7 +46,8 @@ Jparam.thresh = 0.7;
 % set optimal point per hand to investigate (overwrites opt function
 % result), otherwise leave empty
 pOptfix =[];
-%pOptfix1 = [4 8 6];
+pOptfix1 = [4 1 4];
+%previous to regularization pOptfix1 = [4 8 6];
 pOptfix2 = [3 8 5];
 
 plotOptfix = {pOptfix,pOptfix2};

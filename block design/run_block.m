@@ -1,6 +1,6 @@
 clear all;
 
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -136,7 +136,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
     % use test data of LD channels without synth HRF
     X = d_long;
-    [REG,  ADD] = perf_temp_emb_cca(X,AUX,param,flags);
+    flags.shrink = true;
+    [REG,  ADD] = rtcca(X,AUX,param,flags);
     
     
     %% Perform GLM with CCA

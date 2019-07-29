@@ -1,6 +1,6 @@
 clear all;
 
-malexflag = 1;
+malexflag = 0;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -126,8 +126,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     
     X = d_long - repmat(mean_d_long, size(d_long,1),1);
     
-    
-    [REG,  ADD] = perf_temp_emb_cca(X,AUX,param,flags);
+    flags.shrink=true;
+    [REG,  ADD] = rtcca(X,AUX,param,flags);
     
     
     %% Perform GLM with CCA
