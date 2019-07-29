@@ -126,5 +126,18 @@ REG = ADD.V(:,compindex);
 % return reduced mapping matrix Av
 ADD.Av_red = ADD.Av(:,compindex);
 
+
+
+
+%% TEMPORARY FOR INVESTIGATION
+eigenspec = true
+if eigenspec
+    
+    % calculate eigenvalues of B
+    lambda_b = eig(B);
+    figure
+    plot(lambda_b)
+       
+end
 end
 

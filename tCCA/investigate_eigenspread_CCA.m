@@ -96,75 +96,40 @@ for sbj = 5:numel(sbjfolder) % loop across subjects
         % use the test data of aux
         Y = zscore(aux_emb);
         
-        %% This is where the following function would run        
+        %% This is where the following function would run
         [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
-        %% But we formulate the generalised eigenvalue equation to investigate the eigenvalue spectrum
+        %% This is the new function with shrinkage
+        %% we formulate the generalised eigenvalue equation to investigate the generalized eigenvalue probolem and eigenspectrum
+        flags.shrink = true;
+        [REG_trn2{tt},  ADD_trn2{tt}] = rtcca(X,AUX(trnIDX,:),param,flags);
         
-        % time points
-        T = size(X,1)-1;
-        % Calculate empirical Auto-Covariance matrices
-        Cxx = X'*X/T;
-        Cyy = Y'*Y/T;
-        % Calculate empirical Cross-Covariance matrices
-        Cxy = X'*Y/T;
-        Cyx = Y'*X/T;
-        % Shrinkage of covariance matrix with 'optimal' parameter see Ledoit et al. 2004 
-        % Calculate estimated Auto-Covariance matrices
-        [CxxStar, gammaX, Tx] = cshrink(X');
-        [CyyStar, gammaY, Ty] = cshrink(Y');
-        
-        % put auto-covariance matrices into block matrix form (generalized eigenvalue problem) 
-        [dx, dy] = size(Cxy);
-        % smaller of both dimensions: 
-        ds = min(dx,dy);
-        % A = [0 Cxy; Cyx 0]
-        A = [zeros(dx,dx) Cxy; Cyx zeros(dy, dy)];
-        % B = [Cxx 0; 0 Cyy]
-        B = [Cxx zeros(dx,dy); zeros(dy, dx) Cyy ];
-        Bshrink = [CxxStar zeros(dx,dy); zeros(dy, dx) CyyStar ];
-        
-        % calculate eigenvalues of B
-        lambda_b = eig(B);
+        %% plot example CCA component of both modalities for both methods
+        % black: matlab cca results
+        % green: regularized own cca results
+        comp=20;
+        % find common sign
+        s = sign(corr(ADD_trn2{tt}.U(:,comp),ADD_trn{tt}.U(:,comp)));
         figure
-        plot(lambda_b)
-        
-        % calculate eigenvalues of Bshrink
-        lambda_bshrink = eig(Bshrink);
-        figure
-        plot(lambda_bshrink)
-        
-        % Calculate Generalized Eigenvalues
-        %   [V,D] = EIG(A,B) produces a diagonal matrix D of generalized
-        %   eigenvalues and a full matrix V whose columns are the corresponding
-        %   eigenvectors so that A*V = B*V*D.
-        [V, D] = eig(A,B);
-        lambda=diag(D);
-        figure
-        plot(lambda)
-        
-        [Vs, Ds] = eig(A,Bshrink);
-        lambdashrink=diag(Ds);
-        figure
-        plot(lambdashrink)
-        
-        Wx = Vs(1:dx, 1:ds);
-        Wy = Vs(end-dy+1:end, end-ds+1:end);
-        Wy = flip(Wy,2);
-        
-        Sx = X*Wx;
-        Sy = Y*Wy;
-        
-        
-        figure
-        plot(Sx(:,1))
+        plot(ADD_trn2{tt}.U(:,comp),'g')
         hold on
-        plot(-Sy(:,1))
+        plot(ADD_trn2{tt}.V(:,comp),'--g')
+        plot(s*ADD_trn{tt}.U(:,comp),'k')
+        plot(s*ADD_trn{tt}.V(:,comp),'--k')
+        title(["CCA component " num2str(comp) " of both modalities. Regularized: Green."])
         
-
+        % plot canonical correlation coefficients
+        figure
+        plot(ADD_trn{tt}.ccac,'k')
+        hold on
+        plot(comp,ADD_trn{tt}.ccac(comp),'ok')
+        plot(ADD_trn2{tt}.ccac,'g')
+        plot(comp,ADD_trn2{tt}.ccac(comp),'og')
+        
+        title(["Eigenvalues/CanCorr Coeffs for both methods. Regularized: Green."])
     end
-% clear vars
-clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
-
+    % clear vars
+    clear vars AUX d d0 d_long d0_long d_short d0_short t s REG_trn ADD_trn
+    
 end
 
 
