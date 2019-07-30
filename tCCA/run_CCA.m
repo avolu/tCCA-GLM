@@ -1,7 +1,7 @@
 clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -16,11 +16,11 @@ end
 
 % #####
 %% simulated data file names
-filename = 'resting_sim_20';
+filename = 'resting_sim_50';
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
 %% save folder name
-sfoldername = '\CV_results_data_20';
+sfoldername = '\CV_results_data_50';
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
 flag_trial = 0;
 
@@ -48,13 +48,19 @@ rtccaflag = true;
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 
 % Validation parameters
-tlags = 0:1:10;
-stpsize = 2:2:24;
-cthresh = 0:0.1:0.9;
+% tlags = 0:1:10;
+% stpsize = 2:2:24;
+% cthresh = 0:0.1:0.9;
+
+tlags = 4;
+stpsize = 1;
+cthresh = 4;
+
+
 
 tlidx =0;
 stpidx =0;
@@ -66,7 +72,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 6% 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
