@@ -1,7 +1,7 @@
 clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -9,9 +9,9 @@ if malexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
-    path.code = 'E:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
-    path.save = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
@@ -31,7 +31,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 0;
+flag_save = 1;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -70,7 +70,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 4% 1:numel(sbjfolder) % loop across subjects
+for sbj = 6% 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
@@ -117,7 +117,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
     trntst = {[1,2], [2,1]};
     
     %% run test and train CV splits
-    for tt = 2%1:2
+    for tt = 1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
         
@@ -155,8 +155,6 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
                     aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
                     aux_emb=[aux_emb aux];
                 end
-                %zscore
-                aux_emb=zscore(aux_emb);
                 
                 %% set correlation trheshold for CCA to 0 so we dont lose anything here
                 param.ct = 0;   % correlation threshold

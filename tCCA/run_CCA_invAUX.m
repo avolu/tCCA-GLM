@@ -9,9 +9,9 @@ if malexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
-    path.code = 'E:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
-    path.save = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
@@ -35,7 +35,6 @@ eval_param.pre = 5;  % HRF range in sec to calculate ttest
 eval_param.post = 10;
 % CCA parameters
 flags.pcaf =  [0 0]; % no pca of X or AUX
-flags.shrink=true;
 
 %motion artifact detection
 motionflag = true;
@@ -156,15 +155,13 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                 aux(1:2*i,:)=repmat(aux(2*i+1,:),2*i,1);
                 aux_emb=[aux_emb aux];
             end
-            %zscore
-            aux_emb = zscore(aux_emb);
             
             %% set correlation trheshold for CCA to 0 so we dont lose anything here
             param.ct = 0;   % correlation threshold
             %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
             % use test data of LD channels without synth HRF
             X = d0_long(trnIDX,:);
-            [REG_trn{tt},  ADD_trn{tt}] = rtcca(X,AUX(trnIDX,:),param,flags);
+            [REG_trn{tt},  ADD_trn{tt}] = perf_temp_emb_cca(X,AUX(trnIDX,:),param,flags);
             
             
             disp(['split: ' num2str(tt) ' aux iter: ' num2str(aa)])
