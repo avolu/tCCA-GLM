@@ -52,15 +52,13 @@ flag_plot = true;
 
 
 % Validation parameters
-% tlags = 0:1:10;
-% stpsize = 2:2:24;
-% cthresh = 0:0.1:0.9;
+tlags = 0:1:10;
+stpsize = 2:2:24;
+cthresh = 0:0.1:0.9;
 
-tlags = 4;
-stpsize = 1;
-cthresh = 4;
-
-
+% tlags = 4;
+% stpsize = 1;
+% cthresh = 4;
 
 tlidx =0;
 stpidx =0;
