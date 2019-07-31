@@ -9,9 +9,9 @@ if malexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
-    path.code = 'E:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
-    path.save = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
@@ -42,8 +42,8 @@ eval_param.post = 10;
 % CCA parameters
 flags.pcaf =  [0 0]; % no pca of X or AUX
 flags.shrink = true;
-% perform old cca or regularized (rtcca)
-rtccaflag = true;
+% perform regularized (rtcca) (alternatively old approach)
+rtccaflag = false;
 
 %motion artifact detection
 motionflag = true;
@@ -52,13 +52,13 @@ flag_plot = true;
 
 
 % Validation parameters
-tlags = 0:1:10;
-stpsize = 2:2:24;
-cthresh = 0:0.1:0.9;
+% tlags = 0:1:10;
+% stpsize = 2:2:24;
+% cthresh = 0:0.1:0.9;
 
-% tlags = 4;
-% stpsize = 1;
-% cthresh = 4;
+tlags = 4;
+stpsize = 8;
+cthresh = 6;
 
 tlidx =0;
 stpidx =0;
@@ -158,6 +158,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
                 
                 %zscore
                 aux_emb=zscore(aux_emb);
+                
                 %% set correlation trheshold for CCA to 0 so we dont lose anything here
                 param.ct = 0;   % correlation threshold
                 %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];
