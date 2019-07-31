@@ -9,18 +9,18 @@ if malexflag
     path.save = 'C:\Users\mayucel\Google Drive\tCCA_GLM_PAPER'; % save directory
 else
     %Alex
-    path.code = 'D:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
-    path.dir = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
-    path.save = 'C:\Users\avolu\Google Drive\tCCA_GLM_PAPER'; % save directory
+    path.code = 'E:\Office\Research\Software - Scripts\Matlab\Regression tCCA GLM\tCCA-GLM'; addpath(genpath(path.code)); % code directory
+    path.dir = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER\FB_RESTING_DATA'; % data directory
+    path.save = 'C:\Users\mladm\Google Drive\tCCA_GLM_PAPER'; % save directory
 end
 
 % #####
 %% simulated data file names
-filename = 'resting_sim_20';
+filename = 'resting_sim_50';
 %% load ground truth hrf
-hrf = load([path.code '\sim HRF\hrf_simdat_20.mat']);
+hrf = load([path.code '\sim HRF\hrf_simdat_50.mat']);
 %% save folder name
-sfoldername = '\CV_results_data_20';
+sfoldername = '\CV_results_data_50';
 % flag for mse/corr for each trial (1 = get sum of mse for each trial, 0 = get mse for average estimated hrf)
 flag_trial = 0;
 
@@ -31,7 +31,7 @@ sbjfolder = {'Subj33','Subj34','Subj36','Subj37','Subj38','Subj39', 'Subj40', 'S
 
 %% Options/Parameter Settings
 rhoSD_ssThresh = 15;  % mm
-flag_save = 1;
+flag_save = 0;
 flag_conc = 1; % if 1 CCA inputs are in conc, if 0 CCA inputs are in intensity
 % results eval parameters
 eval_param.HRFmin = -2;
@@ -48,13 +48,17 @@ rtccaflag = true;
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 
 % Validation parameters
 tlags = 0:1:10;
 stpsize = 2:2:24;
 cthresh = 0:0.1:0.9;
+
+% tlags = 4;
+% stpsize = 1;
+% cthresh = 4;
 
 tlidx =0;
 stpidx =0;
@@ -66,7 +70,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 1:numel(sbjfolder) % loop across subjects
+for sbj = 4% 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
@@ -113,7 +117,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     trntst = {[1,2], [2,1]};
     
     %% run test and train CV splits
-    for tt = 1:2
+    for tt = 2%1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
         
@@ -152,6 +156,8 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     aux_emb=[aux_emb aux];
                 end
                 
+                %zscore
+                aux_emb=zscore(aux_emb);
                 %% set correlation trheshold for CCA to 0 so we dont lose anything here
                 param.ct = 0;   % correlation threshold
                 %% Perform CCA on training data % AUX = [acc1 acc2 acc3 PPG BP RESP, d_short];

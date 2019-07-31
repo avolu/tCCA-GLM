@@ -4,7 +4,7 @@ clear all
 %% SCRIPT CONFIGURATION
 % +++++++++++++++++++++++
 % user: 1 Meryem | 0 Alex
-melexflag = 0;
+melexflag = 1;
 % select which hrf amplitude data: 1 (20%), 2 (50%) or 3 (100%)
 hhh = [1 2 3];
 % select which metric type: 1 (average of single trial HRF RMSEs), 2: RMSE of block average HRF
@@ -22,7 +22,7 @@ plot50st = true;
 % plot corresponding number to local optimum in obj function contour plots
 lopttext = false;
 % save plots
-saveplot = true;
+saveplot = false;
 %% parameters for determining optima
 % normalize metrics: 1 X/max | 2 (X-min)/(max-min)
 Jparam.nflag = 2;
