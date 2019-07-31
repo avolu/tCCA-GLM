@@ -187,7 +187,7 @@ HbO_Total_Sign_Ch_CCA = sum(lst_sig_CCA(1,:))
 
 
 %% Scatter plot HbO/HbR p-value in log scale
-Hb = 1; % HbO:1 ; HbR:2
+Hb = 1 % HbO:1 ; HbR:2
 foo1 = squeeze(pval_SS(:,Hb,:));
 foo1 = reshape(foo1,1,size(foo1,1)*size(foo1,2));
 lst_ss = find(foo1<=0.05);
