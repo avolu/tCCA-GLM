@@ -43,8 +43,8 @@ flag_plot = false;
 
 % Optimum CCA parameters (obtained through cross-validation analysis of resting data -see tCCA folder)
 timelag = 3;
-sts = 16
-cthresh = 0.5;
+sts = 2;
+cthresh = 0.3;
 
 tic;
 
@@ -234,24 +234,28 @@ grid
 
 % sign channels
 % ss
-mean(lst_sig_SS(Hb,:))
-std(lst_sig_SS(Hb,:))
+fprintf('mean # of sign channels for SS:   %.4d \n',mean(lst_sig_SS(Hb,:)));
+fprintf('std # of sign channels for SS:   %.4d \n',std(lst_sig_SS(Hb,:)));
+
 
 % cca
-mean(lst_sig_CCA(Hb,:))
-std(lst_sig_CCA(Hb,:))
+fprintf('mean # of sign channels for tCCA:   %.4d \n',mean(lst_sig_CCA(Hb,:)));
+fprintf('std # of sign channels for tCCA:   %.4d \n',std(lst_sig_CCA(Hb,:)));
+
 
 [h,p,c,stats]=ttest(lst_sig_SS(Hb,:),lst_sig_CCA(Hb,:));
-
-
+fprintf('P_value for ttest between SS and CCA # of sign channels:   %.4d \n', p);
 
 % p-values
 % ss
-mean(foo1(union(lst_ss,lst_cca)))
-std(foo1(union(lst_ss,lst_cca)))
+fprintf('mean p_value for SS:   %.4d \n',mean(foo1(union(lst_ss,lst_cca))));
+fprintf('std p_value for SS:   %.4d \n',std(foo1(union(lst_ss,lst_cca))));
 
 % cca
-mean(foo2(union(lst_ss,lst_cca)))
-std(foo2(union(lst_ss,lst_cca)))
+fprintf('mean p_value for CCA:   %.4d \n',mean(foo2(union(lst_ss,lst_cca))));
+fprintf('std p_value for CCA:   %.4d \n',std(foo2(union(lst_ss,lst_cca))));
+
 
 [h,p,c,stats]=ttest(foo1(union(lst_ss,lst_cca)),foo2(union(lst_ss,lst_cca)));
+fprintf('P_value for ttest between SS and CCA p_values:   %.4d \n', p);
+
