@@ -328,9 +328,13 @@ grid;
 noise_ss= [mean(noise_d_ss_1_830(:)),mean(noise_d_ss_2_830(:)),mean(noise_d_ss_3_830(:)),mean(noise_d_ss_4_830(:))]; % SS
 noise_cca= [mean(noise_d_cca_1_830(:)),mean(noise_d_cca_2_830(:)),mean(noise_d_cca_3_830(:)),mean(noise_d_cca_4_830(:))]; % SS
 [h,p_noise_1,c,stats]=ttest(noise_d_ss_1_830(:),noise_d_cca_1_830(:));
+fprintf('p_value for t-test between SS and tCCA for 0.01 < f < 0.1 Hz:   %.4d \n',p_noise_1);
 [h,p_noise_2,c,stats]=ttest(noise_d_ss_2_830(:),noise_d_cca_2_830(:));
+fprintf('p_value for t-test between SS and tCCA for 0.1 < f < 0.5 Hz:   %.4d \n',p_noise_2);
 [h,p_noise_3,c,stats]=ttest(noise_d_ss_3_830(:),noise_d_cca_3_830(:));
+fprintf('p_value for t-test between SS and tCCA for 0.5 < f < 1.5 Hz:   %.4d \n',p_noise_3);
 [h,p_noise_4,c,stats]=ttest(noise_d_ss_4_830(:),noise_d_cca_4_830(:));
+fprintf('p_value for t-test between SS and tCCA for 1.5 < f < 10 Hz:   %.4d \n',p_noise_4);
 
 group = [noise_ss',noise_cca'];
 foo= [noise_ss',noise_cca']'; foo = foo(:)';
