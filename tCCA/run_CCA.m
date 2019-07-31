@@ -1,7 +1,7 @@
 clear all;
 
 % ##### FOLLOWING TWO LINES NEED CHANGE ACCORDING TO USER!
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -43,7 +43,7 @@ eval_param.post = 10;
 flags.pcaf =  [0 0]; % no pca of X or AUX
 flags.shrink = true;
 % perform regularized (rtcca) (alternatively old approach)
-rtccaflag = false;
+rtccaflag = true;
 
 %motion artifact detection
 motionflag = true;
@@ -56,9 +56,9 @@ flag_plot = true;
 % stpsize = 2:2:24;
 % cthresh = 0:0.1:0.9;
 
-tlags = 4;
-stpsize = 8;
-cthresh = 6;
+tlags = 3;
+stpsize = 2;
+cthresh = 0.3;
 
 tlidx =0;
 stpidx =0;

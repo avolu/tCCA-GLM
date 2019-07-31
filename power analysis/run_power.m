@@ -1,6 +1,6 @@
 clear all;
 
-malexflag = 0;
+malexflag = 1;
 if malexflag
     %Meryem
     path.code = 'C:\Users\mayucel\Documents\PROJECTS\CODES\tCCA-GLM'; addpath(genpath(path.code)); % code directory
@@ -43,14 +43,8 @@ flag_plot = true;
 
 % Optimum CCA parameters (obtained through cross-validation analysis of resting data -see tCCA folder)
 timelag = 3; % in seconds
-sts = 32; % delta t = 0.64s = 32/50
-cthresh = 0.5;
-
-
-% Optimum CCA parameters (obtained through cross-validation analysis of resting data -see tCCA folder)
-timelag = 4; % in seconds
-sts = 8; % delta t = 0.16s = 8/50
-cthresh = 0.1;
+sts = 4 %  time step = 2, correct for 25 hz / 50 hz (delta t = 0.08s = 4/50) (this code is loading 50 hz data as opposed to rest of the functions)
+cthresh = 0.3;
 
 
 tic;
