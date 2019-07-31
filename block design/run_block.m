@@ -205,8 +205,8 @@ hold on;
 scatter(foo1(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))), foo2(lst_ss(find(~ismember(lst_ss,intersect(lst_ss,lst_cca))==1))),'rs');
 % sign only with CCA
 scatter(foo1(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))), foo2(lst_cca(find(~ismember(lst_cca,intersect(lst_ss,lst_cca))==1))),'gd');
-xlabel('pval-SS');
-ylabel('pval-CCA');
+xlabel('p-value for GLM with SS');
+ylabel('p-value for GLM with tCCA');
 set(gca,'xscale','log')
 set(gca,'yscale','log')
 plot([1e-12 1], [1e-12 1],'m');
