@@ -48,7 +48,7 @@ rtccaflag = true;
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = true;
+flag_plot = false;
 
 
 % Validation parameters
@@ -70,7 +70,7 @@ tic;
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
 
-for sbj = 4% 1:numel(sbjfolder) % loop across subjects
+for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
     
     %% (re-)initialize result matrices
@@ -117,7 +117,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
     trntst = {[1,2], [2,1]};
     
     %% run test and train CV splits
-    for tt = 2%1:2
+    for tt = 1:2
         tstIDX = spltIDX{trntst{tt}(1)};
         trnIDX = spltIDX{trntst{tt}(2)};
         
@@ -133,7 +133,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
         dc{tt} = hmrOD2Conc( dod, SD, [6 6]);
         
         %% Perform GLM with SS
-        [yavg_ss, yavgstd_ss, tHRF, nTrialsSS, d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
+        [yavg_ss(:,:,:,tt,sbj), yavgstd_ss, tHRF, nTrialsSS, d_ss, yresid_ss, ysum2_ss, beta_ss, yR_ss] = ...
             hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, [], [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], rhoSD_ssThresh, 1, 3, 0);
         
         %% CCA EVAL
@@ -187,7 +187,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
                     REG_tst = aux_emb*ADD_trn{tt}.Av_red;
                     
                     %% Perform GLM with CCA
-                    [yavg_cca, yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
+                    [yavg_cca(:,:,:,tt,sbj), yavgstd_cca, tHRF, nTrials(tt,tlidx,stpidx,ctidx), d_cca, yresid_cca, ysum2_cca, beta_cca, yR_cca] = ...
                         hmrDeconvHRF_DriftSS(dc{tt}, s(tstIDX,:), t(tstIDX,:), SD, REG_tst, [], [eval_param.HRFmin eval_param.HRFmax], 1, 1, [0.5 0.5], 0, 0, 3, 0);
                     
                     
@@ -205,7 +205,7 @@ for sbj = 4% 1:numel(sbjfolder) % loop across subjects
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
                         pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
                         CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
-                        results_eval(sbj, d_ss, d_cca, yavg_ss, yavg_cca, tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt,tlidx,stpidx,ctidx));
+                        results_eval(sbj, d_ss, d_cca, yavg_ss(:,:,:,tt,sbj), yavg_cca(:,:,:,tt,sbj), tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt,tlidx,stpidx,ctidx));
                     % Dimensions of output metrics
                     % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
                     % old:  #CH x 2(Hbo+HbR) x 2 (cv split) x SBJ x tlag x stepsize x corrthres
