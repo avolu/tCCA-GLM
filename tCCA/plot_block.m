@@ -1,6 +1,6 @@
 % load visual_probe_plot.SD -mat;
 %% plot cross-trial Mean with STD
-function plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd, nohrflist, hrf, nTrial)
+function [MEAN_SS_down, MEAN_CCA_down, tHRF_ds] = plot_block(MEAN_SS, MEAN_CCA, CORR_SS, CORR_CCA, MSE_SS, MSE_CCA, HRFmin, HRFmax, fq, pOxy_SS, pOxy_CCA,ss,STD_SS,STD_CCA, tHRF, timelag, sts, ctr, fpath,lstHrfAdd, nohrflist, hrf, nTrial)
 
 cd(fpath)
 load visual_probe_plot.SD -mat
@@ -33,6 +33,7 @@ for i = 1:size(MEAN_SS,3)
     end
 end
 tHRF = downsample(tHRF,nf);
+tHRF_ds = tHRF;
 
 
 
@@ -477,9 +478,6 @@ for i =lstLL'
 end
 % suptitle(['GLM with SS - HbO/HbR - Subject # '  num2str(ss) ',  t_l_a_g= ' num2str(timelag) ' sec,  stpsize= ' num2str(sts) ' samples,  cthresh= ' num2str(ctr)]) ;
 suptitle('GLM with SS - HbO/HbR') ;
-
-
-
 
 
 figure;

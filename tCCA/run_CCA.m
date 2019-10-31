@@ -48,7 +48,7 @@ rtccaflag = true;
 %motion artifact detection
 motionflag = true;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 
 % Validation parameters
@@ -69,6 +69,7 @@ tic;
 %iteration number
 iterno = 1;
 totiter = numel(sbjfolder)*2*numel(tlags)*numel(stpsize)*numel(cthresh);
+lstHrfAdd_sbj = zeros(14,34); % hard coded! number of subjects X number of channels
 
 for sbj = 1:numel(sbjfolder) % loop across subjects
     disp(['subject #' num2str(sbj)]);
@@ -89,7 +90,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
     
     %% load data
     [fq, t, AUX, d_long, d_short, d0_long, d0_short, d, d0, SD, s, lstLongAct,lstShortAct,lstHrfAdd] = load_nirs(filename,flag_conc);
-    
+    lstHrfAdd_sbj(sbj, 1:size(lstHrfAdd,1)) = lstHrfAdd(:,1);
     %% lowpass filter AUX signals
     AUX = hmrBandpassFilt(AUX, fq, 0, 0.5);
     %% AUX signals
@@ -204,7 +205,7 @@ for sbj = 1:numel(sbjfolder) % loop across subjects
                     %% EVAL / PLOT
                     [DET_SS(:,:,tt,tlidx,stpidx,ctidx), DET_CCA(:,:,tt,tlidx,stpidx,ctidx), pval_SS(:,:,tt,tlidx,stpidx,ctidx), ...
                         pval_CCA(:,:,tt,tlidx,stpidx,ctidx), ROCLAB, MSE_SS(:,:,tt,tlidx,stpidx,ctidx), MSE_CCA(:,:,tt,tlidx,stpidx,ctidx), ...
-                        CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx)] = ...
+                        CORR_SS(:,:,tt,tlidx,stpidx,ctidx), CORR_CCA(:,:,tt,tlidx,stpidx,ctidx) , MEAN_SS_down(:,:,:,tt,sbj), MEAN_CCA_down(:,:,:,tt,sbj), tHRF_ds] = ...
                         results_eval(sbj, d_ss, d_cca, yavg_ss(:,:,:,tt,sbj), yavg_cca(:,:,:,tt,sbj), tHRF, timelag, sts, ctr, lst_stim, SD, fq, lstHrfAdd, lstLongAct, eval_param, flag_plot, path, hrf, flag_trial, nTrials(tt,tlidx,stpidx,ctidx));
                     % Dimensions of output metrics
                     % #CH x 2(Hbo+HbR) x 2 (cv split) x tlag x stepsize x corrthres
