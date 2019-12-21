@@ -1,0 +1,1 @@
+We do not own any copyright to the publicly available helper functions provided in this folder. Please read the respective LICENSE files for details.
