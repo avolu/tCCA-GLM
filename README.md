@@ -2,6 +2,7 @@
 ## Purpose and Publication
 This README provides a brief documentation for the code and data provided in this repository that is linked with the following [publication](https://www.sciencedirect.com/science/article/pii/S1053811919305129/):
 > A. von Lühmann, X. Li, K.-R. Müller, D.A. Boas and M.A. Yücel, 2019, *Improved physiological noise regression in fNIRS: A multimodal extension of the General Linear Model using temporally embedded Canonical Correlation Analysis*, NeuroImage, vol. X, no. X, doi: XXX 
+
 Please cite this work when using any of the presented methods or code.
 
 ## Directory Structure
