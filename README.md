@@ -1,7 +1,7 @@
 # Readme for tCCA-GLM Repository
 ## Purpose and Publication
-This README provides a brief documentation for the code and data provided in this repository that is linked with the following [publication](https://www.sciencedirect.com/science/article/pii/S1053811919305129/):
-> A. von Lühmann, X. Li, K.-R. Müller, D.A. Boas and M.A. Yücel, 2019, *Improved physiological noise regression in fNIRS: A multimodal extension of the General Linear Model using temporally embedded Canonical Correlation Analysis*, NeuroImage, vol. X, no. X, doi: XXX 
+This README provides a brief documentation for the code and data provided in this repository that is linked with the following [publication](https://www.sciencedirect.com/science/article/pii/S1053811919310638):
+> A. von Lühmann, X. Li, K.-R. Müller, D.A. Boas and M.A. Yücel, 2019, *Improved physiological noise regression in fNIRS: A multimodal extension of the General Linear Model using temporally embedded Canonical Correlation Analysis*, NeuroImage, vol. X, no. X, doi: https://doi.org/10.1016/j.neuroimage.2019.116472 
 
 Please cite this work when using any of the presented methods or code.
 
