@@ -7,7 +7,7 @@ Please cite this work when using any of the presented methods or code.
 
 ## Directory Structure
 **.../block design**
-- MERYEM PLEASE ADD
+- scripts to estimate hrf for the visual stimulation data using tCCA
 
 **.../data**
 
@@ -36,10 +36,11 @@ Please cite this work when using any of the presented methods or code.
 
 ## How To Reproduce Figures
 The following list points to the analysis scripts that generate the results and figures of the publication:
-- Figure 2: MERYEM PLEASE FILL IN
+- Figure 2A: .../tCCA/fig2A_hrf_comp.m
+- Figure 2B: .../tCCA/run_CCA.m
 - Figure 6: .../tCCA/eval_and_plot_CVresults.m
 - Figure 7: .../tCCA/eval_and_plot_invAUXresults.m
-- Figure 8: .../power analysis/run_power.m  MERYEM PLEASE CHECK
+- Figure 8: .../power analysis/run_power.m  
 - Figure 9: .../tCCA/eval_and_plot_CVresults.m
 - Figure 10: .../tCCA/eval_and_plot_CVresults.m
 - Figure 11: .../block design/results_eval_block.m
