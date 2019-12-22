@@ -7,7 +7,7 @@ Please cite this work when using any of the presented methods or code.
 
 ## Directory Structure
 **.../block design**
-- scripts to estimate hrf for the visual stimulation data using tCCA
+- scripts to estimate hrf for the visual stimulation data using tCCA GLM
 
 **.../data**
 
