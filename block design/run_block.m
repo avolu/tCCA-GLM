@@ -38,7 +38,7 @@ motionflag = false;
 % prune
 flag_prune = false;
 %plot flag
-flag_plot = false;
+flag_plot = true;
 
 
 % Optimum CCA parameters (obtained through cross-validation analysis of resting data -see tCCA folder)

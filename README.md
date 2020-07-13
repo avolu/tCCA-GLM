@@ -43,6 +43,6 @@ The following list points to the analysis scripts that generate the results and 
 - Figure 8: .../power analysis/run_power.m  
 - Figure 9: .../tCCA/eval_and_plot_CVresults.m
 - Figure 10: .../tCCA/eval_and_plot_CVresults.m
-- Figure 11: .../block design/results_eval_block.m
+- Figure 11: .../block design/run_block.m
 - Figure C1 and C2: .../tCCA/eval_and_plot_CVresults.m
 
